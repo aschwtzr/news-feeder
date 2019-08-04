@@ -8,7 +8,9 @@ export const RECEIVE_BRIEFINGS = 'briefings/RECEIVE_BRIEFINGS'
 const initialState = {
   briefings: 0,
   isFetching: false,
-  isDecrementing: false
+  isDecrementing: false,
+  briefings: [],
+  briefingsBySource: []
 }
 
 const tree = {

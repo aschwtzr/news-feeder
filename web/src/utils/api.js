@@ -7,7 +7,7 @@ const baseAxios = axios.create({
   responseType: "json"
 })
  
-export const fetchNewsSources = function () {
+export const getFeedSources = function () {
   return baseAxios.get(`${baseURL}/sources`)
 }
 
