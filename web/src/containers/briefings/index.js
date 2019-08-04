@@ -1,5 +1,5 @@
 import React from 'react'
-import ScrollingBriefingTable from '../components/briefings/ScrollingBriefingTable';
+import ScrollingBriefingTable from '../../components/briefings/ScrollingBriefingTable';
 
 
 const Briefings = props => (

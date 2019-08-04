@@ -1,9 +1,10 @@
 import React from 'react';
 import './ScrollingTable.css';
-import { List, Button, Icon } from 'antd';
+import { List, Button } from 'antd';
 import "antd/dist/antd.css";
 import BriefingSourceRow from './BriefingSourceRow'
-import { getBriefings } from '../../../utils/api'
+import { getBriefings } from '../../utils/api'
+import SourcesMenu from '../sources-menu/SourcesMenu'
 
 class ScrollingBriefingTable extends React.Component {
   constructor(props) {
@@ -56,7 +57,7 @@ class ScrollingBriefingTable extends React.Component {
     return (
       <div>
         <header className="briefingTableHeader">
-          <nav className="floating-menu"><Icon type="setting"  /></nav>
+          <SourcesMenu />
           <p>
             Welcome. Today's date is {this.state.today}
           </p>

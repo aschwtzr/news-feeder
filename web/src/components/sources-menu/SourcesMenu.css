@@ -1,0 +1,8 @@
+.floating-menu {
+  font-family: sans-serif;
+  padding: 5px;
+  z-index: 100;
+  position: fixed;
+  right: 0;
+  cursor: pointer;
+}
