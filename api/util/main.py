@@ -32,8 +32,8 @@ def get_all ():
   return ret_val
 
 def get_smmry_for(source):
-      feed = get_feed_for(source)
-    summ = news_formatter.get_summaries(feed, 4)
+    feed = get_feed_for(source)
+    summ = news_formatter.get_summaries_from_feed(feed, 4)
     headlines = ''
     for article in summ["articles"]:
       headlines += "{title}\n====\n{content}\n\n".format(title=article["title"], content=article["content"])

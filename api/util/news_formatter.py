@@ -6,10 +6,14 @@ from gensim.summarization import keywords
 from gensim.summarization.summarizer import summarize
 from collections import defaultdict
 import re
+from util.description_parsers import parsers
+from util.api import get_feed_for
 
 last = ''
 
-def parse_feed_xml (data):
+# parse xml feed into soup
+def parse_feed_xml (source):
+  data = get_feed_for(source)
   soup = BeautifulSoup(data, 'xml')
   return soup
 
@@ -42,27 +46,19 @@ def get_briefing (data, max):
   return ret_val, summary
 
 # gets headlines and summary for rss feed
-def get_headlines_for_rss_feed (data, limit):
-  soup = parse_feed_xml(data)
+def get_headlines_for_source (source, limit):
+  soup = parse_feed_xml(source)
   title = soup.title.string
   ret = defaultdict(list)
   ret["source"] = title
-
   print(title)
+
   items = soup.find_all("item")
 
   item_index = 0
   for item in items:
-    item_soup = BeautifulSoup(item.description.get_text(), "html.parser")
-    print("SOUP")
-    print(item_soup)
-    print("TEXT")
-    print(item)
-    article = {
-      'title': item.title.string,
-      'content': item_soup.get_text(),
-      'link': item.link.get_text()
-    }
+    article = parsers[source](item) 
+
     ret["articles"].append(article)
     item_index += 1
     if item_index >= limit:
@@ -72,22 +68,25 @@ def get_headlines_for_rss_feed (data, limit):
   ret["summary"] = summary
   return ret
 
-# summarize rss feed articles using SMMRY g
+# summarize text using gensim
 def summarize_articles (articles):
   raw_summary = ""
   print(len(articles))
   for article in articles:
     raw_summary += "{} . ".format(article["content"])
+
+  summ = summarize(raw_summary, ratio=.7, split=False)
   print(raw_summary)
+  print(summ)
 
-  return summarize(raw_summary, ratio=.7, split=True)
+  return summ
 
-def get_summaries (data, max = 2):
-  soup = parse_feed_xml(data)
+# summarize rss feed articles using SMMRY
+def get_summaries_from_source (source, max = 2):
+  soup = parse_feed_xml(source)
   title = soup.title.string
   ret = defaultdict(list)
   ret["source"] = title
-  # print(title)
 
   items = soup.find_all("item")
   item_index = 0
@@ -95,11 +94,10 @@ def get_summaries (data, max = 2):
     result = util.api.get_summary(item.link.string)
     parsed = json.loads(result)
     if "sm_api_error" not in parsed:
-      # print("{}\n".format(parsed['sm_api_title']))
-      # print("{}\n\n".format(parsed['sm_api_content']))
       article = {
         'title': "{}".format(parsed['sm_api_title']),
         'content': "{}".format(parsed['sm_api_content']),
+        'link': item.link.string
       }
       ret["articles"].append(article)
       ret["api_limitation"] = '+++ {} +++'.format(parsed["sm_api_limitation"])
@@ -108,13 +106,5 @@ def get_summaries (data, max = 2):
         break
       time.sleep(10)
 
-  print(last)
-  print(ret)
-  print("\n\n\n\n\n")
   return ret
-
-
-# def summarize_content(articles):
-#   summary = ''
-#   for article in articles: 
     
