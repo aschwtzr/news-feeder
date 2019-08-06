@@ -24,7 +24,7 @@ class ScrollingBriefingTable extends React.Component {
   async getBriefings (source) {
     this.setState({isLoading: true})
     try {
-      let results = getBriefings('/headlines').then(function (results) {
+      getBriefings('/headlines').then(function (results) {
         this.setState({briefings: results.data.headlines})
         this.setState({isLoading: false})
       }.bind(this))
