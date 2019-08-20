@@ -5,7 +5,6 @@ export const FETCH_BRIEFING_FAILURE = 'briefings/FETCH_BRIEFING_FAILURE'
 
 const initialState = {
   isFetching: false,
-  isDecrementing: false,
   briefings: [],
   briefingsBySource: [],
   fetchError: undefined
@@ -69,14 +68,14 @@ export const fetchBriefingRequest = (source, limit) => {
 
 export const fetchBriefingSuccess = (results) => {
   return {
-    type: FETCH_BRIEFING_REQUEST,
+    type: FETCH_BRIEFING_SUCCESS,
     results
   }
 }
 
 export const fetchBriefingFailure = (error) => {
   return {
-    type: FETCH_BRIEFING_REQUEST,
+    type: FETCH_BRIEFING_FAILURE,
     fetchError: error
   }
 }
