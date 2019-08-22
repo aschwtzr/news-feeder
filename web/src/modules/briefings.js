@@ -10,26 +10,6 @@ const initialState = {
   fetchError: undefined
 }
 
-const tree = {
-  sources: {
-    byId: {
-      id: '',
-      briefings: ['articleId', 'articleIdo']
-    },
-    all: ['bbc', 'dw']
-  },
-  briefings: {
-    byId: {
-      id: 'hashed-title',
-      content: '',
-      url: '',
-      date: '',
-      author: ''
-    },
-    all: ['article1', 'article2']
-  }
-}
-
 // REDUCERS
 export default (state = initialState, action) => {
   switch (action.type) {

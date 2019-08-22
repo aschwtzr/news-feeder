@@ -6,15 +6,10 @@ def parse_description_for_source (description, source):
   return description
 
 def parse_google (article):
-  print("ITEM")
-  print(article)
-  print("SOUP")
+
   item_soup = BeautifulSoup(article.description.get_text(), "html.parser")
-  
-  print(item_soup)
-  print("TEXT")
   print(item_soup.get_text())
-  print("\n\n")
+  # TODO: do something
 
   article = {
     'title': article.title.string,
@@ -32,7 +27,7 @@ def parse_default (article):
   return article
 
 parsers = {
-  'google': parse_google,
+  'google': parse_default,
   'default': parse_default,
   'reuters': parse_default,
   'bbc': parse_default,

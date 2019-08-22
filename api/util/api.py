@@ -9,7 +9,8 @@ world_news_feeds = {
   "dw": 'http://rss.dw.com/rdf/rss-en-world',
   "guardian": 'https://www.theguardian.com/world/rss',
   "reddit": 'https://www.reddit.com/.rss',
-  "custom": 'https://news.google.com/rss/search?q=&hl=en-US&gl=US&ceid=US:en'
+  "custom": 'https://news.google.com/rss/search?q=&hl=en-US&gl=US&ceid=US:en',
+  "yahoo": "https://www.yahoo.com/news/rss/world",
 }
 
 def get_feed_for (resource):
@@ -28,7 +29,7 @@ def get_article (uri):
 
 def get_summary (uri):
   key = os.environ.get('SUMMRY_KEY')
-  request_uri = f"https://api.smmry.com?SM_API_KEY={key}&SM_URL={uri}"
+  request_uri = f"https://api.smmry.com?SM_API_KEY={key}&SM_URL={uri}&SM_LENGTH=5"
   result = requests.get(request_uri)
   return result.text
 

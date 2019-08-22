@@ -8,7 +8,7 @@ import './index.css'
 const App = () => (
   <div>
     <header className="navigation-bar">
-      <Link to="/">Home</Link>
+      {/* <Link to="/">Home</Link> */}
       <Link to="/about-us">About</Link>
       <Link to="/briefings">Briefings</Link>
     </header>

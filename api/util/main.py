@@ -1,4 +1,5 @@
 import news_formatter
+import google_summaries
 import time
 import api
 import random
@@ -46,13 +47,14 @@ def get_smmry_for(source):
 
 
 def main ():
-  global filename
-  summary = ''
-  with open(filename, "a") as output_file:
+  get_google_world_news()
+  # global filename
+  # summary = ''
+  # with open(filename, "a") as output_file:
     # news = get_all()
     # output_file.write(news)
-    get_smmry_for("guardian")
-    output_file.write("TODAY\n{today}\n=====\n{source}\n\n{headlines}\n###".format(today=today, source=summ["source"], headlines=headlines))
+    # get_smmry_for("guardian")
+    # output_file.write("TODAY\n{today}\n=====\n{source}\n\n{headlines}\n###".format(today=today, source=summ["source"], headlines=headlines))
 
 
 main()

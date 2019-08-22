@@ -1,5 +1,6 @@
 from app import app
 import util.news_formatter
+import util.google_summaries
 from util.api import get_feed_for, get_rss_sources
 from flask import request
 from flask import jsonify
@@ -7,7 +8,7 @@ from collections import defaultdict
 
 import datetime
 
-news_sources = ["google", "bbc", "dw", "guardian"]
+news_sources = ["bbc", "dw", "guardian", "yahoo"]
 
 @app.route('/')
 @app.route('/index')
@@ -73,4 +74,21 @@ def get_summaries():
     ret["headlines"].append(headlines)
   ret["ok"] = True
   print(ret)
+  return jsonify(ret)
+
+# list of available news sources
+@app.route('/google-news', methods=(['GET']))
+def get_google():
+  summarize = request.args.get('summarize')
+  limit = request.args.get('limit')
+  if limit is None:
+    limit = 2
+  else: limit = int(limit)
+
+  feed = util.google_summaries.get_google_world_news()
+  if summarize == 'true':
+    news = util.news_formatter.get_summaries_from_google_headlines(feed, limit)
+  else:
+    news = feed
+  ret = { 'ok': True, 'news': news }
   return jsonify(ret)

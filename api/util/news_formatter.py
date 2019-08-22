@@ -54,18 +54,20 @@ def get_headlines_for_source (source, limit):
   print(title)
 
   items = soup.find_all("item")
-
   item_index = 0
   for item in items:
-    article = parsers[source](item) 
-
+    article = {
+      'title': item.title.string,
+      'content': item.description.get_text(),
+      'link': item.link.string
+    }
     ret["articles"].append(article)
     item_index += 1
     if item_index >= limit:
       break
-
-  summary = summarize_articles(ret["articles"])
-  ret["summary"] = summary
+  print(ret)
+  # summary = summarize_articles(ret["articles"])
+  # ret["summary"] = summary
   return ret
 
 # summarize text using gensim
@@ -107,4 +109,39 @@ def get_summaries_from_source (source, max = 2):
       time.sleep(10)
 
   return ret
+
+def get_summaries_from_google_headlines (news, max = 2):
+  ret = news
+  api_limitation = ''
+  news_index = 0
+  for news_obj in news:
+    article_index = 0
+    raw_summary = ''
+    for article in news_obj['articles']:
+      print(article['title'])
+      res = summry_from_url(article['url'])
+      if res['ok'] == True:
+        api_limitation = res['api_limitation']
+        ret[news_index]['articles'][article_index]['summary'] = res['summary']
+        raw_summary += "{} . ".format(res['summary'])
+      article_index += 1
     
+    ret[news_index]['summary'] = summarize(raw_summary, ratio=.7, split=False)
+    news_index += 1
+    if news_index >= max:
+      break
+  # ret['api_limitation'] = api_limitation
+  return {'news': ret, 'api_limitation': api_limitation}
+      
+def summry_from_url (url):
+  ret = {}
+  result = util.api.get_summary(url)
+  parsed = json.loads(result)
+  if "sm_api_error" not in parsed:
+    ret["summary"] = "{}".format(parsed['sm_api_content'])
+    ret["api_limitation"] = '+++ {} +++'.format(parsed["sm_api_limitation"])
+    ret['ok'] = True
+    time.sleep(10)
+    return ret
+  else:
+    return {'ok': False, 'err': parsed['sm_api_error']}
