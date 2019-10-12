@@ -2,6 +2,9 @@
 #scripts
 start_flask.sh
 
+#experimental
+api/experimental
+
 # dependencies
 web/node_modules
 

@@ -8,10 +8,9 @@ from collections import defaultdict
 
 import datetime
 
-news_sources = ["bbc", "dw", "guardian", "yahoo"]
+news_sources = ["bbc", "dw", "guardian"]
 
 @app.route('/')
-@app.route('/index')
 @app.route('/index')
 def index():
   ret = {'ok': True}
@@ -32,7 +31,7 @@ def get_headlines():
   req_source = request.args.get('source')
   req_limit = request.args.get('limit')
   if req_limit is None:
-    limit = 4
+    limit = 8
   else: limit = int(req_limit)
 
   ret = defaultdict(list)
@@ -76,15 +75,16 @@ def get_summaries():
   print(ret)
   return jsonify(ret)
 
-# list of available news sources
+# get google news summaries 
 @app.route('/google-news', methods=(['GET']))
 def get_google():
   summarize = request.args.get('summarize')
   limit = request.args.get('limit')
+  
   if limit is None:
     limit = 2
   else: limit = int(limit)
-
+  print(f'request params: limit: {limit} summarize: {summarize}')
   feed = util.google_summaries.get_google_world_news()
   if summarize == 'true':
     news = util.news_formatter.get_summaries_from_google_headlines(feed, limit)

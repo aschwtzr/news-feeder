@@ -8,7 +8,7 @@ def get_google_world_news ():
   soup = BeautifulSoup(data, 'xml')
   items = soup.findAll('item')
   news_bullets = []
-  # print(items)
+  print(f'items count: {len(items)}')
   for headline in items:
     news_item = defaultdict(list)
     media = headline.find('content')
@@ -25,7 +25,7 @@ def get_google_world_news ():
       title_text = a.get_text()
       break_index = title_text.find('-')
       article = {
-        'title': title_text[0:break_index + 1],
+        'title': title_text,
         'url': a['href'],
         'source': bullet.find('font').get_text()
       }
