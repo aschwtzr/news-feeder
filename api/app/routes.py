@@ -16,15 +16,6 @@ def index():
   ret = {'ok': True}
   return jsonify(ret)
 
-# news briefing with smmry API
-@app.route('/briefing', methods=(['GET']))
-def get_briefing():
-  try: source = request.args.get('source')
-  except NameError: source = None
-
-  if source is None:
-    get_briefing() 
-
 # rss feeds with local python summaries
 @app.route('/headlines', methods=(['GET']))
 def get_headlines():

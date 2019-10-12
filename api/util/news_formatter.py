@@ -9,43 +9,13 @@ import re
 from util.description_parsers import parsers
 from util.api import get_feed_for
 
-last = ''
-
 # parse xml feed into soup
 def parse_feed_xml (source):
   data = get_feed_for(source)
   soup = BeautifulSoup(data, 'xml')
   return soup
 
-# assembles text output of summaries
-def get_briefing (data, max):
-  summary = ''
-  output_text = ''
-  get_headlines()
-  # print(items)
-  item_index = 0
-  for item in items:
-    item_title = item.title.string
-    # print(item_title)
-    output_text += "{}\n\n".format(item_title)
-    item_soup = BeautifulSoup(item.description.get_text(), "html.parser")
-    description = item_soup.get_text()
-    output_text += "{}\n\n\n".format(description)
-    summary += "{} ".format(description)
-    item_index += 1
-    if item_index >= max:
-      break
-  print("collection")
-  print(summary)
-  output_text += '###\n\n\n'
-  summ = summarize(summary)
-  print("summarized")
-  print(summ)
-  ret_val = "SUMMARY\n\n{summ}===========\n\nHEADLINES\n\n{headlines}".format(summ=summ, headlines=output_text)
-
-  return ret_val, summary
-
-# gets headlines and summary for rss feed
+# gets headlines and summary from rss feed
 def get_headlines_for_source (source, limit):
   soup = parse_feed_xml(source)
   title = soup.title.string
