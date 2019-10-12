@@ -41,6 +41,7 @@ class ScrollingBriefingTable extends React.Component {
     if (this.state.briefings.length >= 1) {
       return <List
         bordered
+        style={{backgroundColor: 'rgba(51, 101, 138, .8)'}}
         dataSource={this.state.briefings}
         renderItem={item => (
           <List.Item>
@@ -56,7 +57,7 @@ class ScrollingBriefingTable extends React.Component {
   render() {
     return (
       <div>
-        <header className="briefingTableHeader">
+        <header className="briefingTableHeader" style={{backgroundColor: 'rgba(51, 101, 138, .8)'}}>
           <SourcesMenu />
           <p>
             Welcome. Today's date is {this.state.today}

@@ -4,12 +4,36 @@ import PropTypes from "prop-types";
 import './ScrollingTable.css';
 
 class BriefingSourceRow extends React.Component {
-  state = {
-    showSummary: false,
+  constructor(props) {
+    super(props);
+    this.state = {
+      showSummary: false,
+      unfurledSummaries: []
+    }
+    
+    this.toggleSummary = this.toggleSummary.bind(this)
+    this.summary = this.summary.bind(this)
   }
-  
-  toggleSummary () {
-    this.setState({showSummary: !this.state.showSummary})
+
+  toggleSummary (index) {
+    const cardIndex = this.state.unfurledSummaries.indexOf(index)
+    const newUnfurled = [...this.state.unfurledSummaries]
+    if (cardIndex > -1) {
+      newUnfurled.splice(index, 1)
+    } else {
+      newUnfurled.push(index)
+    }
+    this.setState({ unfurledSummaries: newUnfurled})
+  }
+
+  summary (index, content) {
+    if (this.state.unfurledSummaries.indexOf(index) > -1) {
+      return  <div>
+          {content} 
+        </div>
+    } else {
+      return <div/>
+    }
   }
 
   render() {
@@ -17,7 +41,6 @@ class BriefingSourceRow extends React.Component {
     return (
         <div >
           <h2 
-            onClick={ () => { this.setState({showSummary: !this.state.showSummary}) } }
             className="header">
             {source}</h2>
           <div className={this.state.showSummary ? 'summary_visible' : 'summary_hidden'}>{summary}</div>
@@ -29,16 +52,15 @@ class BriefingSourceRow extends React.Component {
             flexDirection: 'colmn',
             alignItems: 'center'
           }}
-          renderItem={article => (
+          renderItem={(article, index) => (
             <List.Item>
               <Card 
                 title={article.title} 
-                style={{backgroundColor: 'rgba(51, 101, 138, .8)', minHeight: '15rem', width: '80vw' }}
+                onClick={ () => this.toggleSummary(index) }
+                style={{minHeight: '2rem', width: '80vw', cursor: 'pointer' }}
                 extra={<a href={article.link} >Source</a>} 
                   >
-                <div>
-                  {article.content}
-                </div>
+                { this.summary(index, article.content) }
               </Card>
             </List.Item>
           )}
