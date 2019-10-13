@@ -12,7 +12,7 @@ export const getFeedSources = function () {
 }
 
 export const getBriefings = function () {
-  return baseAxios.get('/headlines')
+  return baseAxios.get('/briefings')
 }
 
 export const base = function () {

@@ -17,10 +17,11 @@ def index():
   return jsonify(ret)
 
 # rss feeds with local python summaries
-@app.route('/headlines', methods=(['GET']))
+@app.route('/briefings', methods=(['GET']))
 def get_headlines():
   req_source = request.args.get('source')
   req_limit = request.args.get('limit')
+  req_summarize = request.args.get('summarize')
   if req_limit is None:
     limit = 8
   else: limit = int(req_limit)
@@ -30,10 +31,11 @@ def get_headlines():
     for source in default_sources:
       # feed = get_feed_for(item)
       headlines = util.feed_getters.get_feed_for_source(source, limit)
-      ret["headlines"].append(headlines)
+      ret["briefings"].append(headlines)
   else:
     headlines = util.feed_getters.get_feed_for_source(source, limit)
-    ret["headlines"].append(headlines)
+    ret["briefings"].append(headlines)
+  
   ret["ok"] = True
   return jsonify(ret)
 
