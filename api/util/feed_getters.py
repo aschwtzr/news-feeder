@@ -3,10 +3,14 @@ from bs4 import BeautifulSoup
 import util.api
 from collections import defaultdict
 
-def get_google_world_news ():
+# google news world rss feed
+# feed <description> is a list of articles
+# return format: [{ title: 'high level headline', articles: [{ source, title, url}]},]
+def get_google_world_news_feed ():
   data = util.api.get_feed_for('google')
   soup = BeautifulSoup(data, 'xml')
   items = soup.findAll('item')
+  print(items)
   news_bullets = []
   print(f'items count: {len(items)}')
   for headline in items:
@@ -23,7 +27,6 @@ def get_google_world_news ():
         continue
       a = bullet.find('a')
       title_text = a.get_text()
-      break_index = title_text.find('-')
       article = {
         'title': title_text,
         'url': a['href'],
@@ -33,4 +36,26 @@ def get_google_world_news ():
     news_bullets.append(news_item)
   return news_bullets
 
-get_google_world_news()
+# gets headlines from rss feed
+# return format: [{ title: 'headline', content: 'provided article summary', link: 'url'}]
+def get_feed_for_source (source, limit):
+  if source is None:
+    print('must provide source')
+    return
+  soup = util.news_formatter.parse_feed_xml(source)
+  title = soup.title.string
+  ret = defaultdict(list)
+  ret["source"] = title
+  items = soup.find_all("item")
+  item_index = 0
+  for item in items:
+    article = {
+      'title': item.title.string,
+      'content': item.description.get_text(),
+      'url': item.link.string
+    }
+    ret["articles"].append(article)
+    item_index += 1
+    if item_index >= limit:
+      break
+  return ret

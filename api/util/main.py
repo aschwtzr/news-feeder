@@ -47,7 +47,7 @@ def get_smmry_for(source):
 
 
 def main ():
-  get_google_world_news()
+  get_google_world_news_feed()
   # global filename
   # summary = ''
   # with open(filename, "a") as output_file:

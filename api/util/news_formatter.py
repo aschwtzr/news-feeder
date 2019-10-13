@@ -6,7 +6,6 @@ from gensim.summarization import keywords
 from gensim.summarization.summarizer import summarize
 from collections import defaultdict
 import re
-from util.description_parsers import parsers
 from util.api import get_feed_for
 
 # parse xml feed into soup
@@ -14,31 +13,6 @@ def parse_feed_xml (source):
   data = get_feed_for(source)
   soup = BeautifulSoup(data, 'xml')
   return soup
-
-# gets headlines and summary from rss feed
-def get_headlines_for_source (source, limit):
-  soup = parse_feed_xml(source)
-  title = soup.title.string
-  ret = defaultdict(list)
-  ret["source"] = title
-  print(title)
-
-  items = soup.find_all("item")
-  item_index = 0
-  for item in items:
-    article = {
-      'title': item.title.string,
-      'content': item.description.get_text(),
-      'link': item.link.string
-    }
-    ret["articles"].append(article)
-    item_index += 1
-    if item_index >= limit:
-      break
-  print(ret)
-  # summary = summarize_articles(ret["articles"])
-  # ret["summary"] = summary
-  return ret
 
 # summarize text using gensim
 def summarize_articles (articles):
@@ -80,7 +54,7 @@ def get_summaries_from_source (source, max = 2):
 
   return ret
 
-def get_summaries_from_google_headlines (news, max = 2):
+def get_summaries_from_google_feed (news, max = 2):
   ret = news
   api_limitation = ''
   news_index = 0
@@ -100,7 +74,6 @@ def get_summaries_from_google_headlines (news, max = 2):
     news_index += 1
     if news_index >= max:
       break
-  # ret['api_limitation'] = api_limitation
   return {'news': ret, 'api_limitation': api_limitation}
       
 def summry_from_url (url):
