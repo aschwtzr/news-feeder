@@ -19,25 +19,21 @@ def index():
 # rss feeds with local python summaries
 @app.route('/headlines', methods=(['GET']))
 def get_headlines():
-  req_sources = request.args.getlist('source')
+  req_source = request.args.get('source')
   req_limit = request.args.get('limit')
   if req_limit is None:
     limit = 8
   else: limit = int(req_limit)
 
   ret = defaultdict(list)
-  if req_sources is None:
+  if req_source is None:
     for source in default_sources:
       # feed = get_feed_for(item)
       headlines = util.feed_getters.get_feed_for_source(source, limit)
       ret["headlines"].append(headlines)
   else:
-    for source in req_sources:
-      try:
-        headlines = util.feed_getters.get_feed_for_source(source, limit)
-        ret["headlines"].append(headlines)
-      except:
-        print
+    headlines = util.feed_getters.get_feed_for_source(source, limit)
+    ret["headlines"].append(headlines)
   ret["ok"] = True
   return jsonify(ret)
 
