@@ -21,9 +21,9 @@ def summarize_feed_articles (articles):
   for article in articles:
     raw_summary += "{} . ".format(article["content"])
 
-  summ = summarize(raw_summary, ratio=.7, split=False)
-  print(raw_summary)
-  print(summ)
+  summ = summarize(raw_summary, ratio=.5, split=False)
+  # print(raw_summary)
+  # print(summ)
 
   return summ
 

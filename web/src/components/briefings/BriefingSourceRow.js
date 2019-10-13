@@ -56,7 +56,7 @@ class BriefingSourceRow extends React.Component {
                 title={article.title} 
                 onClick={ () => this.toggleSummary(index) }
                 style={{minHeight: '2rem', width: '80vw', cursor: 'pointer' }}
-                extra={<a href={article.url} target="_blank">Source</a>} 
+                extra={<a href={article.url} target="_blank" rel="noopener noreferrer">Source</a>} 
                   >
                 { this.summary(index, article.content) }
               </Card>

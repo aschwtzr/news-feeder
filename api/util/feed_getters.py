@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 # to run via command line remember to remove util. from the import
-import util.api
+import util.description_parsers
 from collections import defaultdict
 
 # google news world rss feed
@@ -10,7 +10,7 @@ def get_google_world_news_feed ():
   data = util.api.get_feed_for('google')
   soup = BeautifulSoup(data, 'xml')
   items = soup.findAll('item')
-  print(items)
+
   news_bullets = []
   print(f'items count: {len(items)}')
   for headline in items:
@@ -43,15 +43,17 @@ def get_feed_for_source (source, limit):
     print('must provide source')
     return
   soup = util.news_formatter.parse_feed_xml(source)
+
   title = soup.title.string
   ret = defaultdict(list)
   ret["source"] = title
   items = soup.find_all("item")
   item_index = 0
   for item in items:
+    parser = util.description_parsers.parsers[source]
     article = {
       'title': item.title.string,
-      'content': item.description.get_text(),
+      'content': parser(item.description.get_text()),
       'url': item.link.string
     }
     ret["articles"].append(article)
