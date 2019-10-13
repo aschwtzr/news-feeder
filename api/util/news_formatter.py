@@ -15,9 +15,9 @@ def parse_feed_xml (source):
   return soup
 
 # summarize text using gensim
-def summarize_articles (articles):
+# takes a list of article objects with a content field
+def summarize_feed_articles (articles):
   raw_summary = ""
-  print(len(articles))
   for article in articles:
     raw_summary += "{} . ".format(article["content"])
 
@@ -43,7 +43,7 @@ def get_summaries_from_source (source, max = 2):
       article = {
         'title': "{}".format(parsed['sm_api_title']),
         'content': "{}".format(parsed['sm_api_content']),
-        'link': item.link.string
+        'url': item.link.string
       }
       ret["articles"].append(article)
       ret["api_limitation"] = '+++ {} +++'.format(parsed["sm_api_limitation"])

@@ -22,18 +22,20 @@ def get_headlines():
   req_source = request.args.get('source')
   req_limit = request.args.get('limit')
   req_summarize = request.args.get('summarize')
+
   if req_limit is None:
     limit = 8
   else: limit = int(req_limit)
 
   ret = defaultdict(list)
+
   if req_source is None:
     for source in default_sources:
       # feed = get_feed_for(item)
       headlines = util.feed_getters.get_feed_for_source(source, limit)
       ret["briefings"].append(headlines)
   else:
-    headlines = util.feed_getters.get_feed_for_source(source, limit)
+    headlines = util.feed_getters.get_feed_for_source(req_source, limit)
     ret["briefings"].append(headlines)
   
   ret["ok"] = True

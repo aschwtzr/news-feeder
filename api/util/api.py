@@ -1,3 +1,4 @@
+# interface with external APIs
 import time
 import requests
 import os
@@ -13,6 +14,7 @@ world_news_feeds = {
   "yahoo": "https://www.yahoo.com/news/rss/world",
 }
 
+# if source is not in feeds object, fetches resutls with google search (world_news_feeds["custom"])
 def get_feed_for (resource):
   if resource in world_news_feeds:
     uri = world_news_feeds[resource]

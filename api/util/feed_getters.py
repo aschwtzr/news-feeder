@@ -37,7 +37,7 @@ def get_google_world_news_feed ():
   return news_bullets
 
 # gets headlines from rss feed
-# return format: [{ title: 'headline', content: 'provided article summary', link: 'url'}]
+# return format: {source: source, summary: summary, articles: [{ title: 'headline', content: 'provided article summary', link: 'url'}]}
 def get_feed_for_source (source, limit):
   if source is None:
     print('must provide source')
@@ -58,4 +58,5 @@ def get_feed_for_source (source, limit):
     item_index += 1
     if item_index >= limit:
       break
+  ret["summary"] = util.news_formatter.summarize_feed_articles(ret["articles"])
   return ret

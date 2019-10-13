@@ -7,7 +7,7 @@ class BriefingSourceRow extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showSummary: false,
+      showSummary: true,
       unfurledSummaries: []
     }
     
@@ -40,9 +40,7 @@ class BriefingSourceRow extends React.Component {
     const { source, summary, articles } = this.props;
     return (
         <div >
-          <h2 
-            className="header">
-            {source}</h2>
+          <h2 className="header">{source}</h2>
           <div className={this.state.showSummary ? 'summary_visible' : 'summary_hidden'}>{summary}</div>
           <List
           header={<div></div>}
