@@ -38,7 +38,7 @@ def get_google_world_news_feed ():
 
 # gets headlines from rss feed
 # return format: {source: source, summary: summary, articles: [{ title: 'headline', content: 'provided article summary', link: 'url'}]}
-def get_feed_for_source (source, limit):
+def get_news_from_rss (source, limit):
   if source is None:
     print('must provide source')
     return

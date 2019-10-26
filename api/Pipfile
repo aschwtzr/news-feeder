@@ -17,6 +17,7 @@ google-alerts = "*"
 selenium = "*"
 lxml = "*"
 flask = "*"
+html5lib = "*"
 
 [requires]
 python_version = "3.7"

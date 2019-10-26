@@ -19,9 +19,8 @@ def index():
 # rss feeds with local python summaries
 @app.route('/briefings', methods=(['GET']))
 def get_headlines():
-  req_source = request.args.get('source')
+  req_sources = request.args.getlist('source')
   req_limit = request.args.get('limit')
-  req_summarize = request.args.get('summarize')
 
   if req_limit is None:
     limit = 8
@@ -32,13 +31,32 @@ def get_headlines():
   if req_source is None:
     for source in default_sources:
       # feed = get_feed_for(item)
-      headlines = util.feed_getters.get_feed_for_source(source, limit)
+      headlines = util.feed_getters.get_news_from_rss(source, limit)
       ret["briefings"].append(headlines)
   else:
-    headlines = util.feed_getters.get_feed_for_source(req_source, limit)
-    ret["briefings"].append(headlines)
+    for source in req_sources:
+      headlines = util.feed_getters.get_news_from_rss(source, limit)
+      ret["briefings"].append(headlines)
   
   ret["ok"] = True
+  return jsonify(ret)
+
+
+# get google news summaries 
+@app.route('/google-news', methods=(['GET']))
+def get_google():
+  summarize = request.args.get('summarize')
+  limit = request.args.get('limit')
+  if limit is None:
+    limit = 2
+  else: limit = int(limit)
+  print(f'request params: limit: {limit} summarize: {summarize}')
+  feed = util.feed_getters.get_google_world_news_feed()
+  if summarize == 'true':
+    news = util.news_formatter.get_summaries_from_google_feed(feed, limit)
+  else:
+    news = feed
+  ret = { 'ok': True, 'news': news }
   return jsonify(ret)
 
 # list of available news sources
@@ -68,21 +86,4 @@ def get_summaries():
     ret["headlines"].append(headlines)
   ret["ok"] = True
   print(ret)
-  return jsonify(ret)
-
-# get google news summaries 
-@app.route('/google-news', methods=(['GET']))
-def get_google():
-  summarize = request.args.get('summarize')
-  limit = request.args.get('limit')
-  if limit is None:
-    limit = 2
-  else: limit = int(limit)
-  print(f'request params: limit: {limit} summarize: {summarize}')
-  feed = util.feed_getters.get_google_world_news_feed()
-  if summarize == 'true':
-    news = util.news_formatter.get_summaries_from_google_feed(feed, limit)
-  else:
-    news = feed
-  ret = { 'ok': True, 'news': news }
   return jsonify(ret)
