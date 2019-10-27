@@ -6,12 +6,13 @@
       :key="`${briefing.source}-${index}`"
       class="news-briefing-wrapper">
       <strong> {{headline(briefing)}} </strong>
-      <div v-for="article in briefing.articles" :key="article.title">
+      <div v-for="article in briefing.articles" :key="article.title" >
         <article-card
-        :title="article.title"
-        :url="article.url"
-        :content="article.content"
-        :date="article.date"/>
+          :title="article.title"
+          :url="article.url"
+          :content="article.content"
+          :date="article.date"
+          />
       </div>
     </div>
   </div>
@@ -73,6 +74,7 @@ export default {
             output.content = article.source || article.url;
             return output;
           });
+          // console.log(`mapped: ${mapped[0].content}`);
         } else {
           mapped = [{
             title: headline.title,
@@ -80,6 +82,7 @@ export default {
             content: headline.source,
             date: headline.date || '',
           }];
+          // console.log(`dummy: ${mapped[0].content}`);
         }
         const nwbObj = Object.assign({}, headline, { source: headline.source || 'missing source', articles: mapped });
         return nwbObj;

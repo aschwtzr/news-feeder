@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card article-card__container">
     <header class="card-header">
       <p
         class="card-header-title"
@@ -30,25 +30,23 @@
       </div>
     </div>
     <footer class="card-footer">
-      <a
-        href="#"
+      <div
         class="card-footer-item"
         :class="saved ? 'confirmed' : ''"
         @click="saved = !saved">
         Save
-        </a>
-      <a
-        href="#"
+        </div>
+      <div
         class="card-footer-item"
-        :class="footerSummarizeClass"
+        v-bind:class="footerSummarizeClass"
         @click="summarize = !summarize">
         Summarize
-        </a>
+      </div>
       <a
         :href="url"
         target="_blank"
         class="card-footer-item"
-        :class="url ? '' : 'unavailable'">
+        :class="{ unavailable: !url}">
         View
         </a>
     </footer>
@@ -76,12 +74,15 @@ export default {
       return formatted;
     },
     footerSummarizeClass() {
-      let outputClass = '';
+      const outputClass = {
+        'card-footer-item': true,
+      };
       if (!this.url) {
-        outputClass = 'unavailable';
+        outputClass.unavailable = true;
       } else if (this.summarize) {
-        outputClass = 'confirmed';
+        outputClass.confirmed = true;
       }
+      console.log(outputClass);
       return outputClass;
     },
   },
@@ -101,6 +102,14 @@ export default {
     white-space: nowrap;
     padding: .75rem;
     min-width: 40vh;
+  }
+
+  .card-footer-item {
+    cursor: pointer;
+  }
+
+  .article-card__container {
+    margin-bottom: 1.5rem;
   }
 
   .content {
