@@ -16,9 +16,14 @@ def get_google_world_news_feed ():
   for headline in items:
     news_item = defaultdict(list)
     media = headline.find('content')
-    news_item['title'] = headline.title.string
+    title_split = headline.title.string.rpartition(' - ')
+    news_item['title'] = title_split[0]
+    news_item['source'] = title_split[2]
+    # print(headline)
     if media is not None:
       news_item['media'] = media['url']
+    if headline.pubDate is not None:
+      news_item["date"] = headline.pubDate.string
     item_soup = BeautifulSoup(headline.description.get_text(), "html.parser")
     list_items = item_soup.findAll('li')
     for bullet in list_items:
@@ -54,8 +59,10 @@ def get_news_from_rss (source, limit):
     article = {
       'title': item.title.string,
       'content': parser(item.description.get_text()),
-      'url': item.link.string
+      'url': item.link.string,
     }
+    if item.pubDate is not None:
+      article["date"] = item.pubDate.string
     ret["articles"].append(article)
     item_index += 1
     if item_index >= limit:

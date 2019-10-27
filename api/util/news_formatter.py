@@ -62,7 +62,7 @@ def get_summaries_from_google_feed (news, max = 2):
     article_index = 0
     raw_summary = ''
     for article in news_obj['articles']:
-      print(article['title'])
+      # print(article['title'])
       res = summry_from_url(article['url'])
       if res['ok'] == True:
         api_limitation = res['api_limitation']

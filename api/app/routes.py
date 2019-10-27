@@ -27,8 +27,8 @@ def get_headlines():
   else: limit = int(req_limit)
 
   ret = defaultdict(list)
-
-  if req_source is None:
+  print(len(req_sources))
+  if len(req_sources) == 0:
     for source in default_sources:
       # feed = get_feed_for(item)
       headlines = util.feed_getters.get_news_from_rss(source, limit)
@@ -85,5 +85,5 @@ def get_summaries():
     headlines = util.news_formatter.get_summaries_from_source(req_source, limit)
     ret["headlines"].append(headlines)
   ret["ok"] = True
-  print(ret)
+  # print(ret)
   return jsonify(ret)
