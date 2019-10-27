@@ -1,53 +1,53 @@
 <template>
-  <div class="card article-card__container">
-    <header class="card-header">
-      <p
-        class="card-header-title"
-        style="min-width: fit-content; width: 60vh;">
-        {{title}}
-      </p>
-      <p v-if="!expanded"
-        class="overflowing-text">
-        {{content}}
-      </p>
-      <div class="card-header-icon" aria-label="more options">
-        <span class="icon is-small" @click="expanded = !expanded">
-          <i
-            :class="`mdi mdi-${expanded ? 'chevron-down' : 'chevron-right'}`"/>
-        </span>
-      </div>
-    </header>
-    <div class="card-content is-loading" v-show="expanded">
-      <div class="content">
-        {{content}} <br>
-        source:<a :href="url">{{url}}</a>
-        <br>
-        <br>
-        <time datetime="2016-1-1">{{formattedDate}}</time>
-      </div>
-    </div>
-    <footer class="card-footer">
+<!-- Duplicate of ArticleCard using Buefy components for comparison -->
+  <b-collapse class="card  article-card__container" aria-id="contentIdForA11y3">
       <div
-        class="card-footer-item"
-        :class="saved ? 'confirmed' : ''"
-        @click="saved = !saved">
-        Save
+          slot="trigger"
+          class="card-header"
+          role="button"
+          aria-controls="contentIdForA11y3">
+          <p class="card-header-title">
+              {{title}}
+          </p>
+          <p v-if="!expanded"
+            class="overflowing-text">
+            {{content}}
+          </p>
+          <a class="card-header-icon">
+              <b-icon
+                  :icon="!expanded ? 'menu-down' : 'menu-right'">
+              </b-icon>
+          </a>
+      </div>
+      <div class="card-content" v-show="expanded">
+          <div class="content">
+            {{content}} <br>
+            source:<a :href="url">{{url}}</a>
+            <time :datetime="formattedDate">{{formattedDate}}</time>
+          </div>
+      </div>
+      <footer class="card-footer">
+        <div
+          class="card-footer-item"
+          :class="saved ? 'confirmed' : ''"
+          @click="saved = !saved">
+          Save
+          </div>
+        <div
+          class="card-footer-item"
+          v-bind:class="footerSummarizeClass"
+          @click="summarize = !summarize">
+          Summarize
         </div>
-      <div
-        class="card-footer-item"
-        v-bind:class="footerSummarizeClass"
-        @click="summarize = !summarize">
-        Summarize
-      </div>
-      <a
-        :href="url"
-        target="_blank"
-        class="card-footer-item"
-        :class="{ unavailable: !url}">
-        View
-        </a>
-    </footer>
-  </div>
+        <a
+          :href="url"
+          target="_blank"
+          class="card-footer-item"
+          :class="{ unavailable: !url}">
+          View
+          </a>
+      </footer>
+  </b-collapse>
 </template>
 
 <script>
