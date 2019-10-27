@@ -114,7 +114,7 @@ export default {
   }
 
   .confirmed {
-    background-color:rgba(70, 226, 117, 0.5);
+    background-color:rgba(99, 180, 209, 0.5);
   }
 
   .unavailable {
@@ -129,6 +129,6 @@ export default {
   }
 
   .card-footer-item:hover {
-    background-color:rgba(112, 70, 226, 0.5);
+    background-color:rgba(121, 87, 213, 0.5);
   }
 </style>
