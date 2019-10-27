@@ -36,7 +36,7 @@
       <div
         class="card-footer-item"
         v-bind:class="footerSummarizeClass"
-        @click="summarize = !summarize">
+        @click="summarizeClicked">
         Summarize
       </div>
       <a
@@ -51,6 +51,8 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
+
 export default {
   props: ['title', 'url', 'content', 'date'],
   data() {
@@ -79,11 +81,24 @@ export default {
       } else if (this.summarize) {
         outputClass.confirmed = true;
       }
-      console.log(outputClass);
       return outputClass;
     },
   },
   methods: {
+    ...mapMutations({
+      addToSummarizerFeed: 'addToSummarizerFeed',
+    }),
+    summarizeClicked() {
+      this.summarize = !this.summarize;
+      const self = {
+        title: this.title,
+        url: this.url,
+        content: this.content,
+        date: this.date,
+        active: this.summarize,
+      };
+      this.addToSummarizerFeed(self);
+    },
   },
 };
 </script>

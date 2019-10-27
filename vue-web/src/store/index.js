@@ -6,15 +6,21 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     newsFeedView: 'briefings',
-    summarizeFeed: [],
+    summarizerFeed: {},
     summaries: [],
   },
   mutations: {
     setNewsFeedView(state, view) {
       state.newsFeedView = view;
     },
-    addToSummarizeFeed(state, source) {
-      state.summarizeFeed.push(source);
+    addToSummarizerFeed(state, source) {
+      const updatedFeed = Object.assign({}, state.summarizerFeed);
+      if (updatedFeed[source.url]) {
+        updatedFeed[source.url].active = source.active;
+      } else {
+        updatedFeed[source.url] = source;
+      }
+      state.summarizerFeed = updatedFeed;
     },
   },
   actions: {
@@ -22,6 +28,12 @@ export default new Vuex.Store({
   getters: {
     currentNewsFeedView(state) {
       return state.newsFeedView;
+    },
+    articlesForSummarizer(state) {
+      const feed = Object.entries(state.summarizerFeed);
+      const mapped = feed.map(objArr => objArr[1]);
+      const filtered = mapped.filter(article => article.active);
+      return filtered;
     },
   },
   modules: {

@@ -43,6 +43,12 @@ export default {
         curr = briefing.source;
       } else if (this.currentNewsFeedView === 'world') {
         curr = `${briefing.title} - ${briefing.source}`;
+      } else if (this.currentNewsFeedView === 'summaries') {
+        debugger;
+        const articleCount = this.briefingsByView.length > 0
+          ? this.briefingsByView[0].articles.length : 0;
+        console.log(`${!!this.briefingsByView} ${articleCount}`);
+        curr = `${articleCount} Stories for Summarizer`;
       }
       return curr;
     },
@@ -50,6 +56,7 @@ export default {
   computed: {
     ...mapGetters({
       currentNewsFeedView: 'currentNewsFeedView',
+      articlesForSummarizer: 'articlesForSummarizer',
     }),
     briefingsByView() {
       let curr = [];
@@ -57,6 +64,11 @@ export default {
         curr = this.briefings;
       } else if (this.currentNewsFeedView === 'world') {
         curr = this.googleNews;
+      } else if (this.currentNewsFeedView === 'summaries') {
+        curr = [{
+          source: 'summarizer',
+          articles: this.articlesForSummarizer,
+        }];
       }
       return curr;
     },
