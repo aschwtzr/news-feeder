@@ -30,9 +30,27 @@
       </div>
     </div>
     <footer class="card-footer">
-      <a href="#" class="card-footer-item">Save</a>
-      <a href="#" v-show="url" class="card-footer-item">Summarize</a>
-      <a :href="url" target="_blank" v-show="url" class="card-footer-item">View</a>
+      <a
+        href="#"
+        class="card-footer-item"
+        :class="saved ? 'confirmed' : ''"
+        @click="saved = !saved">
+        Save
+        </a>
+      <a
+        href="#"
+        class="card-footer-item"
+        :class="footerSummarizeClass"
+        @click="summarize = !summarize">
+        Summarize
+        </a>
+      <a
+        :href="url"
+        target="_blank"
+        class="card-footer-item"
+        :class="url ? '' : 'unavailable'">
+        View
+        </a>
     </footer>
   </div>
 </template>
@@ -43,11 +61,13 @@ export default {
   data() {
     return {
       expanded: false,
+      saved: false,
+      summarize: false,
     };
   },
   computed: {
     formattedDate() {
-      let formatted;
+      let formatted = '';
       if (this.date) {
         formatted = new Date(this.date).toString();
       } else {
@@ -55,6 +75,17 @@ export default {
       }
       return formatted;
     },
+    footerSummarizeClass() {
+      let outputClass = '';
+      if (!this.url) {
+        outputClass = 'unavailable';
+      } else if (this.summarize) {
+        outputClass = 'confirmed';
+      }
+      return outputClass;
+    },
+  },
+  methods: {
   },
 };
 </script>
@@ -74,6 +105,21 @@ export default {
 
   .content {
     text-align: initial;
+  }
+
+  .confirmed {
+    background-color:rgba(70, 226, 117, 0.5);
+  }
+
+  .unavailable {
+    opacity: 40%;
+    cursor: default;
+  }
+
+  .unavailable:hover {
+    opacity: 40%;
+    cursor: default;
+    background-color:rgb(255, 255, 255)!important;
   }
 
   .card-footer-item:hover {
