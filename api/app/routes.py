@@ -87,3 +87,18 @@ def get_summaries():
   ret["ok"] = True
   # print(ret)
   return jsonify(ret)
+
+# summarize article with smmry API
+@app.route('/summarize', methods=(['GET']))
+def summarize():
+  url = request.args.get('url')
+  print(url)
+  if url is None:
+    ret = { 'ok': False, 'error': 'Must provide URL for summarization' }
+  else:
+    summary = util.news_formatter.summry_from_url(url)
+    if summary["ok"] is not True:
+      ret : { 'ok': False, 'error': summary.err}
+    else:
+      ret = { 'ok': True, 'summary_data': summary }
+  return jsonify(ret)

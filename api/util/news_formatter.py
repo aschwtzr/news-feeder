@@ -84,7 +84,7 @@ def summry_from_url (url):
     ret["summary"] = "{}".format(parsed['sm_api_content'])
     ret["api_limitation"] = '+++ {} +++'.format(parsed["sm_api_limitation"])
     ret['ok'] = True
-    time.sleep(10)
+    # time.sleep(10)
     return ret
   else:
     return {'ok': False, 'err': parsed['sm_api_error']}

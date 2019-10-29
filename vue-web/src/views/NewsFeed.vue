@@ -1,26 +1,27 @@
 <template>
   <div>
-    <news-feed-tabs />
-    <div
-      v-for="(briefing, index) in briefingsByView"
-      :key="`${briefing.source}-${index}`"
-      class="news-briefing-wrapper">
-      <strong> {{headline(briefing)}} </strong>
-      <div v-for="article in briefing.articles" :key="article.title" >
-        <article-card
-          :title="article.title"
-          :url="article.url"
-          :content="article.content"
-          :date="article.date"
-          />
+    <news-feed-tabs style="position: sticky; top: -1px;"/>
+    <div style="">
+      <div
+        v-for="(briefing, index) in briefingsByView"
+        :key="`${briefing.source}-${index}`"
+        class="news-briefing-wrapper">
+        <strong> {{headline(briefing)}} </strong>
+        <div v-for="article in briefing.articles" :key="article.title" >
+          <article-card
+            :title="article.title"
+            :url="article.url"
+            :content="article.content"
+            :date="article.date"
+            />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import { getBriefings, getGoogleFeed } from '@/util/api';
+import { mapGetters, mapActions, mapState } from 'vuex';
 import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
 import ArticleCard from '@/components/ArticleCard.vue';
 
@@ -37,6 +38,10 @@ export default {
     };
   },
   methods: {
+    ...mapActions({
+      getBriefings: 'getBriefings',
+      getGoogleFeed: 'getGoogleFeed',
+    }),
     headline(briefing) {
       let curr = '';
       if (this.currentNewsFeedView === 'briefings') {
@@ -44,7 +49,6 @@ export default {
       } else if (this.currentNewsFeedView === 'world') {
         curr = `${briefing.title} - ${briefing.source}`;
       } else if (this.currentNewsFeedView === 'summaries') {
-        debugger;
         const articleCount = this.briefingsByView.length > 0
           ? this.briefingsByView[0].articles.length : 0;
         console.log(`${!!this.briefingsByView} ${articleCount}`);
@@ -58,12 +62,16 @@ export default {
       currentNewsFeedView: 'currentNewsFeedView',
       articlesForSummarizer: 'articlesForSummarizer',
     }),
+    ...mapState({
+      googleFeed: state => state.googleFeed,
+      rssFeeds: state => state.rssFeeds,
+    }),
     briefingsByView() {
       let curr = [];
       if (this.currentNewsFeedView === 'briefings') {
-        curr = this.briefings;
+        curr = this.rssFeeds;
       } else if (this.currentNewsFeedView === 'world') {
-        curr = this.googleNews;
+        curr = this.googleFeed;
       } else if (this.currentNewsFeedView === 'summaries') {
         curr = [{
           source: 'summarizer',
@@ -74,32 +82,8 @@ export default {
     },
   },
   mounted() {
-    getBriefings().then((results) => {
-      this.briefings = results.data.briefings;
-    });
-    getGoogleFeed().then((results) => {
-      this.googleNews = results.data.news.map((headline) => {
-        let mapped = [];
-        if (headline.articles && headline.articles.length > 1) {
-          mapped = headline.articles.map((article) => {
-            const output = Object.assign({}, article);
-            output.content = article.source || article.url;
-            return output;
-          });
-          // console.log(`mapped: ${mapped[0].content}`);
-        } else {
-          mapped = [{
-            title: headline.title,
-            url: headline.url,
-            content: headline.source,
-            date: headline.date || '',
-          }];
-          // console.log(`dummy: ${mapped[0].content}`);
-        }
-        const nwbObj = Object.assign({}, headline, { source: headline.source || 'missing source', articles: mapped });
-        return nwbObj;
-      });
-    });
+    this.getBriefings();
+    this.getGoogleFeed();
   },
 };
 </script>
@@ -107,5 +91,6 @@ export default {
 <style>
   .news-briefing-wrapper {
     padding-bottom: 3rem;
+    overflow-y: auto;
   }
 </style>

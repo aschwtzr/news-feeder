@@ -26,6 +26,7 @@ def get_google_world_news_feed ():
       news_item["date"] = headline.pubDate.string
     item_soup = BeautifulSoup(headline.description.get_text(), "html.parser")
     list_items = item_soup.findAll('li')
+    # print(len(list_items))
     for bullet in list_items:
       strong = bullet.find('strong')
       if strong is not None:

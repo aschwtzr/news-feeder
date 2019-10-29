@@ -26,35 +26,39 @@
         <time datetime="2016-1-1">{{formattedDate}}</time>
       </div>
     </div>
-    <footer class="card-footer">
-      <div
-        class="card-footer-item"
-        :class="saved ? 'confirmed' : ''"
-        @click="saved = !saved">
-        Save
+      <footer class="card-footer" style="background-color: #F7F7FF;">
+        <div
+          class="card-footer-item"
+          :class="saved ? 'confirmed' : ''"
+          @click="summarizeURL(url)">
+          SMMRY
+          </div>
+        <div
+          class="card-footer-item"
+          v-bind:class="footerSummarizeClass"
+          @click="summarizeClicked">
+          Summarize
         </div>
-      <div
-        class="card-footer-item"
-        v-bind:class="footerSummarizeClass"
-        @click="summarizeClicked">
-        Summarize
-      </div>
-      <a
-        :href="url"
-        target="_blank"
-        class="card-footer-item"
-        :class="{ unavailable: !url}">
-        View
-        </a>
-    </footer>
+        <a
+          :href="url"
+          target="_blank"
+          class="card-footer-item"
+          :class="{ unavailable: !url}">
+          View
+          </a>
+      </footer>
   </div>
 </template>
 
 <script>
 import { mapMutations } from 'vuex';
+import { getSummaryForURL } from '@/util/api';
+// import ArticleCardFooter from '@/components/ArticleCardFooter.vue';
 
 export default {
   props: ['title', 'url', 'content', 'date'],
+  components: {
+  },
   data() {
     return {
       expanded: false,
@@ -85,6 +89,12 @@ export default {
     },
   },
   methods: {
+    summarizeURL(url) {
+      const encodedURL = encodeURIComponent(url);
+      getSummaryForURL(encodedURL).then((results) => {
+        console.log(results);
+      });
+    },
     ...mapMutations({
       addToSummarizerFeed: 'addToSummarizerFeed',
     }),
