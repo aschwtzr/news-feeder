@@ -66,30 +66,8 @@ def get_sources():
   ret = { 'ok': True, 'sources': sources }
   return jsonify(ret)
 
-# get smmry summaries for news sources
-@app.route('/smmry', methods=(['GET']))
-def get_summaries():
-  req_source = request.args.get('source')
-  req_limit = request.args.get('limit')
-  if req_limit is None:
-    limit = 4
-  else: limit = int(req_limit)
-
-  ret = defaultdict(list)
-  if req_source is None:
-    ret['ok'] = False
-    ret['error'] = 'Currently need at least one source for news summaries.'
-    return jsonify(ret)
-  else:
-    # feed = get_feed_for(req_source)
-    headlines = util.news_formatter.get_summaries_from_source(req_source, limit)
-    ret["headlines"].append(headlines)
-  ret["ok"] = True
-  # print(ret)
-  return jsonify(ret)
-
 # summarize article with smmry API
-@app.route('/summarize', methods=(['GET']))
+@app.route('/smmry', methods=(['GET']))
 def summarize():
   url = request.args.get('url')
   print(url)
@@ -97,8 +75,25 @@ def summarize():
     ret = { 'ok': False, 'error': 'Must provide URL for summarization' }
   else:
     summary = util.news_formatter.summry_from_url(url)
+    print(summary)
     if summary["ok"] is not True:
-      ret : { 'ok': False, 'error': summary.err}
+      ret = { 'ok': False, 'error': summary.err}
+    else:
+      ret = { 'ok': True, 'summary_data': summary }
+  return jsonify(ret)
+
+# summarize article with smmry API
+@app.route('/gensim', methods=(['GET']))
+def gensim():
+  summaries = request.args.get('summaries')
+  print(url)
+  if url is None:
+    ret = { 'ok': False, 'error': 'Must provide URL for summarization' }
+  else:
+    summary = util.news_formatter.summry_from_url(url)
+    print(summary)
+    if summary["ok"] is not True:
+      ret = { 'ok': False, 'error': summary.err}
     else:
       ret = { 'ok': True, 'summary_data': summary }
   return jsonify(ret)

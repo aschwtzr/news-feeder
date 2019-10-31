@@ -13,7 +13,7 @@
 
 <script>
 import { mapMutations, mapGetters } from 'vuex';
-
+// TODO: add tabs for custom Google News
 export default {
   name: 'NewsFeedTabs',
   data() {
@@ -56,5 +56,11 @@ export default {
 </script>
 
 <style>
-
+  .tabs {
+    position: sticky;
+    top: 0rem;
+    z-index: 1000;
+    background-color: white;
+    padding-top: 1rem;
+  }
 </style>

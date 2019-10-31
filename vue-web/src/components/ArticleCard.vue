@@ -26,33 +26,43 @@
         <time datetime="2016-1-1">{{formattedDate}}</time>
       </div>
     </div>
-      <footer class="card-footer" style="background-color: #F7F7FF;">
+      <!-- <footer class="card-footer" style="background-color: #F7F7FF;"> -->
+      <footer
+        v-for="button in buttons"
+        :key="button.title"
+        class="card-footer"
+        style="background-color: #F7F7FF;">
         <div
           class="card-footer-item"
+          :class="button.class"
+          @click="button.callback">
+          {{button.title}}
+        </div>
+        <!-- <div
+          class="card-footer-item"
           :class="saved ? 'confirmed' : ''"
-          @click="summarizeURL(url)">
-          SMMRY
+          @click="saved = !saved">
+          Save
           </div>
         <div
           class="card-footer-item"
-          v-bind:class="footerSummarizeClass"
-          @click="summarizeClicked">
+          :class="footerSummarizeClass"
+          @click="addToSummarizeFeed">
           Summarize
-        </div>
+          </div>
         <a
           :href="url"
           target="_blank"
           class="card-footer-item"
-          :class="{ unavailable: !url}">
+          :class="{ unavailable: !url }">
           View
-          </a>
+          </a> -->
       </footer>
   </div>
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
-import { getSummaryForURL } from '@/util/api';
+import { mapMutations, mapActions } from 'vuex';
 // import ArticleCardFooter from '@/components/ArticleCardFooter.vue';
 
 export default {
@@ -64,9 +74,30 @@ export default {
       expanded: false,
       saved: false,
       summarize: false,
+      buttons: [{
+        title: 'Share',
+        class: this.savedButtonClass,
+        callback: this.toggleSaved,
+      },
+      {
+        title: 'Summarize',
+        class: this.footerSummarizeClass,
+        callback: this.addToSummarizeFeed,
+      },
+      {
+        title: 'View',
+        class: this.viewButtonClass,
+        callback: this.openArticle,
+      }],
     };
   },
   computed: {
+    savedButtonClass() {
+      return this.saved ? 'confirmed' : '';
+    },
+    viewButtonClass() {
+      return { unavailable: !this.url };
+    },
     formattedDate() {
       let formatted = '';
       if (this.date) {
@@ -89,25 +120,33 @@ export default {
     },
   },
   methods: {
+    ...mapActions({
+      summarizeArticle: 'summarizeArticle',
+      toggleSummarizerFeed: 'toggleSummarizerFeed',
+    }),
     summarizeURL(url) {
       const encodedURL = encodeURIComponent(url);
-      getSummaryForURL(encodedURL).then((results) => {
-        console.log(results);
-      });
+      this.summarizeArticle(encodedURL);
     },
     ...mapMutations({
-      addToSummarizerFeed: 'addToSummarizerFeed',
     }),
-    summarizeClicked() {
+    openArticle() {
+      window.open(this.url, '_blank');
+    },
+    toggleSaved() {
+      this.saved = !this.saved;
+    },
+    addToSummarizeFeed() {
       this.summarize = !this.summarize;
-      const self = {
+      const article = {
         title: this.title,
         url: this.url,
         content: this.content,
         date: this.date,
-        active: this.summarize,
       };
-      this.addToSummarizerFeed(self);
+      this.toggleSummarizerFeed(article);
+    },
+    share() {
     },
   },
 };

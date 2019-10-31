@@ -78,13 +78,15 @@ def get_summaries_from_google_feed (news, max = 2):
       
 def summry_from_url (url):
   ret = {}
-  result = util.api.get_summary(url)
-  parsed = json.loads(result)
-  if "sm_api_error" not in parsed:
-    ret["summary"] = "{}".format(parsed['sm_api_content'])
-    ret["api_limitation"] = '+++ {} +++'.format(parsed["sm_api_limitation"])
-    ret['ok'] = True
-    # time.sleep(10)
-    return ret
-  else:
-    return {'ok': False, 'err': parsed['sm_api_error']}
+  # result = util.api.get_summary(url)
+  # parsed = json.loads(result)
+  # if "sm_api_error" not in parsed:
+  #   ret["summary"] = "{}".format(parsed['sm_api_content'])
+  #   ret["api_limitation"] = '+++ {} +++'.format(parsed["sm_api_limitation"])
+  #   ret['ok'] = True
+  #   time.sleep(10)
+  #   return ret
+  # else:
+  #   return {'ok': False, 'err': parsed['sm_api_error']}
+  time.sleep(10)
+  return {'ok': True, 'summary': "I AM A JEDI. I AM A JEDIIII.", 'err': "I AM A JEDI. I AM A JEDIIII."}

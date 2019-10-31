@@ -20,7 +20,7 @@ export const getGoogleFeed = () => {
 };
 
 export const getSummaryForURL = (url) => {
-  return baseAxios.get(`/summarize?url=${url}`);
+  return baseAxios.get(`/smmry?url=${url}`);
 };
 
 export const base = () => {
