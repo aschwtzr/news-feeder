@@ -9,8 +9,9 @@
         <article-card
           :title="article.title"
           :url="article.url"
-          :content="article.summary || article.content"
+          :content="article.content"
           :date="article.date"
+          :summary="article.summary || false"
           />
       </div>
     </div>

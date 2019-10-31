@@ -68,5 +68,5 @@ def get_news_from_rss (source, limit):
     item_index += 1
     if item_index >= limit:
       break
-  ret["summary"] = util.news_formatter.summarize_feed_articles(ret["articles"])
+  ret["summary"] = util.news_formatter.summary_from_articles(ret["articles"])
   return ret

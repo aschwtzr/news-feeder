@@ -16,16 +16,23 @@ def parse_feed_xml (source):
 
 # summarize text using gensim
 # takes a list of article objects with a content field
-def summarize_feed_articles (articles):
+def summary_from_articles (summaries):
   raw_summary = ""
-  for article in articles:
-    raw_summary += "{} . ".format(article["content"])
+  try:
+    # print(summaries)
+    for summary in summaries:
+      print(summary)
+      print(raw_summary)
+      raw_summary += """{} . """.format(summary)
+      print(raw_summary)
+    print('outside')
+    summ = summarize(raw_summary, ratio=.5)
+    print(summ)
 
-  summ = summarize(raw_summary, ratio=.5, split=False)
-  # print(raw_summary)
-  # print(summ)
-
-  return summ
+    return { 'ok': True, 'data': summ }
+  except:
+    return { 'ok': False, 'err': 'Error with GENSIM processing.' }
+  
 
 # summarize rss feed articles using SMMRY
 def get_summaries_from_source (source, max = 2):
@@ -78,15 +85,18 @@ def get_summaries_from_google_feed (news, max = 2):
       
 def summry_from_url (url):
   ret = {}
-  # result = util.api.get_summary(url)
-  # parsed = json.loads(result)
-  # if "sm_api_error" not in parsed:
-  #   ret["summary"] = "{}".format(parsed['sm_api_content'])
-  #   ret["api_limitation"] = '+++ {} +++'.format(parsed["sm_api_limitation"])
-  #   ret['ok'] = True
-  #   time.sleep(10)
-  #   return ret
-  # else:
-  #   return {'ok': False, 'err': parsed['sm_api_error']}
-  time.sleep(10)
-  return {'ok': True, 'summary': "I AM A JEDI. I AM A JEDIIII.", 'err': "I AM A JEDI. I AM A JEDIIII."}
+  result = util.api.get_summary(url)
+  parsed = json.loads(result)
+  if "sm_api_error" not in parsed:
+    ret["summary"] = "{}".format(parsed['sm_api_content'])
+    if "sm_api_limitation" in parsed:
+      ret["api_limitation"] = ''.format(parsed["sm_api_limitation"])
+    else:
+      ret["api_limitation"] = 'Caution: paid mode is enabled.'
+    ret['ok'] = True
+    time.sleep(10)
+    return ret
+  else:
+    return {'ok': False, 'err': parsed['sm_api_error']}
+  # time.sleep(10)
+  # return {'ok': True, 'summary': "I AM A JEDI. I AM A JEDIIII.", 'err': "I AM A JEDI. I AM A JEDIIII."}

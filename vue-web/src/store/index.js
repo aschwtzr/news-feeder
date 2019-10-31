@@ -1,6 +1,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { getGoogleFeed, getBriefings, getSummaryForURL } from '@/util/api';
+import {
+  getGoogleFeed,
+  getBriefings,
+  getSummaryForURL,
+  getContentSummary,
+} from '@/util/api';
 
 Vue.use(Vuex);
 
@@ -8,6 +13,7 @@ export default new Vuex.Store({
   state: {
     newsFeedView: 'briefings',
     summarizerFeed: {},
+    summarizerSummary: undefined,
     googleFeed: [],
     rssFeeds: [],
     apiLimit: undefined,
@@ -17,7 +23,6 @@ export default new Vuex.Store({
       state.newsFeedView = view;
     },
     addToSummarizerFeed(state, article) {
-      debugger;
       state.summarizerFeed = { ...state.summarizerFeed, [article.url]: article };
     },
     addGoogleFeed(state, feed) {
@@ -26,11 +31,15 @@ export default new Vuex.Store({
     addRSSFeed(state, feed) {
       state.rssFeeds = feed;
     },
-    summaryForArticle(state, summary) {
-      state.summarizerFeed[summary.key].summary = summary.value;
+    summaryForArticle(state, article) {
+      const newArticle = { ...state.summarizerFeed[article.key], summary: article.value };
+      state.summarizerFeed = { ...state.summarizerFeed, [article.key]: newArticle };
     },
     setAPILimit(state, limit) {
       state.apiLimit = limit;
+    },
+    setSummarizerSummary(state, summary) {
+      state.summarizerSummary = summary;
     },
   },
   actions: {
@@ -79,10 +88,10 @@ export default new Vuex.Store({
     summarizeArticle({ commit }, url) {
       return new Promise((resolve, reject) => {
         getSummaryForURL(url).then((results) => {
-          const { summary_data: summaryData } = results.data;
+          const summaryData = results.data;
           const decodedURL = decodeURIComponent(url);
           commit('summaryForArticle', { key: decodedURL, value: summaryData.summary });
-          commit('setAPILimit', summaryData.limit);
+          commit('setAPILimit', summaryData.api_limitation);
           resolve();
         }).catch((error) => {
           reject(error);
@@ -90,11 +99,21 @@ export default new Vuex.Store({
       });
     },
     toggleSummarizerFeed({ state, dispatch, commit }, article) {
-      debugger;
-      commit('addToSummarizerFeed', article);
-      if (!state.summarizerFeed[article.url].summary) {
-        dispatch('summarizeArticle', article.url);
-      }
+      return new Promise((resolve, reject) => {
+        commit('addToSummarizerFeed', article);
+        if (!state.summarizerFeed[article.url].summary) {
+          dispatch('summarizeArticle', article.url).then((res) => { resolve(res); }).catch((res) => { reject(res); });
+        }
+      });
+    },
+    getContentSummary({ commit, getters }) {
+      const contentForSummarizing = getters.articlesForSummarizer.map((article) => {
+        return article.summary || article.content;
+      });
+      console.log(contentForSummarizing);
+      getContentSummary(contentForSummarizing).then((results) => {
+        commit('setSummarizerSummary', results.data.summary);
+      });
     },
   },
   getters: {
@@ -106,6 +125,12 @@ export default new Vuex.Store({
       const mapped = feed.map(objArr => objArr[1]);
       // const filtered = mapped.filter(article => article.active);
       return mapped;
+    },
+    articleInSummarizerFeed: state => (url) => {
+      return state.summarizerFeed[url];
+    },
+    summarizerSummary(state) {
+      return state.summarizerSummary;
     },
   },
   modules: {

@@ -23,6 +23,10 @@ export const getSummaryForURL = (url) => {
   return baseAxios.get(`/smmry?url=${url}`);
 };
 
+export const getContentSummary = (content) => {
+  return baseAxios.post('/gensim-summary', { content });
+};
+
 export const base = () => {
   return baseAxios;
 };

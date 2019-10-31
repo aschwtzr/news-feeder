@@ -77,23 +77,21 @@ def summarize():
     summary = util.news_formatter.summry_from_url(url)
     print(summary)
     if summary["ok"] is not True:
-      ret = { 'ok': False, 'error': summary.err}
+      ret = { 'ok': False, 'error': summary['err']}
     else:
-      ret = { 'ok': True, 'summary_data': summary }
+      ret = { 'ok': True, 'summary': summary['summary'], 'api_limitation': summary["api_limitation"] }
   return jsonify(ret)
 
 # summarize article with smmry API
-@app.route('/gensim', methods=(['GET']))
+@app.route('/gensim-summary', methods=(['post']))
 def gensim():
-  summaries = request.args.get('summaries')
-  print(url)
-  if url is None:
-    ret = { 'ok': False, 'error': 'Must provide URL for summarization' }
+  req_data = request.get_json()
+  summaries = req_data['content']
+  # print(summaries)
+  summary = util.news_formatter.summary_from_articles(summaries)
+  print(summary)
+  if summary["ok"] is not True:
+    ret = { 'ok': False, 'error': summary['err']}
   else:
-    summary = util.news_formatter.summry_from_url(url)
-    print(summary)
-    if summary["ok"] is not True:
-      ret = { 'ok': False, 'error': summary.err}
-    else:
-      ret = { 'ok': True, 'summary_data': summary }
+    ret = { 'ok': True, 'summary': summary['data'] }
   return jsonify(ret)

@@ -2,14 +2,20 @@
   <div>
     <news-feed-tabs />
     <div v-if="currentNewsFeedView === 'summaries'">
-      Summary goes here
+      {{ summarizerSummary }}
     </div>
     <news-feed-article-list :briefings="briefingsByView" />
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions, mapState } from 'vuex';
+import {
+  mapGetters,
+  mapActions,
+  mapState,
+  mapMutations,
+} from 'vuex';
+import _ from 'lodash';
 import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
 import NewsFeedArticleList from '@/components/NewsFeedArticleList.vue';
 
@@ -29,13 +35,17 @@ export default {
     ...mapActions({
       getBriefings: 'getBriefings',
       getGoogleFeed: 'getGoogleFeed',
+      getContentSummary: 'getContentSummary',
     }),
-
+    ...mapMutations({
+      setSummarizerSummary: 'setSummarizerSummary',
+    }),
   },
   computed: {
     ...mapGetters({
       currentNewsFeedView: 'currentNewsFeedView',
       articlesForSummarizer: 'articlesForSummarizer',
+      summarizerSummary: 'summarizerSummary',
     }),
     ...mapState({
       googleFeed: state => state.googleFeed,
@@ -59,6 +69,13 @@ export default {
   mounted() {
     this.getBriefings();
     this.getGoogleFeed();
+    this.debouncedGetContentSummary = _.debounce(this.getContentSummary, 500);
+  },
+  watch: {
+    articlesForSummarizer(newList) {
+      this.setSummarizerSummary('Summarizing...');
+      this.debouncedGetContentSummary(newList);
+    },
   },
 };
 </script>

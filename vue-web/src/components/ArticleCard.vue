@@ -8,7 +8,7 @@
       </p>
       <p v-if="!expanded"
         class="overflowing-text">
-        {{content}}
+        {{ summary || content}}
       </p>
       <div class="card-header-icon" aria-label="more options">
         <span class="icon is-small" @click="expanded = !expanded">
@@ -26,47 +26,35 @@
         <time datetime="2016-1-1">{{formattedDate}}</time>
       </div>
     </div>
-      <!-- <footer class="card-footer" style="background-color: #F7F7FF;"> -->
       <footer
-        v-for="button in buttons"
-        :key="button.title"
         class="card-footer"
         style="background-color: #F7F7FF;">
         <div
+          v-for="button in buttons"
+          :key="button.title"
           class="card-footer-item"
-          :class="button.class"
+          :class="button.class()"
           @click="button.callback">
-          {{button.title}}
+          <span
+            v-if="(loading || summary) && button.title === 'Summarize'"
+            class="icon is-small"
+            @click="expanded = !expanded">
+            <i
+              :class="`mdi mdi-${loading ? 'loading loading-spinner' : 'check'}`"/>
+          </span>
+          <div v-else>
+            {{button.title}}
+          </div>
         </div>
-        <!-- <div
-          class="card-footer-item"
-          :class="saved ? 'confirmed' : ''"
-          @click="saved = !saved">
-          Save
-          </div>
-        <div
-          class="card-footer-item"
-          :class="footerSummarizeClass"
-          @click="addToSummarizeFeed">
-          Summarize
-          </div>
-        <a
-          :href="url"
-          target="_blank"
-          class="card-footer-item"
-          :class="{ unavailable: !url }">
-          View
-          </a> -->
       </footer>
   </div>
 </template>
 
 <script>
-import { mapMutations, mapActions } from 'vuex';
-// import ArticleCardFooter from '@/components/ArticleCardFooter.vue';
+import { mapMutations, mapActions, mapGetters } from 'vuex';
 
 export default {
-  props: ['title', 'url', 'content', 'date'],
+  props: ['title', 'url', 'content', 'date', 'summary'],
   components: {
   },
   data() {
@@ -74,8 +62,9 @@ export default {
       expanded: false,
       saved: false,
       summarize: false,
+      loading: false,
       buttons: [{
-        title: 'Share',
+        title: 'Save',
         class: this.savedButtonClass,
         callback: this.toggleSaved,
       },
@@ -92,12 +81,6 @@ export default {
     };
   },
   computed: {
-    savedButtonClass() {
-      return this.saved ? 'confirmed' : '';
-    },
-    viewButtonClass() {
-      return { unavailable: !this.url };
-    },
     formattedDate() {
       let formatted = '';
       if (this.date) {
@@ -107,17 +90,9 @@ export default {
       }
       return formatted;
     },
-    footerSummarizeClass() {
-      const outputClass = {
-        'card-footer-item': true,
-      };
-      if (!this.url) {
-        outputClass.unavailable = true;
-      } else if (this.summarize) {
-        outputClass.confirmed = true;
-      }
-      return outputClass;
-    },
+    ...mapGetters({
+      articleInSummarizerFeed: 'articleInSummarizerFeed',
+    }),
   },
   methods: {
     ...mapActions({
@@ -126,27 +101,57 @@ export default {
     }),
     summarizeURL(url) {
       const encodedURL = encodeURIComponent(url);
+      this.loading = true;
       this.summarizeArticle(encodedURL);
     },
     ...mapMutations({
+      addToSummarizerFeed: 'addToSummarizerFeed',
     }),
     openArticle() {
       window.open(this.url, '_blank');
     },
     toggleSaved() {
       this.saved = !this.saved;
-    },
-    addToSummarizeFeed() {
-      this.summarize = !this.summarize;
+      // TODO: saved vs summarize button workflow
       const article = {
         title: this.title,
         url: this.url,
         content: this.content,
         date: this.date,
       };
-      this.toggleSummarizerFeed(article);
+      this.addToSummarizerFeed(article);
     },
-    share() {
+    addToSummarizeFeed() {
+      this.summarize = !this.summarize;
+      this.loading = true;
+      console.log(this.loading);
+      const article = {
+        title: this.title,
+        url: this.url,
+        content: this.content,
+        date: this.date,
+      };
+      this.toggleSummarizerFeed(article).then(() => {
+        this.loading = false;
+        console.log(this.loading);
+      });
+    },
+    savedButtonClass() {
+      return this.articleInSummarizerFeed(this.url) ? 'confirmed' : '';
+    },
+    viewButtonClass() {
+      return { unavailable: !this.url };
+    },
+    footerSummarizeClass() {
+      const outputClass = {
+        'card-footer-item': true,
+      };
+      if (!this.url) {
+        outputClass.unavailable = true;
+      } else if (this.summary) {
+        outputClass.confirmed = true;
+      }
+      return outputClass;
     },
   },
 };
@@ -194,5 +199,18 @@ export default {
 
   .card-footer-item:hover {
     background-color:rgba(121, 87, 213, 0.5);
+  }
+
+  .loading-spinner {
+    animation:  1.5s linear infinite rotate;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg)
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>
