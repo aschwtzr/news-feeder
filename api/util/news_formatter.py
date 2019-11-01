@@ -23,10 +23,10 @@ def summary_from_articles (summaries):
     for summary in summaries:
       print(summary)
       print(raw_summary)
-      raw_summary += """{} . """.format(summary)
+      raw_summary += """{} """.format(summary)
       print(raw_summary)
     print('outside')
-    summ = summarize(raw_summary, ratio=.5)
+    summ = summarize(raw_summary, ratio=.5, split=True)
     print(summ)
 
     return { 'ok': True, 'data': summ }
@@ -94,7 +94,7 @@ def summry_from_url (url):
     else:
       ret["api_limitation"] = 'Caution: paid mode is enabled.'
     ret['ok'] = True
-    time.sleep(10)
+    # time.sleep(10)
     return ret
   else:
     return {'ok': False, 'err': parsed['sm_api_error']}

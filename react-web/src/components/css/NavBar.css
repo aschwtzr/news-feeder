@@ -1,0 +1,11 @@
+.NavBar {
+  display: flex!important;
+  flex-direction: row;
+  justify-content: center!important;
+  margin-right: 0px!important;
+  width: 100%;
+}
+
+.navbar-menu {
+  display: flex!important;
+}

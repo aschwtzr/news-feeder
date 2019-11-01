@@ -130,7 +130,11 @@ export default new Vuex.Store({
       return state.summarizerFeed[url];
     },
     summarizerSummary(state) {
-      return state.summarizerSummary;
+      return state.summarizerSummary.reduce((prev, curr) => {
+        let summary = prev;
+        summary += curr;
+        return summary;
+      }, '');
     },
   },
   modules: {
