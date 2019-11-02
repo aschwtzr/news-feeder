@@ -32,11 +32,11 @@ def get_headlines():
     for source in default_sources:
       # feed = get_feed_for(item)
       headlines = util.feed_getters.get_news_from_rss(source, limit)
-      ret["briefings"].append(headlines)
+      ret["results"].append(headlines)
   else:
     for source in req_sources:
       headlines = util.feed_getters.get_news_from_rss(source, limit)
-      ret["briefings"].append(headlines)
+      ret["results"].append(headlines)
   
   ret["ok"] = True
   return jsonify(ret)

@@ -1,5 +1,6 @@
 import React from 'react';
 import NavBar from './components/NavBar';
+import ArticleList from './components/ArticleList'
 import './App.css';
 import './App.sass';
 
@@ -35,7 +36,7 @@ class App extends React.Component {
         <div className="AppBody">
           <h1 className="title"> gossip </h1>
           <div className="">
-
+            <ArticleList />
           </div>
         </div>
       </div>

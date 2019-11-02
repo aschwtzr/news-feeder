@@ -75,9 +75,9 @@ export default new Vuex.Store({
     },
     getBriefings({ commit }) {
       return new Promise((resolve, reject) => {
-        getBriefings().then((results) => {
-          const { briefings } = results.data;
-          commit('addRSSFeed', briefings);
+        getBriefings().then((res) => {
+          const { results } = res.data;
+          commit('addRSSFeed', results);
           resolve();
         }).catch((err) => {
           console.log(err);
