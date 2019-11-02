@@ -7,11 +7,13 @@
         {{title}}
       </p>
       <p v-if="!expanded"
-        class="overflowing-text">
+        class="overflowing-text"
+        style="cursor: pointer;"
+         @click="expanded = !expanded">
         {{ summary || content}}
       </p>
-      <div class="card-header-icon" aria-label="more options">
-        <span class="icon is-small" @click="expanded = !expanded">
+      <div class="card-header-icon" aria-label="more options" @click="expanded = !expanded">
+        <span class="icon is-small">
           <i
             :class="`mdi mdi-${expanded ? 'chevron-down' : 'chevron-right'}`"/>
         </span>
