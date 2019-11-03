@@ -71,6 +71,7 @@ function Article(props) {
             </span>
             <div 
             // v-else
+            onClick={() => props.onButtonClick()}
             >
               button title
             </div>

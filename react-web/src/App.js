@@ -3,6 +3,11 @@ import NavBar from './components/NavBar';
 import ArticleList from './components/ArticleList'
 import './App.css';
 import './App.sass';
+import { Provider as ReduxProvider } from "react-redux";
+import configureStore from "./modules/store";
+
+const reduxStore = configureStore(window.REDUX_INITIAL_DATA);
+
 
 class App extends React.Component {
   constructor(props) {
@@ -24,22 +29,24 @@ class App extends React.Component {
 
   render () {
     return (
-      <div className="">
-        <div>
-          <NavBar 
-            setHome={() => this.setView('home')}
-            setAbout={() => this.setView('about')}
-            setNews={() => this.setView('news')}
-            setSettings={() => this.setView('settings')}
-            />
-        </div>
-        <div className="AppBody">
-          <h1 className="title"> gossip </h1>
-          <div className="">
-            <ArticleList />
+      <ReduxProvider store={reduxStore}>
+        <div className="">
+          <div>
+            <NavBar 
+              setHome={() => this.setView('home')}
+              setAbout={() => this.setView('about')}
+              setNews={() => this.setView('news')}
+              setSettings={() => this.setView('settings')}
+              />
+          </div>
+          <div className="AppBody">
+            <h1 className="title"> gossip </h1>
+            <div className="">
+              <ArticleList />
+            </div>
           </div>
         </div>
-      </div>
+      </ReduxProvider>
     );
   }
 }

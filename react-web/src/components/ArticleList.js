@@ -1,7 +1,17 @@
 import React from 'react';
 import { getBriefings } from "../utils/Api";
-import Article from './Article'
+import Article from './Article';
+import ACTIONS from '../modules/action';
+import { connect } from 'react-redux';
 
+const mapStateToProps = state => ({
+  count: state.news.count
+});
+
+const mapDispatchToProps = dispatch => ({
+  increaseCount: () => dispatch(ACTIONS.increaseCount()),
+  fetchRSSBriefing: () => dispatch(ACTIONS.fetchRSSBriefing())
+});
 class ArticleList extends React.Component {
   constructor(props) {
     super(props);
@@ -17,7 +27,7 @@ class ArticleList extends React.Component {
     this.cuticles = this.cuticles.bind(this)
   }
 
-  cuticles (props) {
+  cuticles () {
     const briefings = this.state.briefings //props.briefings;
     const listItems = briefings.map((briefing) =>  {
       const articles = briefing.articles.map((article) => 
@@ -28,6 +38,7 @@ class ArticleList extends React.Component {
           url={article.url}
           formattedDate={article.formattedDate}
           key={article.url}
+          onButtonClick={this.props.increaseCount}
         ></Article>
       )
       return (
@@ -47,6 +58,7 @@ class ArticleList extends React.Component {
   async componentDidMount() {
     // Load async data.
     let briefings = await getBriefings();
+    this.props.fetchRSSBriefing()
         // Parse the results for ease of use.
     briefings = briefings.data.results;
     console.log(briefings)
@@ -69,7 +81,7 @@ class ArticleList extends React.Component {
     return (
       <div className="">
         <div>
-          Tab Bar
+          {this.props.count}
         </div>
         <div className="">
           { this.cuticles() }
@@ -79,4 +91,7 @@ class ArticleList extends React.Component {
   }
 }
 
-export default ArticleList;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+  )(ArticleList);
