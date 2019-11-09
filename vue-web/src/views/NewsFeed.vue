@@ -1,10 +1,12 @@
 <template>
-  <div>
+  <div style="background-color: #F7F7FF;">
     <news-feed-tabs />
-    <div v-if="currentNewsFeedView === 'summaries'">
-      {{ summarizerSummary }}
+    <div style=" padding-top: 1.5rem;">
+      <div v-if="currentNewsFeedView === 'summaries'">
+        {{ summarizerSummary }}
+      </div>
+      <news-feed-article-list :briefings="briefingsByView" />
     </div>
-    <news-feed-article-list :briefings="briefingsByView" />
   </div>
 </template>
 

@@ -1,9 +1,9 @@
 <template>
-  <div style="">
+  <div class="news-briefing-container">
     <div
       v-for="(briefing, index) in briefings"
       :key="`${briefing.source}-${index}`"
-      class="news-briefing-wrapper">
+      class="topic-source-wrapper">
       <strong> {{headline(briefing)}} </strong>
       <div v-for="article in briefing.articles" :key="article.title" >
         <article-card
@@ -61,8 +61,15 @@ export default {
 </script>
 
 <style>
-  .news-briefing-wrapper {
-    padding-bottom: 3rem;
+  .topic-source-wrapper {
+    margin-bottom: 3rem;
     overflow-y: auto;
+    width: 90vw;
+  }
+
+  .news-briefing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 </style>

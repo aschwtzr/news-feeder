@@ -62,5 +62,9 @@ export default {
     z-index: 1000;
     background-color: white;
     padding-top: 1rem;
+    margin-bottom: 0rem!important;
+  }
+  .tabs.is-boxed li.is-active a {
+    background-color: #F7F7FF;
   }
 </style>

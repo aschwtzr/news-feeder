@@ -178,6 +178,7 @@ export default {
 
   .article-card__container {
     margin-bottom: 1.5rem;
+    border: .75px solid rgb(121, 87, 213, .5);
   }
 
   .content {
