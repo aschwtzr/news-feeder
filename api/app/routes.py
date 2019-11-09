@@ -81,11 +81,14 @@ def summarize():
 # summarize article with smmry API
 @app.route('/gensim-summary', methods=(['post']))
 def gensim():
+  # 1. get request body data as dict
+  # 2. get text content
+  # 3. send to summary function which returns gensim summarized text
+  # 4. return dictionary with summarized text
+  # 5. convert to JSON object for frontend digestion
+
   req_data = request.get_json()
-  summaries = req_data['content']
-  summary = util.news_formatter.summary_from_articles(summaries)
-  if summary["ok"] is not True:
-    ret = { 'ok': False, 'error': summary['err']}
-  else:
-    ret = { 'ok': True, 'summary': summary['data'] }
+  content = req_data['content']
+  summary = util.news_formatter.summary_from_articles(content)
+  ret = { 'ok': True, 'summary': summary }
   return jsonify(ret)

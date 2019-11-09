@@ -20,12 +20,14 @@ def summary_from_articles (summaries):
   raw_summary = ""
   try:
     for summary in summaries:
-      raw_summary += """{} """.format(summary)
+      raw_summary += f"{summary} "
     summ = summarize(raw_summary, ratio=.5, split=True)
 
-    return { 'ok': True, 'data': summ }
-  except:
-    return { 'ok': False, 'err': 'Error with GENSIM processing.' }
+    return summ 
+  except error:
+    print(f"Error with GENSIM processing: {error}")
+    # not sure if we need raise here
+    raise
   
 # summarize rss feed articles using SMMRY
 def get_summaries_from_source (source, max = 2):
