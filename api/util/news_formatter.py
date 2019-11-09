@@ -8,6 +8,8 @@ from collections import defaultdict
 import re
 from util.api import get_feed_for
 
+import logging
+
 # parse xml feed into soup
 def parse_feed_xml (source):
   data = get_feed_for(source)
@@ -41,11 +43,18 @@ def gensim_summ_from_list (summaries):
     # throws silently when commented
     raise
 
-def summry_from_url (url):
+def summary_from_url (url):
   ret = {}
-  try:
-    result = util.api.get_summary(url)
-    parsed = json.loads(result)
+  result = util.api.get_summary(url)
+  parsed = json.loads(result)
+  print(parsed)
+  # error = parsed["sm_api_error"]
+  if "sm_api_error" in parsed:
+    ret["ok"] = False
+    ret["error"] = parsed["sm_api_message"]
+    return ret
+  
+  else:
     ret["summary"] = "{}".format(parsed['sm_api_content'])
     if "sm_api_limitation" in parsed:
       ret["api_limitation"] = ''.format(parsed["sm_api_limitation"])
@@ -55,9 +64,6 @@ def summry_from_url (url):
       ret["api_limitation"] = 'Caution: paid mode is enabled.'
     ret['ok'] = True
     return ret
-  except error:
-    logging.exception("ERROR PROCESSING SMMRY REQUEST")
-    logging.exception(error)
 
 def article_from_google_rss_li (article):
   a = article.find('a')

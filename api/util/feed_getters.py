@@ -27,7 +27,7 @@ def get_google_world_news_feed ():
     # parse soup for list of articles
     item_soup = BeautifulSoup(topic.description.get_text(), "html.parser")
     list_items = item_soup.findAll('li')
-    # print(list_items)
+
     if len(list_items) > 1:
       for article in list_items:
         strong = article.find('strong')
