@@ -60,8 +60,7 @@ def get_news_from_rss (source, limit):
   ret = defaultdict(list)
   ret["source"] = title
   items = soup.find_all("item")
-  item_index = 0
-  for item in items:
+  for item_index, item in enumerate(items):
     parser = util.description_parsers.parsers[source]
     article = {
       'title': item.title.string,
@@ -71,7 +70,6 @@ def get_news_from_rss (source, limit):
     if item.pubDate is not None:
       article["date"] = item.pubDate.string
     ret["articles"].append(article)
-    item_index += 1
     if item_index >= limit:
       break
   if len(ret["articles"]) > 1:

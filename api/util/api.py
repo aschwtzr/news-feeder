@@ -35,8 +35,8 @@ def get_summary (uri):
   result = requests.get(request_uri)
   return result.text
 
-def get_rss_sources ():
+def list_rss_sources ():
   sources = []
   for source in world_news_feeds:
     sources.append(source)
-  return sources
+  return list(map(lambda source: source, world_news_feeds))

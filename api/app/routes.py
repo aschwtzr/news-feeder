@@ -1,7 +1,7 @@
 from app import app
 import util.news_formatter
 import util.feed_getters
-from util.api import get_feed_for, get_rss_sources
+from util.api import get_feed_for, list_rss_sources
 from flask import request
 from flask import jsonify
 from collections import defaultdict
@@ -60,7 +60,7 @@ def get_google():
 # list of available news sources
 @app.route('/sources', methods=(['GET']))
 def get_sources():
-  sources = get_rss_sources()
+  sources = list_rss_sources()
   ret = { 'ok': True, 'sources': sources }
   return jsonify(ret)
 
