@@ -12,21 +12,18 @@ def get_google_world_news_feed ():
   items = soup.findAll('item')
 
   news_bullets = []
-  print(f'items count: {len(items)}')
   for headline in items:
     news_item = defaultdict(list)
     media = headline.find('content')
     title_split = headline.title.string.rpartition(' - ')
     news_item['title'] = title_split[0]
     news_item['source'] = title_split[2]
-    # print(headline)
     if media is not None:
       news_item['media'] = media['url']
     if headline.pubDate is not None:
       news_item["date"] = headline.pubDate.string
     item_soup = BeautifulSoup(headline.description.get_text(), "html.parser")
     list_items = item_soup.findAll('li')
-    # print(len(list_items))
     for bullet in list_items:
       strong = bullet.find('strong')
       if strong is not None:

@@ -27,7 +27,6 @@ def get_headlines():
   else: limit = int(req_limit)
 
   ret = defaultdict(list)
-  print(len(req_sources))
   if len(req_sources) == 0:
     for source in default_sources:
       # feed = get_feed_for(item)
@@ -50,7 +49,6 @@ def get_google():
   if limit is None:
     limit = 2
   else: limit = int(limit)
-  print(f'request params: limit: {limit} summarize: {summarize}')
   feed = util.feed_getters.get_google_world_news_feed()
   if summarize == 'true':
     news = util.news_formatter.get_summaries_from_google_feed(feed, limit)
@@ -70,12 +68,10 @@ def get_sources():
 @app.route('/smmry', methods=(['GET']))
 def summarize():
   url = request.args.get('url')
-  print(url)
   if url is None:
     ret = { 'ok': False, 'error': 'Must provide URL for summarization' }
   else:
     summary = util.news_formatter.summry_from_url(url)
-    print(summary)
     if summary["ok"] is not True:
       ret = { 'ok': False, 'error': summary['err']}
     else:
@@ -87,9 +83,7 @@ def summarize():
 def gensim():
   req_data = request.get_json()
   summaries = req_data['content']
-  # print(summaries)
   summary = util.news_formatter.summary_from_articles(summaries)
-  print(summary)
   if summary["ok"] is not True:
     ret = { 'ok': False, 'error': summary['err']}
   else:

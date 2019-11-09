@@ -7,7 +7,6 @@ def parse_description_for_source (description, source):
 
 def parse_google (article):
   item_soup = BeautifulSoup(article.description.get_text(), "html.parser")
-  # print(item_soup.get_text())
 
   article = {
     'title': article.title.string,
@@ -23,7 +22,6 @@ def parse_guardian (content):
   soup = BeautifulSoup(content, "html.parser")
   content_p_tags = soup.find_all('p')
   text = ''
-  # print(content_p_tags)
   for index, p in enumerate(content_p_tags):
     text += p.get_text()
     if index == 0:

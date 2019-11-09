@@ -19,15 +19,9 @@ def parse_feed_xml (source):
 def summary_from_articles (summaries):
   raw_summary = ""
   try:
-    # print(summaries)
     for summary in summaries:
-      print(summary)
-      print(raw_summary)
       raw_summary += """{} """.format(summary)
-      print(raw_summary)
-    print('outside')
     summ = summarize(raw_summary, ratio=.5, split=True)
-    print(summ)
 
     return { 'ok': True, 'data': summ }
   except:
@@ -69,7 +63,6 @@ def get_summaries_from_google_feed (news, max = 2):
     article_index = 0
     raw_summary = ''
     for article in news_obj['articles']:
-      # print(article['title'])
       res = summry_from_url(article['url'])
       if res['ok'] == True:
         api_limitation = res['api_limitation']
