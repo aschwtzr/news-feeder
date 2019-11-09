@@ -33,8 +33,24 @@ def get_google_world_news_feed ():
     # parse soup for list of articles
     item_soup = BeautifulSoup(headline.description.get_text(), "html.parser")
     list_items = item_soup.findAll('li')
-
-    for article in list_items:
+    if len(list_items) > 1:
+      for article in list_items:
+        strong = article.find('strong')
+        if strong is not None:
+          continue
+        a = article.find('a')
+        title_text = a.get_text()
+        articleObj = {
+          'title': title_text,
+          'url': a['href'],
+          'source': article.find('font').get_text()
+        }
+        headlinesCollection += f' {title_text}'
+        result['articles'].append(articleObj)
+      result['title'] = util.news_formatter.summary_from_headlines(headlinesCollection)
+    else:
+      print('this should handle breaking or stories with only one source')
+      article = item_soup
       strong = article.find('strong')
       if strong is not None:
         continue
@@ -45,9 +61,8 @@ def get_google_world_news_feed ():
         'url': a['href'],
         'source': article.find('font').get_text()
       }
-      headlinesCollection += f' {title_text}'
-      result['articles'].append(articleObj)
-    result['title'] = util.news_formatter.summary_from_headlines(headlinesCollection)
+      result['title'] = title_text
+      result['articles'] = articleObj
     news_bullets.append(result)
   return news_bullets
 
