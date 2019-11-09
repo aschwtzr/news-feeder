@@ -14,90 +14,58 @@ def parse_feed_xml (source):
   soup = BeautifulSoup(data, 'xml')
   return soup
 
-# summarize text using gensim
-# takes a list of article objects with a content field
-def summary_from_articles (summaries):
+# MARK: refactor line
+      
+# get keywords from list of strings
+def keywords_from_strings (string_list):
+  words = 8 if len(string_list) >= 4  else len(string_list)
+  reduced = ". ".join([headline for headline in string_list])
+  keywordsFromText = keywords(reduced, split=True, scores=False, words=words)
+  sentence = ''
+  for pair in keywordsFromText:
+    sentence += f'{pair} '
+  return sentence
+
+# summarize array of sentences using gensim
+def gensim_summ_from_list (summaries):
   raw_summary = ""
+  if len(summaries) <= 1:
+    return summaries[0]
   try:
     for summary in summaries:
       raw_summary += f"{summary} "
     summ = summarize(raw_summary, ratio=.5, split=True)
-
     return summ 
-  except error:
-    print(f"Error with GENSIM processing: {error}")
-    # not sure if we need raise here
+  except:
+    print("Error with GENSIM processing")
+    # throws silently when commented
     raise
-  
-# summarize rss feed articles using SMMRY
-def get_summaries_from_source (source, max = 2):
-  soup = parse_feed_xml(source)
-  title = soup.title.string
-  ret = defaultdict(list)
-  ret["source"] = title
 
-  items = soup.find_all("item")
-  item_index = 0
-  for item in items:
-    result = util.api.get_summary(item.link.string)
-    parsed = json.loads(result)
-    if "sm_api_error" not in parsed:
-      article = {
-        'title': "{}".format(parsed['sm_api_title']),
-        'content': "{}".format(parsed['sm_api_content']),
-        'url': item.link.string
-      }
-      ret["articles"].append(article)
-      ret["api_limitation"] = '+++ {} +++'.format(parsed["sm_api_limitation"])
-      item_index+=1
-      if item_index >= max:
-        break
-      time.sleep(10)
-
-  return ret
-
-def get_summaries_from_google_feed (news, max = 2):
-  ret = news
-  api_limitation = ''
-  news_index = 0
-  for news_obj in news:
-    article_index = 0
-    raw_summary = ''
-    for article in news_obj['articles']:
-      res = summry_from_url(article['url'])
-      if res['ok'] == True:
-        api_limitation = res['api_limitation']
-        ret[news_index]['articles'][article_index]['summary'] = res['summary']
-        raw_summary += "{} . ".format(res['summary'])
-      article_index += 1
-    
-    ret[news_index]['summary'] = summarize(raw_summary, ratio=.7, split=False)
-    news_index += 1
-    if news_index >= max:
-      break
-  return {'news': ret, 'api_limitation': api_limitation}
-      
 def summry_from_url (url):
   ret = {}
-  result = util.api.get_summary(url)
-  parsed = json.loads(result)
-  if "sm_api_error" not in parsed:
+  try:
+    result = util.api.get_summary(url)
+    parsed = json.loads(result)
     ret["summary"] = "{}".format(parsed['sm_api_content'])
     if "sm_api_limitation" in parsed:
       ret["api_limitation"] = ''.format(parsed["sm_api_limitation"])
+      # flagged sleep parameter for unpaid API
       # time.sleep(10)
     else:
       ret["api_limitation"] = 'Caution: paid mode is enabled.'
     ret['ok'] = True
     return ret
-  else:
-    return {'ok': False, 'err': parsed['sm_api_error']}
+  except error:
+    logging.exception("ERROR PROCESSING SMMRY REQUEST")
+    logging.exception(error)
 
-# get keywords from paragraph
-# TODO: ultimately this should take an array of sentences that is formatted by the caller
-def summary_from_headlines (text):
-  keywordsFromText = keywords(text, split=True, scores=False, words=8)
-  sentence = ''
-  for pair in keywordsFromText:
-    sentence += f'{pair} '
-  return sentence
+def article_from_google_rss_li (article):
+  a = article.find('a')
+  title_text = a.get_text()
+  source = article.find('font').get_text()
+  articleObj = {
+    'title': title_text,
+    'url': a['href'],
+    'source': source
+  }
+  return articleObj

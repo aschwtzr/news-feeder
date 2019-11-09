@@ -75,6 +75,8 @@ export default {
   },
   watch: {
     articlesForSummarizer(newList) {
+      debugger;
+      console.log(newList);
       this.setSummarizerSummary('Summarizing...');
       this.debouncedGetContentSummary(newList);
     },

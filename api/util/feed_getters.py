@@ -2,10 +2,9 @@ from bs4 import BeautifulSoup
 # to run via command line remember to remove util. from the import
 import util.description_parsers
 from collections import defaultdict
+import logging
 
 # google news world rss feed
-# feed <description> is a list of articles
-# return format: [{ title: 'high level headline', articles: [{ source, title, url}]},]
 def get_google_world_news_feed ():
   data = util.api.get_feed_for('google')
   soup = BeautifulSoup(data, 'xml')
@@ -13,61 +12,44 @@ def get_google_world_news_feed ():
 
   news_bullets = []
   # change headline to topic
-  for headline in items:
+  for topic in items:
     result = defaultdict(list)
-    media = headline.find('content')
-
-    headlinesCollection = ''
-    # title_split = headline.title.string.rpartition(' - ')
-    # result['title'] = title_split[0]
-    # result['source'] = title_split[2]
+    media = topic.find('content')
 
     # get images
     if media is not None:
       result['media'] = media['url']
 
     # get publication date
-    if headline.pubDate is not None:
-      result["date"] = headline.pubDate.string
+    if topic.pubDate is not None:
+      result["date"] = topic.pubDate.string
 
     # parse soup for list of articles
-    item_soup = BeautifulSoup(headline.description.get_text(), "html.parser")
+    item_soup = BeautifulSoup(topic.description.get_text(), "html.parser")
     list_items = item_soup.findAll('li')
+    # print(list_items)
     if len(list_items) > 1:
       for article in list_items:
         strong = article.find('strong')
         if strong is not None:
+          # link to google news
+          logging.info('skipping list item with strong tag.. eval:')
+          logging.info(strong.get_text() == 'View full coverage on Google News')
           continue
-        a = article.find('a')
-        title_text = a.get_text()
-        articleObj = {
-          'title': title_text,
-          'url': a['href'],
-          'source': article.find('font').get_text()
-        }
-        headlinesCollection += f' {title_text}'
+        articleObj = util.news_formatter.article_from_google_rss_li(article)
         result['articles'].append(articleObj)
-      result['title'] = util.news_formatter.summary_from_headlines(headlinesCollection)
+      headlines = list(map(lambda article: article["title"], result["articles"]))
+      result['title'] = util.news_formatter.keywords_from_strings(headlines)
     else:
-      print('this should handle breaking or stories with only one source')
       article = item_soup
-      strong = article.find('strong')
-      if strong is not None:
-        continue
-      a = article.find('a')
-      title_text = a.get_text()
-      articleObj = {
-        'title': title_text,
-        'url': a['href'],
-        'source': article.find('font').get_text()
-      }
-      result['title'] = title_text
+      articleObj = util.news_formatter.article_from_google_rss_li(article)
+      result['title'] = articleObj["title"]
       result['articles'] = articleObj
+
     news_bullets.append(result)
   return news_bullets
 
 # gets headlines from rss feed
-# return format: {source: source, summary: summary, articles: [{ title: 'headline', content: 'provided article summary', link: 'url'}]}
 def get_news_from_rss (source, limit):
   if source is None:
     print('must provide source')
@@ -92,5 +74,10 @@ def get_news_from_rss (source, limit):
     item_index += 1
     if item_index >= limit:
       break
-  ret["summary"] = util.news_formatter.summary_from_articles(ret["articles"])
+  if len(ret["articles"]) > 1:
+    content_list = list(map(lambda article: article["content"], ret["articles"]))
+    ret["summary"] = util.news_formatter.gensim_summ_from_list(content_list)
+  else:
+    ret["summary"] = "fake summary"
+    # print(ret)
   return ret
