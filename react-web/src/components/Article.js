@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Icon from '@mdi/react'
 import { mdiChevronDown, mdiChevronRight } from '@mdi/js'
 import './css/Article.css';
+import ArticleButtons from './ArticleButtons'
 
 function Article(props) {
   const [expanded, setExpanded] = useState(false)
@@ -49,34 +50,7 @@ function Article(props) {
           </div>
         </header>
         { contentPanel }
-        <footer
-          className="card-footer"
-          // style="background-color: #F7F7FF;"
-          >
-          <div
-            // v-for="button in buttons"
-            // :key="button.title"
-            className="CardFooterButton"
-            // :className="button.className()"
-            // @click="button.callback"
-            >
-            <span
-              // v-if="(loading || summary) && button.title === 'Summarize'"
-              className="icon is-small"
-              // @click="expanded = !expanded"
-              >
-              <i
-                // :className="`mdi mdi-${loading ? 'loading loading-spinner' : 'check'}`"
-                />
-            </span>
-            <div 
-            // v-else
-            onClick={() => props.onButtonClick()}
-            >
-              button title
-            </div>
-          </div>
-        </footer>
+        <ArticleButtons buttons={props.articleButtons} />
       </div>
   );
 }

@@ -24,10 +24,10 @@ class ArticleList extends React.Component {
       briefings: []
     };
     this.setView = this.setView.bind(this);
-    this.cuticles = this.cuticles.bind(this)
+    this.briefings = this.briefings.bind(this)
   }
 
-  cuticles () {
+  briefings () {
     const briefings = this.state.briefings //props.briefings;
     const listItems = briefings.map((briefing) =>  {
       const articles = briefing.articles.map((article) => 
@@ -38,6 +38,7 @@ class ArticleList extends React.Component {
           url={article.url}
           formattedDate={article.formattedDate}
           key={article.url}
+          articleButtons={this.buttons()}
           onButtonClick={this.props.increaseCount}
         ></Article>
       )
@@ -70,7 +71,24 @@ class ArticleList extends React.Component {
 
     this.setState({ briefings });
   }
- 
+  
+  buttons () {
+    return [{
+      title: 'Save',
+      class: 'this.savedButtonClass',
+      callback: () => { this.props.increaseCount() },
+    },
+    {
+      title: 'Summarize',
+      class: 'this.footerSummarizeClass',
+      callback: () => { console.log('this.addToSummarizeFeed') },
+    },
+    {
+      title: 'View',
+      class: 'this.viewButtonClass',
+      callback: () => { console.log('this.openArticle') },
+    }]
+  }
 
   setView (val) {
     this.currentView = val
@@ -84,7 +102,7 @@ class ArticleList extends React.Component {
           {this.props.count}
         </div>
         <div className="">
-          { this.cuticles() }
+          { this.briefings() }
         </div>
       </div>
     );

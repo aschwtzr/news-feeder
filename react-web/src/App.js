@@ -25,7 +25,6 @@ class App extends React.Component {
     this.currentView = val
     console.log(val);
   };
-  currentView
 
   render () {
     return (
