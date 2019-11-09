@@ -12,31 +12,43 @@ def get_google_world_news_feed ():
   items = soup.findAll('item')
 
   news_bullets = []
+  # change headline to topic
   for headline in items:
-    news_item = defaultdict(list)
+    result = defaultdict(list)
     media = headline.find('content')
-    title_split = headline.title.string.rpartition(' - ')
-    news_item['title'] = title_split[0]
-    news_item['source'] = title_split[2]
+
+    headlinesCollection = ''
+    # title_split = headline.title.string.rpartition(' - ')
+    # result['title'] = title_split[0]
+    # result['source'] = title_split[2]
+
+    # get images
     if media is not None:
-      news_item['media'] = media['url']
+      result['media'] = media['url']
+
+    # get publication date
     if headline.pubDate is not None:
-      news_item["date"] = headline.pubDate.string
+      result["date"] = headline.pubDate.string
+
+    # parse soup for list of articles
     item_soup = BeautifulSoup(headline.description.get_text(), "html.parser")
     list_items = item_soup.findAll('li')
-    for bullet in list_items:
-      strong = bullet.find('strong')
+
+    for article in list_items:
+      strong = article.find('strong')
       if strong is not None:
         continue
-      a = bullet.find('a')
+      a = article.find('a')
       title_text = a.get_text()
-      article = {
+      articleObj = {
         'title': title_text,
         'url': a['href'],
-        'source': bullet.find('font').get_text()
+        'source': article.find('font').get_text()
       }
-      news_item['articles'].append(article)
-    news_bullets.append(news_item)
+      headlinesCollection += f' {title_text}'
+      result['articles'].append(articleObj)
+    result['title'] = util.news_formatter.summary_from_headlines(headlinesCollection)
+    news_bullets.append(result)
   return news_bullets
 
 # gets headlines from rss feed

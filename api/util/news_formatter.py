@@ -27,7 +27,6 @@ def summary_from_articles (summaries):
   except:
     return { 'ok': False, 'err': 'Error with GENSIM processing.' }
   
-
 # summarize rss feed articles using SMMRY
 def get_summaries_from_source (source, max = 2):
   soup = parse_feed_xml(source)
@@ -84,12 +83,19 @@ def summry_from_url (url):
     ret["summary"] = "{}".format(parsed['sm_api_content'])
     if "sm_api_limitation" in parsed:
       ret["api_limitation"] = ''.format(parsed["sm_api_limitation"])
+      # time.sleep(10)
     else:
       ret["api_limitation"] = 'Caution: paid mode is enabled.'
     ret['ok'] = True
-    # time.sleep(10)
     return ret
   else:
     return {'ok': False, 'err': parsed['sm_api_error']}
-  # time.sleep(10)
-  # return {'ok': True, 'summary': "I AM A JEDI. I AM A JEDIIII.", 'err': "I AM A JEDI. I AM A JEDIIII."}
+
+# get keywords from paragraph
+# TODO: ultimately this should take an array of sentences that is formatted by the caller
+def summary_from_headlines (text):
+  keywordsFromText = keywords(text, split=True, scores=False, words=8)
+  sentence = ''
+  for pair in keywordsFromText:
+    sentence += f'{pair} '
+  return sentence
