@@ -9,7 +9,7 @@
         <article-card
           :title="article.title"
           :url="article.url"
-          :content="article.content"
+          :content="article.preview"
           :date="article.date"
           :summary="article.summary || false"
           />

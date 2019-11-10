@@ -3,14 +3,19 @@ import time
 import requests
 import os
 
+google_feeds = {
+  "world": 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en',
+  "custom": 'https://news.google.com/rss/search?q=&hl=en-US&gl=US&ceid=US:en',
+}
+
+# https://github.com/reddit-archive/reddit/wiki/API
+# "reddit": 'https://www.reddit.com/r/worldnews/.rss?sort=new',
+# needs Reddit integration
 world_news_feeds = {
-  "google": 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en',
   "reuters": 'http://feeds.reuters.com/Reuters/worldNews',
   "bbc": 'http://feeds.bbci.co.uk/news/world/rss.xml',
   "dw": 'http://rss.dw.com/rdf/rss-en-world',
   "guardian": 'https://www.theguardian.com/world/rss',
-  "reddit": 'https://www.reddit.com/.rss',
-  "custom": 'https://news.google.com/rss/search?q=&hl=en-US&gl=US&ceid=US:en',
   "yahoo": "https://www.yahoo.com/news/rss/world",
 }
 
@@ -18,6 +23,8 @@ world_news_feeds = {
 def get_feed_for (resource):
   if resource in world_news_feeds:
     uri = world_news_feeds[resource]
+  elif resource in google_feeds:
+    uri = google_feeds[resource]
   else:
     split_uri = world_news_feeds["custom"].split('q=')
     uri = split_uri[0] + "q=" + resource + split_uri[1]

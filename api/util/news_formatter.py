@@ -36,7 +36,7 @@ def gensim_summ_from_list (summaries):
   try:
     for summary in summaries:
       raw_summary += f"{summary} "
-    summ = summarize(raw_summary, ratio=.5, split=True)
+    summ = summarize(raw_summary, ratio=.3, split=False)
     return summ 
   except:
     print("Error with GENSIM processing")

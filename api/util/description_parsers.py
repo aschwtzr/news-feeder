@@ -33,6 +33,11 @@ def parse_reuters (content):
   soup = BeautifulSoup(content, "html.parser")
   return soup.get_text()
 
+
+def parse_yahoo (content):
+  soup = BeautifulSoup(content, "html.parser")
+  return soup.get_text()
+
 parsers = {
   'google': parse_default,
   'default': parse_default,
@@ -41,5 +46,6 @@ parsers = {
   'guardian': parse_guardian,
   'reddit': parse_default,
   'custom': parse_default,
-  'dw': parse_default
+  'dw': parse_default,
+  'yahoo': parse_yahoo,
 }

@@ -6,7 +6,7 @@ import logging
 
 # google news world rss feed
 def get_google_world_news_feed ():
-  data = util.api.get_feed_for('google')
+  data = util.api.get_feed_for('world')
   soup = BeautifulSoup(data, 'xml')
   items = soup.findAll('item')
 
@@ -20,23 +20,25 @@ def get_google_world_news_feed ():
     if media is not None:
       result['media'] = media['url']
 
-    # get publication date
-    if topic.pubDate is not None:
-      result["date"] = topic.pubDate.string
-
     # parse soup for list of articles
     item_soup = BeautifulSoup(topic.description.get_text(), "html.parser")
     list_items = item_soup.findAll('li')
 
     if len(list_items) > 1:
-      for article in list_items:
+      for index, article in enumerate(list_items):
         strong = article.find('strong')
         if strong is not None:
           # link to google news
           logging.info('skipping list item with strong tag.. eval:')
           logging.info(strong.get_text() == 'View full coverage on Google News')
           continue
+
         articleObj = util.news_formatter.article_from_google_rss_li(article)
+
+        # get publication date
+        if topic.pubDate is not None and index == 0:
+          articleObj["date"] = topic.pubDate.string
+
         result['articles'].append(articleObj)
       headlines = list(map(lambda article: article["title"], result["articles"]))
       result['title'] = util.news_formatter.keywords_from_strings(headlines)
@@ -44,6 +46,8 @@ def get_google_world_news_feed ():
       article = item_soup
       articleObj = util.news_formatter.article_from_google_rss_li(article)
       result['title'] = articleObj["title"]
+      if topic.pubDate is not None and index == 0:
+        result["date"] = topic.pubDate.string
       result['articles'] = articleObj
 
     news_bullets.append(result)
@@ -56,16 +60,19 @@ def get_news_from_rss (source, limit):
     return
   soup = util.news_formatter.parse_feed_xml(source)
 
-  title = soup.title.string
   ret = defaultdict(list)
-  ret["source"] = title
+  try:
+    ret["source"] = soup.title.string
+  except:
+    print(soup)
   items = soup.find_all("item")
   for item_index, item in enumerate(items):
     parser = util.description_parsers.parsers[source]
     article = {
       'title': item.title.string,
-      'content': parser(item.description.get_text()),
+      'preview': parser(item.description.get_text()),
       'url': item.link.string,
+      'source': ret["source"]
     }
     if item.pubDate is not None:
       article["date"] = item.pubDate.string
@@ -73,7 +80,7 @@ def get_news_from_rss (source, limit):
     if item_index >= limit:
       break
   if len(ret["articles"]) > 1:
-    content_list = list(map(lambda article: article["content"], ret["articles"]))
+    content_list = list(map(lambda article: article["preview"], ret["articles"]))
     ret["summary"] = util.news_formatter.gensim_summ_from_list(content_list)
   else:
     ret["summary"] = "fake summary"

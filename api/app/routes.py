@@ -8,7 +8,7 @@ from collections import defaultdict
 
 import datetime
 
-default_sources = ["bbc", "dw", "guardian", "reuters"]
+default_sources = util.api.world_news_feeds
 
 @app.route('/')
 @app.route('/index')
@@ -44,16 +44,14 @@ def get_headlines():
 # get google news summaries 
 @app.route('/google-news', methods=(['GET']))
 def get_google():
-  summarize = request.args.get('summarize')
-  limit = request.args.get('limit')
-  if limit is None:
-    limit = 2
-  else: limit = int(limit)
-  feed = util.feed_getters.get_google_world_news_feed()
-  if summarize == 'true':
+  topics = request.args.getlist('topic')
+  
+  if len(topics) > 0:
+    # TODO: custom topics search
     news = util.news_formatter.get_summaries_from_google_feed(feed, limit)
   else:
-    news = feed
+    news = util.feed_getters.get_google_world_news_feed()
+
   ret = { 'ok': True, 'news': news }
   return jsonify(ret)
 
