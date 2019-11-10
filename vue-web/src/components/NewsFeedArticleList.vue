@@ -9,7 +9,7 @@
         <article-card
           :title="article.title"
           :url="article.url"
-          :content="article.content"
+          :content="article.preview"
           :date="article.date"
           :summary="article.summary || false"
           />
@@ -40,7 +40,7 @@ export default {
       if (this.currentNewsFeedView === 'briefings') {
         curr = briefing.source;
       } else if (this.currentNewsFeedView === 'world') {
-        curr = `${briefing.title} - ${briefing.source}`;
+        curr = `${briefing.title}`;
       } else if (this.currentNewsFeedView === 'summaries') {
         console.log('SUMMARIES');
         console.log(this.briefings);

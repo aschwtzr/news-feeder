@@ -40,11 +40,6 @@ def get_smmry_for(source):
       headlines += "{title}\n====\n{content}\n\n".format(title=article["title"], content=article["content"])
       summary += article["content"]
     today = summarize(summary)
-    print("TODAY")
-    print(today)
-    print("SUMMARY")
-    print(summary)
-
 
 def main ():
   get_google_world_news_feed()

@@ -7,7 +7,6 @@ def parse_description_for_source (description, source):
 
 def parse_google (article):
   item_soup = BeautifulSoup(article.description.get_text(), "html.parser")
-  # print(item_soup.get_text())
 
   article = {
     'title': article.title.string,
@@ -23,7 +22,6 @@ def parse_guardian (content):
   soup = BeautifulSoup(content, "html.parser")
   content_p_tags = soup.find_all('p')
   text = ''
-  # print(content_p_tags)
   for index, p in enumerate(content_p_tags):
     text += p.get_text()
     if index == 0:
@@ -35,6 +33,11 @@ def parse_reuters (content):
   soup = BeautifulSoup(content, "html.parser")
   return soup.get_text()
 
+
+def parse_yahoo (content):
+  soup = BeautifulSoup(content, "html.parser")
+  return soup.get_text()
+
 parsers = {
   'google': parse_default,
   'default': parse_default,
@@ -43,5 +46,6 @@ parsers = {
   'guardian': parse_guardian,
   'reddit': parse_default,
   'custom': parse_default,
-  'dw': parse_default
+  'dw': parse_default,
+  'yahoo': parse_yahoo,
 }
