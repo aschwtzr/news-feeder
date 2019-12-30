@@ -13,7 +13,7 @@ export default new Vuex.Store({
   state: {
     newsFeedView: 'briefings',
     summarizerFeed: {},
-    summarizerSummary: undefined,
+    summarizerSummary: '',
     googleFeed: [],
     rssFeeds: [],
     apiLimit: undefined,

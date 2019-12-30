@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import Icon from '@mdi/react';
+// import React, { useState } from 'react';
+import React from 'react';
+// import Icon from '@mdi/react';
 
 function ArticleButtons(props) {
   const buttons = props.buttons.map(button => {

@@ -45,6 +45,7 @@ class ArticleList extends React.Component {
       return (
         <li key={briefing.source}>
           <strong>
+          {/* eslint-disable-next-line */}
             <a href="#">{briefing.source}</a>
             { articles }
           </strong>
