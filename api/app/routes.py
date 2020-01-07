@@ -44,11 +44,10 @@ def get_headlines():
 # get google news summaries 
 @app.route('/google-news', methods=(['GET']))
 def get_google():
-  topics = request.args.getlist('topic')
-  
-  if len(topics) > 0:
+  topic = request.args.get('topic')
+  if topic:
     # TODO: custom topics search
-    news = util.news_formatter.get_summaries_from_google_feed(feed, limit)
+    news = util.feed_getters.get_google_world_news_feed(topic)
   else:
     news = util.feed_getters.get_google_world_news_feed()
 

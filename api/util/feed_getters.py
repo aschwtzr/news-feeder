@@ -5,8 +5,8 @@ from collections import defaultdict
 import logging
 
 # google news world rss feed
-def get_google_world_news_feed ():
-  data = util.api.get_feed_for('world')
+def get_google_world_news_feed (topic):
+  data = util.api.get_feed_for('world' if topic is None else topic)
   soup = BeautifulSoup(data, 'xml')
   items = soup.findAll('item')
 
