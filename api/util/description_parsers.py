@@ -39,6 +39,7 @@ def parse_yahoo (content):
   return soup.get_text()
 
 parsers = {
+  'world': parse_default,
   'google': parse_default,
   'default': parse_default,
   'reuters': parse_reuters,

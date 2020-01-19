@@ -45,12 +45,12 @@ def get_headlines():
 @app.route('/google-news', methods=(['GET']))
 def get_google():
   topic = request.args.get('topic')
-  if topic:
+  if topic is not None:
     # TODO: custom topics search
-    news = util.feed_getters.get_google_world_news_feed(topic)
+    news = util.feed_getters.get_google_world_news_feed(topic = topic)
   else:
     news = util.feed_getters.get_google_world_news_feed()
-
+  
   ret = { 'ok': True, 'news': news }
   return jsonify(ret)
 
