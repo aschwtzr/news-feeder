@@ -6,13 +6,13 @@ This application is an experiment with news aggregation and summarization. The g
 
 It is a news feed web app and backend built with React and Flask. 
 
-To run all services you may need API keys for NewsAPI, BING and SMMRY.
+To run all services you will need an  key for SMMRY.
 
 ## Build and Run
 ### API 
 1. Install pipenv and run `pipenv install`.
 2. Run the Flask API with:
-`FLASK_ENV=development [REDDIT_KEY= REDDIT_CLIENT= NEWS_API_KEY= BING_KEY= SUMMRY_KEY=] pipenv run flask run`
+`FLASK_ENV=development SUMMRY_KEY=[summary API key] pipenv run flask run`
 (set the environment to dev)(start the pipenv environment)(start the Flask app)
 
 ### Vue Frontend
