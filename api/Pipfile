@@ -11,6 +11,7 @@ gensim = "*"
 lxml = "*"
 flask = "*"
 html5lib = "*"
+yagmail = "*"
 
 [requires]
 python_version = "3.7"

@@ -8,7 +8,7 @@ from collections import defaultdict
 
 import datetime
 
-default_sources = util.api.world_news_feeds
+default_sources = ["reuters", "bbc", "dw", "guardian", "yahoo"]
 
 @app.route('/')
 @app.route('/index')

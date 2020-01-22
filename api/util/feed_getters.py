@@ -72,10 +72,10 @@ def get_news_from_rss (source, limit):
       'title': item.title.string,
       'preview': parser(item.description.get_text()) if item.description else item.title.string + '...',
       'url': item.link.string,
-      'source': ret["source"]
+      'source': ret["source"],
+      'date': ('' if item.pubDate is None else item.pubDate.string)
     }
-    if item.pubDate is not None:
-      article["date"] = item.pubDate.string
+
     ret["articles"].append(article)
     if item_index >= limit - 1:
       break
