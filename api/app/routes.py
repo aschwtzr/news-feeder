@@ -20,21 +20,17 @@ def index():
 @app.route('/briefings', methods=(['GET']))
 def get_headlines():
   req_sources = request.args.getlist('source')
-  req_limit = request.args.get('limit')
-
-  if req_limit is None:
-    limit = 8
-  else: limit = int(req_limit)
+  req_limit = (8 if request.args.get('limit') is None else int(request.args.get('limit')))
 
   ret = defaultdict(list)
   if len(req_sources) == 0:
     for source in default_sources:
       # feed = get_feed_for(item)
-      headlines = util.feed_getters.get_news_from_rss(source, limit)
+      headlines = util.feed_getters.get_news_from_rss(source, req_limit)
       ret["results"].append(headlines)
   else:
     for source in req_sources:
-      headlines = util.feed_getters.get_news_from_rss(source, limit)
+      headlines = util.feed_getters.get_news_from_rss(source, req_limit)
       ret["results"].append(headlines)
   
   ret["ok"] = True

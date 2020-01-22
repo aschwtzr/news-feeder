@@ -77,7 +77,7 @@ def get_news_from_rss (source, limit):
     if item.pubDate is not None:
       article["date"] = item.pubDate.string
     ret["articles"].append(article)
-    if item_index >= limit:
+    if item_index >= limit - 1:
       break
   if len(ret["articles"]) > 1:
     content_list = list(map(lambda article: article["preview"], ret["articles"]))
