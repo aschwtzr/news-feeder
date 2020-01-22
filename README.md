@@ -14,6 +14,7 @@ To run all services you will need an  key for SMMRY.
 2. Run the Flask API with:
 `FLASK_ENV=development SUMMRY_KEY=[summary API key] pipenv run flask run`
 (set the environment to dev)(start the pipenv environment)(start the Flask app)
+Note: You may have to run `pip install flask-cors --upgrade` for `flask_cors` to work correctly ([see this issue.] (https://github.com/corydolphin/flask-cors/issues/194))
 
 ### Vue Frontend
 1. Install node modules with `yarn`.
