@@ -6,15 +6,8 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-praw = "*"
-pprint = "*"
-requests = "*"
-wikipedia-api = "*"
 beautifulsoup4 = "*"
 gensim = "*"
-newsapi-python = "*"
-google-alerts = "*"
-selenium = "*"
 lxml = "*"
 flask = "*"
 html5lib = "*"
