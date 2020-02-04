@@ -12,6 +12,8 @@ lxml = "*"
 flask = "*"
 html5lib = "*"
 yagmail = "*"
+flask-cors = "*"
+uwsgi = "*"
 
 [requires]
 python_version = "3.7"

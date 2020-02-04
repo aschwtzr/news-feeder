@@ -12,8 +12,9 @@ default_sources = requests.get(url + '/sources')
 contents = []
 briefings = requests.get(url + '/briefings?limit=6')
 google = requests.get(url + '/google-news?limit=6')
-print(briefings.text)
+#print(briefings.text)
 parsed_source_results = json.loads(briefings.text)["results"]
+print("running")
 for source in parsed_source_results:
     head = source["source"]
     summary = source["summary"]
@@ -32,8 +33,11 @@ for source in parsed_source_results:
     
     contents.append("<br><br>")
 
+print("done building email")
 # additional parameter attachments=filename
 yagmail.SMTP(email, password).send(
     to='schweitzer.albert@gmail.com',
     subject="Here is your daily news briefing", 
     contents=contents)
+
+print('script has runeth')
