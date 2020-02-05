@@ -1,4 +1,4 @@
-from api.feeder.common.source import google
+from api.feeder.reader.reader import fetch_feeds
 
 if __name__ == '__main__':
-    google.get_feed_xml()
+    fetch_feeds()

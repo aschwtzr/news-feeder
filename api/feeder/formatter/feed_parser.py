@@ -36,20 +36,20 @@ def google (data):
         # articleObj.print()
         result['articles'].append(articleObj)
       headlines = list(map(lambda article: article.title, result["articles"]))
-      # print('## HEADLINES ##')
-      print('\n')
+      # print('## HEADLINES ##\n')
       # print(headlines)
       # print(formatter.keywords_from_strings(headlines))
       headlines = list(map(lambda article: article.title, result["articles"]))
-      result['title'] = formatter.keywords_from_strings(headlines)
+      keyword_title = formatter.keywords_from_strings(headlines)
+      result['title'] = keyword_title
     else:
       article = item_soup
       articleObj = formatter.article_from_google_item(article, date)
-      # articleObj.print()
       result['title'] = articleObj.title
       result['articles'] = articleObj
 
     news_bullets.append(result)
+  print(news_bullets)
   return news_bullets
 
 

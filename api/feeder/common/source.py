@@ -1,4 +1,4 @@
-from api.feeder.util.parsers import google, reuters, yahoo, guardian, default
+from api.feeder.formatter.feed_parser import google, reuters, yahoo, guardian, default
 from api.feeder.util.api import get
 
 
