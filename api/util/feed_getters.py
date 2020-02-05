@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import util.description_parsers
 from collections import defaultdict
 import logging
+from datetime import date
 
 # google news world rss feed
 def get_google_world_news_feed (topic = None):
@@ -73,7 +74,7 @@ def get_news_from_rss (source, limit):
       'preview': parser(item.description.get_text()) if item.description else item.title.string + '...',
       'url': item.link.string,
       'source': ret["source"],
-      'date': ('' if item.pubDate is None else item.pubDate.string)
+      'date': date.today() if item.pubDate is None else item.pubDate.string
     }
 
     ret["articles"].append(article)
