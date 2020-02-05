@@ -28,7 +28,7 @@ def keywords_from_strings (string_list):
   except:
     # print(string_list)
     # print('error extracting keywords')
-    return string_list[0]
+    return string_list[0] #.split(' ')
 
 def remove_publication_after_pipe (string):
   # print(string)

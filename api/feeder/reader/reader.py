@@ -15,7 +15,7 @@ def load_preferences(user_id):
 
 def fetch_feeds():
   preferences = load_preferences(1)
-  google.get_feed_xml()
+  google.get_feed_articles()
 
 
 # def get_feed_from(source):

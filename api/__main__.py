@@ -1,4 +1,4 @@
-from api.feeder.reader.reader import fetch_feeds
+from api.feeder.formatter.debug_parser import print_source_articles
 
 if __name__ == '__main__':
-    fetch_feeds()
+    print_source_articles()

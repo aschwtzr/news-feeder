@@ -7,10 +7,12 @@ class Source:
     self.url = url
     self.parser = parser
   
-  def get_feed_xml(self):
+  def get_feed_articles(self):
+    # fetches a source rss feed and returns it as article objects
     text = get(self.url)
     parsed = self.parser(text)
-    # print(parsed)
+    return parsed
+
 
 def custom_google_source (query):
   return Source(f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en", google)
