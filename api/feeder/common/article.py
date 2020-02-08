@@ -18,7 +18,7 @@ class Article:
     summary = (self.summary if self.summary is None else self.brief)
     print(summary)
 
-  def print(self):
+  def woof(self):
     print(self.title)
     print(self.url)
     print(self.source)

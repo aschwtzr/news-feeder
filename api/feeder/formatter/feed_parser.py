@@ -1,11 +1,8 @@
-from collections import defaultdict
 from bs4 import BeautifulSoup
-from api.feeder.formatter import formatter
+from api.feeder.formatter import formatter, article_formatter
 from api.feeder.common.topic import Topic
 from datetime import date
 
-def google (data):
-  soup = BeautifulSoup(data, 'xml')
   ###
   # sample xml
   # <item>
@@ -28,61 +25,30 @@ def google (data):
   # </item>
   # 
   # ###
+def google (data, limit):
+  soup = BeautifulSoup(data, 'xml')
   items = soup.findAll('item')
   topics = []
-
-  for topic in items:    
+  for index, topic in enumerate(items):
     # ignore for now, haven't seen in a while
     # media = topic.find('content')
     # if media is not None:
     #   result['media'] = media['url']
-
-    # grab only description tags which contain list items of individual articles
-    item_soup = BeautifulSoup(topic.description.get_text(), "html.parser")
-    list_items = item_soup.findAll('li')
-
-    date = (topic.pubDate.string if topic.pubDate is not None else date.today())
-    if len(list_items) < 2:
-      article = formatter.article_from_google_item(item_soup, date)
-      keywords = formatter.keywords_from_strings([articleObj.title])
-      topics.append(Topic([article], keywords))
-    else:
-      articles = []
-      for article in list_items:
-        if article.find('strong') is not None:
-          # link to google news
-          continue
- 
-        articleObj = formatter.article_from_google_item(article, date)
-          
-        articles.append(articleObj)
-      headlines = list(map(lambda article: article.title, articles))
-      keywords = formatter.keywords_from_strings(headlines)
-      topics.append(Topic(articles, keywords))
-  # print(news_bullets)
+    topic = article_formatter.topics_from_google_item(topic)
+    topics.append(topic)
+    if index >= limit - 1:
+      break
   return topics
 
+def rss (data, supplied_formatter, limit):
+  soup = BeautifulSoup(data, 'xml')
+  items = soup.findAll('item')
+  topics = []
+  for index, topic in enumerate(items):
+    # print(topic)
+    topic = supplied_formatter(topic)
+    topics.append(topic)
+    if index >= limit - 1:
+      break
+  return topics
 
-
-def guardian (content):
-  soup = BeautifulSoup(content, "html.parser")
-  content_p_tags = soup.find_all('p')
-  text = ''
-  for index, p in enumerate(content_p_tags):
-    text += p.get_text()
-    if index == 0:
-      text += '. '
-
-  return text
-
-def reuters (content):
-  soup = BeautifulSoup(content, "html.parser")
-  return soup.get_text()
-
-
-def yahoo (content):
-  soup = BeautifulSoup(content, "html.parser")
-  return soup.get_text()
-
-def default (content):
-  return content
