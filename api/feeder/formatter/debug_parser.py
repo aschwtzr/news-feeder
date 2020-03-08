@@ -1,4 +1,6 @@
-from api.feeder.common.source import google, guardian, bbc, reuters, dw
+from feeder.common.source import google, guardian, bbc, reuters, dw
+from bs4 import BeautifulSoup
+
 limit = 5
 # sources can fetch a short history
 def print_source_articles ():

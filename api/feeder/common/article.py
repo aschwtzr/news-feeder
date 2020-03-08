@@ -1,5 +1,5 @@
 from datetime import date
-from api.feeder.util.api import get_summary
+from feeder.util.api import get_summary
 
 class Article:
   def __init__(self, source, url, title, brief, date):
@@ -12,11 +12,9 @@ class Article:
   def get_smmry(self):
     text = get_summary(self.url)
     self.summary = text
-    print(text)
 
   def get_keywords(self):
     summary = (self.summary if self.summary is None else self.brief)
-    print(summary)
 
   def woof(self):
     print(self.title)
@@ -24,3 +22,4 @@ class Article:
     print(self.source)
     print(self.date)
     print(self.brief)
+    print(self.summary)

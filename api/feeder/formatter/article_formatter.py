@@ -1,6 +1,6 @@
-from api.feeder.common.article import Article
-from api.feeder.common.topic import Topic
-from api.feeder.formatter import formatter
+from feeder.common.article import Article
+from feeder.common.topic import Topic
+from feeder.formatter import formatter
 from bs4 import BeautifulSoup
 
 
@@ -90,5 +90,4 @@ def reuters (article):
 def parse_reuters (description):
   split = description.split('<div class="feedflare">')
   # soup = BeautifulSoup(description, 'html.parser')
-  print(split)
   return split[0]

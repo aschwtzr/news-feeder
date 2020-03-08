@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
-from api.feeder.formatter import formatter, article_formatter
-from api.feeder.common.topic import Topic
+from feeder.formatter import formatter, article_formatter
+from feeder.common.topic import Topic
 from datetime import date
 
   ###
@@ -45,7 +45,6 @@ def rss (data, supplied_formatter, limit):
   items = soup.findAll('item')
   topics = []
   for index, topic in enumerate(items):
-    # print(topic)
     topic = supplied_formatter(topic)
     topics.append(topic)
     if index >= limit - 1:
