@@ -14,7 +14,7 @@ class Article:
     self.summary = text
 
   def get_keywords(self):
-    summary = (self.summary if self.summary is None else self.brief)
+    self.summary = (self.summary if self.summary is None else self.brief)
 
   def woof(self):
     print(self.title)
@@ -22,4 +22,6 @@ class Article:
     print(self.source)
     print(self.date)
     print(self.brief)
-    print(self.summary)
+    if hasattr(self, 'summary'):
+      print(self.summary)
+      

@@ -1,33 +1,52 @@
 from feeder.common.source import google, guardian, bbc, reuters, dw
 from bs4 import BeautifulSoup
 
-limit = 5
+topics = {}
+
+limit = 10
 # sources can fetch a short history
 def print_source_articles ():
-  google_results = google.get_feed_articles(5)
+  google_results = google.get_feed_articles(limit)
   print('GOOGLE')
   for index, topic in enumerate(google_results):
-    topic.woof()
+    # topic.woof()
+    add_keywords_to_topics(topic)
     if index >= limit - 1:
       break
 
-  guardian_results = guardian.get_feed_articles(5)
+  guardian_results = guardian.get_feed_articles(limit)
   print('GUARDIAN')
   for index, topic in enumerate(guardian_results):
-    topic.woof()
+    # topic.woof()
+    add_keywords_to_topics(topic)
     if index >= limit - 1:
       break
 
   print('BBC')
-  bbc_results = guardian.get_feed_articles(5)
+  bbc_results = guardian.get_feed_articles(limit)
   for index, topic in enumerate(bbc_results):
-    topic.woof()
+    # topic.woof()
+    add_keywords_to_topics(topic)
     if index >= limit - 1:
       break
 
   print('REUTERS')
-  reuters_results = reuters.get_feed_articles(5)
+  reuters_results = reuters.get_feed_articles(limit)
   for index, topic in enumerate(reuters_results):
-    topic.woof()
+    # topic.woof()
+    add_keywords_to_topics(topic)
     if index >= limit - 1:
       break
+
+  # for key, value in topics.items():
+  #   print(f"{key}: {len(value)}")
+  #   for article in value:
+  #     print(article.title)
+
+
+def add_keywords_to_topics(topic):
+  print(topic.keywords)
+  word_list = topic.keywords.split(' ')
+  for keyword in word_list:
+      # print(keyword)
+      topics[keyword] = topic.articles

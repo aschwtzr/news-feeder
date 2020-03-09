@@ -13,17 +13,14 @@ def keywords_from_strings (string_list):
 
   # TODO: Fix filters
   filters = ['-SBJ', '-LOC']
-  print(string_list)
   try:
     keywords_from_text = keywords(reduced, split=True, words=word_count, lemmatize=True, pos_filter=[], scores=False)
     sentence = ''
     for pair in keywords_from_text:
       sentence += f'{pair} '
-    print(keywords_from_text)
     return sentence
   except:
     logging.warning('error extracting keywords')
-    print("couldn't get keywords")
     return string_list[0] #.split(' ')
 
 def remove_publication_after_pipe (string):

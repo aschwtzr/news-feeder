@@ -11,4 +11,6 @@ class Topic:
 
   def woof(self):
     print(f"{len(self.articles)} articles")
+    for article in self.articles:
+      article.woof()
     print(self.keywords)

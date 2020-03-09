@@ -1,5 +1,5 @@
 from feeder.formatter import feed_parser, article_formatter
-from feeder.util.api import get
+from feeder.util.api import get_data_from_uri
 # from api.feeder.formatter import 
 # from api.feeder.formatter.article_formatter import default
 
@@ -12,7 +12,7 @@ class Source:
   
   def get_feed_articles(self, limit = 99):
     # fetches a source rss feed and returns it as article objects
-    data = get(self.url)
+    data = get_data_from_uri(self.url)
     if self.description_parser is not None:
       topic_stream = self.rss_algorithm(data, self.description_parser, limit)
     else:

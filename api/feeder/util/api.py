@@ -3,7 +3,7 @@ import time
 import requests
 import os
 
-def get (uri):
+def get_data_from_uri (uri):
   results = requests.get(uri)
   return results.text
 
