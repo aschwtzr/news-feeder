@@ -6,37 +6,50 @@ topics = {}
 limit = 10
 # sources can fetch a short history
 def print_source_articles ():
-  google_results = google.get_feed_articles(limit)
-  print('GOOGLE')
-  for index, topic in enumerate(google_results):
-    # topic.woof()
-    add_keywords_to_topics(topic)
-    if index >= limit - 1:
-      break
+  # google_results = google.get_feed_articles(limit)
+  # print('GOOGLE')
+  # for index, topic in enumerate(google_results):
+  #   topic.woof()
+  #   add_keywords_to_topics(topic)
+  #   if index >= limit - 1:
+  #     break
+  # print("###\n\n")
 
-  guardian_results = guardian.get_feed_articles(limit)
-  print('GUARDIAN')
-  for index, topic in enumerate(guardian_results):
-    # topic.woof()
-    add_keywords_to_topics(topic)
-    if index >= limit - 1:
-      break
+  # guardian_results = guardian.get_feed_articles(limit)
+  # print('GUARDIAN')
+  # for index, topic in enumerate(guardian_results):
+  #   topic.woof()
+  #   add_keywords_to_topics(topic)
+  #   if index >= limit - 1:
+  #     break
+  # print("###\n\n")
 
-  print('BBC')
-  bbc_results = guardian.get_feed_articles(limit)
-  for index, topic in enumerate(bbc_results):
-    # topic.woof()
-    add_keywords_to_topics(topic)
-    if index >= limit - 1:
-      break
+  # print('BBC')
+  # bbc_results = guardian.get_feed_articles(limit)
+  # for index, topic in enumerate(bbc_results):
+  #   topic.woof()
+  #   add_keywords_to_topics(topic)
+  #   if index >= limit - 1:
+  #     break
+  # print("###\n\n")
 
-  print('REUTERS')
-  reuters_results = reuters.get_feed_articles(limit)
+  # print('REUTERS')
+  # reuters_results = reuters.get_feed_articles(limit)
+  # for index, topic in enumerate(reuters_results):
+  #   topic.woof()
+  #   add_keywords_to_topics(topic)
+  #   if index >= limit - 1:
+  #     break
+  # print("###\n\n")
+
+  print('DW')
+  reuters_results = dw.get_feed_articles(limit)
   for index, topic in enumerate(reuters_results):
-    # topic.woof()
+    topic.woof()
     add_keywords_to_topics(topic)
     if index >= limit - 1:
       break
+  print("###\n\n")
 
   # for key, value in topics.items():
   #   print(f"{key}: {len(value)}")
@@ -45,7 +58,7 @@ def print_source_articles ():
 
 
 def add_keywords_to_topics(topic):
-  print(topic.keywords)
+  # print(topic.keywords)
   word_list = topic.keywords.split(' ')
   for keyword in word_list:
       # print(keyword)

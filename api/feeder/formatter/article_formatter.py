@@ -2,7 +2,7 @@ from feeder.common.article import Article
 from feeder.common.topic import Topic
 from feeder.formatter import formatter
 from bs4 import BeautifulSoup
-
+from datetime import date
 
 def topics_from_guardian_item (article):
   url = article.link.string
@@ -19,9 +19,9 @@ def topics_from_google_item (item):
   item_soup = BeautifulSoup(item.description.get_text(), "html.parser")
   list_items = item_soup.findAll('li')
 
-  date = (item.pubDate.string if item.pubDate is not None else date.today())
+  datetime = (item.pubDate.string if item.pubDate is not None else date.today())
   if len(list_items) < 2:
-    article = article_from_google_item(item_soup, date)
+    article = article_from_google_item(item_soup, datetime)
     keywords = formatter.keywords_from_strings([article.title])
     return Topic([article], keywords)
   else:
@@ -31,18 +31,18 @@ def topics_from_google_item (item):
         # link to google news
         continue
 
-      article = article_from_google_item(item, date)
+      article = article_from_google_item(item, datetime)
         
       articles.append(article)
     headlines = list(map(lambda article: article.title, articles))
     keywords = formatter.keywords_from_strings(headlines)
     return Topic(articles, keywords)
 
-def article_from_google_item (article, date):
+def article_from_google_item (article, datetime):
   a = article.find('a')
   title = a.get_text()
   source = article.find('font').get_text()
-  article = Article(source, a['href'], title, '', date)
+  article = Article(source, a['href'], title, '', datetime)
   return article
 
 def reuters (content):
@@ -65,12 +65,26 @@ def parse_guardian (content):
 
   return text
 
+def dw (article):
+  print(article)
+  url = article.link.string
+  title = article.title.string  
+  datetime = date.today() if article.date is None else article.date.string
+  brief = article.description.get_text() if article.description else article.title.string + '...'
+  article = Article('DW', url, title, brief, datetime)
+  keywords = formatter.keywords_from_strings(brief.split('. '))
+  topic = Topic([article], keywords)
+
+  return topic
+
 def default (article):
+  # TODO: finish formatting DW articles which are currently returning some errors
   url = article.link.string
   title = article.title.string
-  date = date.today() if article.pubDate is None else article.pubDate.string
+
+  datetime = date.today() if article.pubDate is None else article.pubDate.string
   brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
-  article = Article('SOURCE', url, title, brief, date)
+  article = Article('SOURCE', url, title, brief, datetime)
   keywords = formatter.keywords_from_strings(brief.split('. '))
   topic = Topic([article], keywords)
 
@@ -79,9 +93,9 @@ def default (article):
 def reuters (article):
   url = article.link.string
   title = article.title.string
-  date = date.today() if article.pubDate is None else article.pubDate.string
+  datetime = date.today() if article.pubDate is None else article.pubDate.string
   brief = parse_reuters(article.description.get_text()) if article.description else article.title.string + '...'
-  article = Article('Reuters', url, title, brief, date)
+  article = Article('Reuters', url, title, brief, datetime)
   keywords = formatter.keywords_from_strings([brief])
   topic = Topic([article], keywords)
 

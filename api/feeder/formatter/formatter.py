@@ -10,7 +10,6 @@ def keywords_from_strings (string_list):
   word_count = 8 if len(string_list) >= 2 else len(string_list) * 3
   lemmatize = True if len(string_list) > 1 else False
   reduced = ". ".join(list(map(lambda headline: remove_publication_after_pipe(headline), string_list)))
-
   # TODO: Fix filters
   filters = ['-SBJ', '-LOC']
   try:
@@ -21,6 +20,8 @@ def keywords_from_strings (string_list):
     return sentence
   except:
     logging.warning('error extracting keywords')
+    logging.warning(f"string list: {string_list}")
+    logging.info(f"reduced: {reduced}")
     return string_list[0] #.split(' ')
 
 def remove_publication_after_pipe (string):

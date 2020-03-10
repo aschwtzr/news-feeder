@@ -29,4 +29,4 @@ reuters = Source('http://feeds.reuters.com/Reuters/worldNews', feed_parser.rss, 
 bbc = Source('http://feeds.bbci.co.uk/news/world/rss.xml', feed_parser.rss, article_formatter.default)
 guardian = Source('https://www.theguardian.com/world/rss', feed_parser.rss, article_formatter.topics_from_guardian_item)
 # yahoo = Source('https://www.yahoo.com/news/rss/world', article_formatter.yahoo, feed_parser.rss)
-dw = Source('http://rss.dw.com/rdf/rss-en-world', feed_parser.rss, article_formatter.default)
+dw = Source('http://rss.dw.com/rdf/rss-en-world', feed_parser.rss, article_formatter.dw)

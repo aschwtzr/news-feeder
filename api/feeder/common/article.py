@@ -17,11 +17,11 @@ class Article:
     self.summary = (self.summary if self.summary is None else self.brief)
 
   def woof(self):
-    print(self.title)
-    print(self.url)
-    print(self.source)
-    print(self.date)
-    print(self.brief)
+    print(f"title: {self.title}")
+    print(f"url: {self.url}")
+    print(f"source: {self.source}")
+    print(f"date: {self.date}")
+    print(f"brief: {self.brief}")
     if hasattr(self, 'summary'):
-      print(self.summary)
+      print(f"summary: {self.summary}")
       
