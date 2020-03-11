@@ -2,7 +2,7 @@ from feeder.common.article import Article
 from feeder.common.topic import Topic
 from feeder.formatter import formatter
 from bs4 import BeautifulSoup
-from datetime import date
+import datetime
 
 def topics_from_guardian_item (article):
   url = article.link.string
@@ -76,11 +76,14 @@ def dw (article):
 def default (article, source):
   url = article.link.string
   title = article.title.string
-  timestamp = date.today() 
   if article.pubDate is not None:
    timestamp = article.pubDate.string
-  elif article.date is None:
+  elif article.date is not None:
     timestamp = article.date.string
+  else:
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%m/%d/%Y, %H:%M:%S")
+
   brief = article.description.get_text() if article.description else article.title.string + '...'
   article = Article(source, url, title, brief, timestamp)
   # keywords = formatter.keywords_from_string_list(brief.split('. '))
