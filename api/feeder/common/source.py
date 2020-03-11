@@ -26,7 +26,7 @@ def custom_google_source (query):
 
 google = Source('https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', feed_parser.google)
 reuters = Source('http://feeds.reuters.com/Reuters/worldNews', feed_parser.rss, article_formatter.reuters)
-bbc = Source('http://feeds.bbci.co.uk/news/world/rss.xml', feed_parser.rss, article_formatter.default)
+bbc = Source('http://feeds.bbci.co.uk/news/world/rss.xml', feed_parser.rss, article_formatter.bbc)
 guardian = Source('https://www.theguardian.com/world/rss', feed_parser.rss, article_formatter.topics_from_guardian_item)
 # yahoo = Source('https://www.yahoo.com/news/rss/world', article_formatter.yahoo, feed_parser.rss)
 dw = Source('http://rss.dw.com/rdf/rss-en-world', feed_parser.rss, article_formatter.dw)

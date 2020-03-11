@@ -18,10 +18,10 @@ class Article:
 
   def woof(self):
     print(f"title: {self.title}")
-    print(f"url: {self.url}")
+    print(f"url: {self.url[:50]}...")
     print(f"source: {self.source}")
     print(f"date: {self.date}")
-    print(f"brief: {self.brief}")
+    print(f"brief: {self.brief[:80]}...")
     if hasattr(self, 'summary'):
       print(f"summary: {self.summary}")
       
