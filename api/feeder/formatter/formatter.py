@@ -12,7 +12,7 @@ def keywords_from_article (article):
   # 3. split a headline with split(' ')
   output = keywords_from_string(article.title)
   if len(output) < 2 and article.brief is not None:
-    output = keywords_from_string(article.brief)
+    output = keywords_from_string(f"{article.title} {article.brief}")
   if len(output) < 2:
     output = word_ranker(f"{article.title} {article.brief}")
   return output
@@ -87,7 +87,6 @@ def word_ranker (incoming):
     incoming = clean_and_reduce_string_list(incoming)
   mapped = {}
   sanitized = sanitize_string(incoming)
-  print(f"SANITIZED STRING: {sanitized}")
   minus_pub = remove_publication_after_pipe(sanitized)
   parsed = minus_pub.lower().split(' ')
   for key in parsed:

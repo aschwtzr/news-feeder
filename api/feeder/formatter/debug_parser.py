@@ -7,7 +7,7 @@ topics = defaultdict(list)
 def add_keywords_to_topics(topic):
   for keyword in topic.keywords:
       # print(keyword)
-      topics[keyword.lower()].append(topic.articles)
+      topics[keyword.lower()].extend(topic.articles)
 
 limit = 10
 # sources can fetch a short history
@@ -56,8 +56,6 @@ def print_source_articles ():
     if index >= limit - 1:
       break
   print("###\n\n")
-
-  for key, value in topics.items():
+  sorted_keywords = {k: v for k, v in sorted(topics.items(), key=lambda item: len(item[1]), reverse=True)}
+  for key, value in sorted_keywords.items():
     print(f"{key}: {len(value)}")
-    # for article in value:
-    #   print(article.title)
