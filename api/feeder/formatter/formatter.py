@@ -5,6 +5,19 @@ import re
 from datetime import date
 from functools import reduce
 
+def keywords_from_article (article):
+  # strategy: 
+  # 1. attempt to extract keywords from headline
+  # 2. attempt to extract keywords from summary
+  # 3. split a headline with split(' ')
+  output = keywords_from_string(article.title)
+  if len(output) < 2 and article.brief is not None:
+    output = keywords_from_string(article.brief)
+  if len(output) < 2:
+    output = word_ranker(f"{article.title} {article.brief}")
+  return output
+  
+
 # get keywords from list of strings
 def keywords_from_string_list (string_list):
   reduced = " ".join(list(map(lambda headline: remove_publication_after_pipe(headline), string_list)))
@@ -61,6 +74,27 @@ def remove_publication_after_pipe (string):
   return formatted
 
 def sanitize_string (string):
-  parsed = re.sub(r'(:)', '', string)
+  parsed = re.sub(r'(:)|(\'s)', '', string)
   formatted = parsed.lower()
   return formatted
+
+def clean_and_reduce_string_list (string_list):
+  reduced = " ".join(list(map(lambda headline: remove_publication_after_pipe(headline), string_list)))
+  return reduced
+
+def word_ranker (incoming):
+  if type(incoming) is list:
+    incoming = clean_and_reduce_string_list(incoming)
+  mapped = {}
+  sanitized = sanitize_string(incoming)
+  print(f"SANITIZED STRING: {sanitized}")
+  minus_pub = remove_publication_after_pipe(sanitized)
+  parsed = minus_pub.lower().split(' ')
+  for key in parsed:
+    if key in mapped.keys():
+      mapped[key] += 1
+    else:
+      mapped[key] = 1
+  sorted_keywords = {k: v for k, v in sorted(mapped.items(), key=lambda item: item[1], reverse=True)}
+  filtered = filter(lambda pair: pair[1] >= 2 and len(pair[0]) >= 3, sorted_keywords.items())
+  return list(map(lambda pair: pair[0], list(filtered)))

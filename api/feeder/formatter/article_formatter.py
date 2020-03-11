@@ -11,7 +11,7 @@ def topics_from_guardian_item (article):
   brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
   article = Article('The Guardian', url, title, brief, timestamp)
   # keywords = formatter.keywords_from_string_list(brief.split('. '))
-  keywords = formatter.keywords_from_string(title)
+  keywords = formatter.keywords_from_article(article)
   topic = Topic([article], keywords)
 
   return topic
@@ -25,6 +25,8 @@ def topics_from_google_item (item):
     article = article_from_google_item(item_soup, timestamp)
     # keywords = formatter.keywords_from_string_list([article.title])
     keywords = formatter.keywords_from_string(article.title)
+    if len(keywords) < 1:
+      keywords = article.title.split(' ')
     return Topic([article], keywords)
   else:
     articles = []
@@ -38,6 +40,10 @@ def topics_from_google_item (item):
       articles.append(article)
     headlines = list(map(lambda article: article.title, articles))
     keywords = formatter.keywords_from_string_list(headlines)
+    if len(keywords) < 1:
+      keywords = formatter.word_ranker(headlines)
+      print(f"word ranker keywords")
+      print(keywords)
     return Topic(articles, keywords)
 
 def article_from_google_item (article, timestamp):
@@ -78,7 +84,7 @@ def default (article, source):
   brief = article.description.get_text() if article.description else article.title.string + '...'
   article = Article(source, url, title, brief, timestamp)
   # keywords = formatter.keywords_from_string_list(brief.split('. '))
-  keywords = formatter.keywords_from_string(title)
+  keywords = formatter.keywords_from_article(article)
   topic = Topic([article], keywords)
 
   return topic
@@ -90,7 +96,7 @@ def reuters (article):
   brief = parse_reuters(article.description.get_text()) if article.description else article.title.string + '...'
   article = Article('Reuters', url, title, brief, timestamp)
   # keywords = formatter.keywords_from_string_list([brief])
-  keywords = formatter.keywords_from_string(title)
+  keywords = formatter.keywords_from_article(article)
   topic = Topic([article], keywords)
 
   return topic
