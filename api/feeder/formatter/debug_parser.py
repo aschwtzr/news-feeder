@@ -57,7 +57,7 @@ def print_source_articles ():
       break
   print("###\n\n")
 
-  # for key, value in topics.items():
-  #   print(f"{key}: {len(value)}")
+  for key, value in topics.items():
+    print(f"{key}: {len(value)}")
     # for article in value:
     #   print(article.title)
