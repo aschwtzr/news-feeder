@@ -1,13 +1,14 @@
 from feeder.common.article import Article
 from feeder.common.topic import Topic
 from feeder.formatter import keyword_extractor
+from feeder.util.time_tools import timestamp_string
 from bs4 import BeautifulSoup
 import datetime
 
 def topics_from_guardian_item (article):
   url = article.link.string
   title = article.title.string
-  timestamp = date.today() if article.pubDate is None else article.pubDate.string
+  timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
   brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
   article = Article('The Guardian', url, title, brief, timestamp)
   # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
@@ -20,7 +21,7 @@ def topics_from_google_item (item):
   item_soup = BeautifulSoup(item.description.get_text(), "html.parser")
   list_items = item_soup.findAll('li')
 
-  timestamp = (item.pubDate.string if item.pubDate is not None else date.today())
+  timestamp = (item.pubDate.string if item.pubDate is not None else timestamp_string())
   if len(list_items) < 2:
     article = article_from_google_item(item_soup, timestamp)
     # keywords = keyword_extractor.keywords_from_string_list([article.title])
@@ -81,8 +82,7 @@ def default (article, source):
   elif article.date is not None:
     timestamp = article.date.string
   else:
-    now = datetime.datetime.now()
-    timestamp = now.strftime("%m/%d/%Y, %H:%M:%S")
+    timestamp = timestamp_string()
 
   brief = article.description.get_text() if article.description else article.title.string + '...'
   article = Article(source, url, title, brief, timestamp)
@@ -95,7 +95,7 @@ def default (article, source):
 def reuters (article):
   url = article.link.string
   title = article.title.string
-  timestamp = date.today() if article.pubDate is None else article.pubDate.string
+  timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
   brief = parse_reuters(article.description.get_text()) if article.description else article.title.string + '...'
   article = Article('Reuters', url, title, brief, timestamp)
   # keywords = keyword_extractor.keywords_from_string_list([brief])
