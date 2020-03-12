@@ -1,5 +1,4 @@
 from feeder.common.source import google, guardian, bbc, reuters, dw
-from bs4 import BeautifulSoup
 from collections import defaultdict
 
 topics = defaultdict(list)

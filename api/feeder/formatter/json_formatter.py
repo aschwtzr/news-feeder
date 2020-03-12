@@ -1,6 +1,6 @@
 from collections import defaultdict
 from bs4 import BeautifulSoup
-from feeder.formatter import formatter
+from feeder.formatter import keyword_extractor
 import logging
 from datetime import date
 
@@ -32,15 +32,15 @@ def google_feed_to_json(data):
           logging.warning(strong.get_text() == 'View full coverage on Google News')
           continue
  
-        articleObj = formatter.article_from_google_item(article, date)
+        articleObj = keyword_extractor.article_from_google_item(article, date)
         result['articles'].append(articleObj)
       headlines = list(map(lambda article: article.title, result["articles"]))
       headlines = list(map(lambda article: article.title, result["articles"]))
-      keyword_title = formatter.keywords_from_strings(headlines)
+      keyword_title = keyword_extractor.keywords_from_strings(headlines)
       result['title'] = keyword_title
     else:
       article = item_soup
-      articleObj = formatter.article_from_google_item(article, date)
+      articleObj = keyword_extractor.article_from_google_item(article, date)
       result['title'] = articleObj.title
       result['articles'] = articleObj
 

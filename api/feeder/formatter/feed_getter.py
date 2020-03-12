@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
-from feeder.formatter import formatter, article_formatter
+from feeder.formatter import article_formatter
 from feeder.common.topic import Topic
-from datetime import date
 
   ###
   # sample xml
