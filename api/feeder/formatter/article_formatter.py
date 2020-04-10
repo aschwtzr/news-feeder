@@ -3,7 +3,7 @@ from feeder.common.topic import Topic
 from feeder.formatter import keyword_extractor
 from feeder.util.time_tools import timestamp_string
 from bs4 import BeautifulSoup
-import datetime
+
 
 def topics_from_guardian_item (article):
   url = article.link.string
