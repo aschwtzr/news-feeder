@@ -21,6 +21,15 @@ mansi = {
   'experimental': True
 }
 
-users = [albert]
+marisel= {
+  'email': 'marisel.schweitzer@gmail.com',
+  'sources': ['guardian', 'bbc', 'reuters', 'dw', 'google'],
+  'keywords': True,
+  'debug': False,
+  'limit': 8,
+  'experimental': True
+}
+
+users = [albert, mansi, marisel]
 
 run_digest(users)
