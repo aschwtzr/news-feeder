@@ -3,6 +3,9 @@ import os
 from collections import defaultdict
 import requests
 import json
+import datetime
+#import sys
+#print(sys.path)
 
 password = os.environ.get('EMAIL_PASSWORD')
 email = os.environ.get('EMAIL_ADDRESS')
@@ -42,5 +45,10 @@ yagmail.SMTP(email, password).send(
     to='schweitzer.albert@gmail.com',
     subject="Here is your daily news briefing", 
     contents=contents)
+yagmail.SMTP(email, password).send(
+    to='mansidhamija24@gmail.com',
+    subject="Here is your daily news briefing",
+    contents=contents)
 
-print('script has runeth')
+timestamp = datetime.datetime.now()
+print('script has runeth at ' + timestamp)
