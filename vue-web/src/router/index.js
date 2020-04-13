@@ -8,8 +8,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: () => import(/* webpackChunkName: "newsfeed" */ '../views/NewsFeed.vue'),
-    // component: Home,
+    component: () => import(/* webpackChunkName: "newsfeed" */ '../views/Home.vue'),
   },
   {
     path: '/about',
@@ -20,14 +19,24 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
   },
   {
-    path: '/',
+    path: '/feed',
     name: 'news',
     component: () => import(/* webpackChunkName: "newsfeed" */ '../views/NewsFeed.vue'),
   },
   {
     path: '/settings',
     name: 'settings',
-    component: () => import(/* webpackChunkName: "newsfeed" */ '../views/Settings.vue'),
+    component: () => import(/* webpackChunkName: "settings" */ '../views/Settings.vue'),
+  },
+  {
+    path: '/auth',
+    name: 'auth',
+    component: () => import(/* webpackChunkName: "auth" */ '../components/auth/Auth.vue'),
+  },
+  {
+    path: '/success',
+    name: 'success',
+    component: () => import(/* webpackChunkName: "authsuccess" */ '../components/auth/AuthSuccess.vue'),
   },
 ];
 

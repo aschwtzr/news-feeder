@@ -17,6 +17,7 @@ export default new Vuex.Store({
     googleFeed: [],
     rssFeeds: [],
     apiLimit: undefined,
+    user: undefined,
   },
   mutations: {
     setNewsFeedView(state, view) {
@@ -40,6 +41,14 @@ export default new Vuex.Store({
     },
     setSummarizerSummary(state, summary) {
       state.summarizerSummary = summary;
+    },
+    saveUserProfile(state, user) {
+      state.user = {
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL,
+        userId: user.uid,
+      };
     },
   },
   actions: {
