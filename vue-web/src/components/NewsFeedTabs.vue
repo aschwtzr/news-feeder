@@ -1,6 +1,6 @@
 <template>
-  <div class="tabs is-centered is-boxed">
-    <ul v-for="option in tabOptions" :key="option.view">
+  <nav class="tabs is-centered is-boxed">
+    <ul v-for="option in tabOptions" :key="option.view" class="container">
       <li :class="isActive(option.view) ? 'is-active' : ''">
         <a @click="toggleView(option.view)">
           <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
@@ -8,7 +8,7 @@
         </a>
       </li>
     </ul>
-  </div>
+  </nav>
 </template>
 
 <script>

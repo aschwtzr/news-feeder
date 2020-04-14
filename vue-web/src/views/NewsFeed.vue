@@ -1,13 +1,16 @@
 <template>
-  <div style="background-color: #F7F7FF;">
+  <section style="background-color: #F7F7FF;">
     <news-feed-tabs />
-    <div style=" padding-top: 1.5rem;">
-      <div v-if="currentNewsFeedView === 'summaries'">
-        {{ summarizerSummary }}
+    <div style=" padding-top: 1.5rem;" class="container">
+      <settings v-if="currentNewsFeedView === 'settings'" />
+      <div v-else>
+        <div v-if="currentNewsFeedView === 'summaries'">
+          {{ summarizerSummary }}
+        </div>
+        <news-feed-article-list :briefings="briefingsByView" />
       </div>
-      <news-feed-article-list :briefings="briefingsByView" />
     </div>
-  </div>
+  </section>
 </template>
 
 <script>
@@ -20,12 +23,14 @@ import {
 import _ from 'lodash';
 import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
 import NewsFeedArticleList from '@/components/NewsFeedArticleList.vue';
+import Settings from '@/views/Settings.vue';
 
 export default {
   name: 'NewsFeed',
   components: {
     NewsFeedTabs,
     NewsFeedArticleList,
+    Settings,
   },
   data() {
     return {
@@ -84,6 +89,8 @@ export default {
 };
 </script>
 
-<style>
-
+<style scoped>
+  .container {
+    height: calc(100vh - 1.5rem)
+  }
 </style>
