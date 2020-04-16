@@ -1,5 +1,6 @@
 from feeder.formatter.debug_parser import print_source_articles
 from feeder.emailer.emailer import run_digest
+
 # print_source_articles()
 
 # user settings coming soon! 
@@ -30,6 +31,7 @@ marisel= {
   'experimental': True
 }
 
-users = [albert, mansi, marisel]
-
-run_digest(users)
+# users = [albert, mansi, marisel]
+users = [albert]
+def runrun():
+  run_digest(users)
