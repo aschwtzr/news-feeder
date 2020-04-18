@@ -43,7 +43,7 @@ def topics_from_google_item (item):
     keywords = keyword_extractor.keywords_from_string_list(headlines)
     if len(keywords) < 1:
       keywords = keyword_extractor.word_ranker(headlines)
-      print(f"word ranker keywords")
+      print(f"first keywords failed, using word ranker keywords")
       print(keywords)
     return Topic(articles, keywords)
 

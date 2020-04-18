@@ -1,18 +1,18 @@
 from flask import Blueprint, render_template
 from flask import current_app as app
-# import util.news_formatter
-# import util.feed_getters
-# from util.api import get_feed_for, list_rss_sources
-# from flask import request
+import util.news_formatter
+import util.feed_getters
+from util.api import get_feed_for, list_rss_sources
+from flask import request
 from flask import jsonify
 # import feeder.common.source
 from feeder.common.source import google, guardian, bbc, reuters, dw
-# from collections import defaultdict
+from collections import defaultdict
 from feeder.test import runrun
 
 # import datetime
 
-default_sources = [google, guardian, bbc, reuters, dw]
+default_sources = { 'guardian': guardian, 'bbc': bbc, 'reuters': reuters, 'dw': dw }
 
 @app.route('/')
 @app.route('/health')
@@ -20,25 +20,54 @@ def index():
   ret = {'ok': True}
   return jsonify(ret)
 
-# # rss feeds with local python summaries
-# @app.route('/briefings', methods=(['GET']))
-# def get_headlines():
-#   req_sources = request.args.getlist('source')
-#   req_limit = (8 if request.args.get('limit') is None else int(request.args.get('limit')))
-
-#   ret = defaultdict(list)
-#   if len(req_sources) == 0:
-#     for source in default_sources:
-#       # feed = get_feed_for(item)
-#       headlines = util.feed_getters.get_news_from_rss(source, req_limit)
-#       ret["results"].append(headlines)
-#   else:
-#     for source in req_sources:
-#       headlines = util.feed_getters.get_news_from_rss(source, req_limit)
-#       ret["results"].append(headlines)
+# rss feeds with local python summaries
+@app.route('/briefings', methods=(['GET']))
+def get_headlines():
+  req_sources = request.args.getlist('source')
+  req_limit = (8 if request.args.get('limit') is None else int(request.args.get('limit')))
   
-#   ret["ok"] = True
-#   return jsonify(ret)
+  res = defaultdict(list)
+  if len(req_sources) == 0:
+    for source in default_sources.values():
+      source_dict = defaultdict(list)
+      source_dict['source'] = source.description
+      results = source.get_feed_articles(req_limit)
+      for index, topic in enumerate(results):
+        for article in topic.articles:
+          out = {
+            'title': article.title,
+            'preview': article.brief,
+            'url': article.url,
+            'source': source.description,
+            'date': article.date
+          }
+          source_dict['articles'].append(out)
+
+      res['results'].append(source_dict)
+  else:
+    for source in req_sources:
+      print('womp womp')
+  res["ok"] = True
+  return jsonify(res)
+
+@app.route('/briefings_old', methods=(['GET']))
+def get_headlines_old():
+  req_sources = request.args.getlist('source')
+  req_limit = (8 if request.args.get('limit') is None else int(request.args.get('limit')))
+
+  ret = defaultdict(list)
+  if len(req_sources) == 0:
+    for source in default_sources:
+      # feed = get_feed_for(item)
+      headlines = util.feed_getters.get_news_from_rss(source, req_limit)
+      ret["results"].append(headlines)
+  else:
+    for source in req_sources:
+      headlines = util.feed_getters.get_news_from_rss(source, req_limit)
+      ret["results"].append(headlines)
+  
+  ret["ok"] = True
+  return jsonify(ret)
 
 
 # # get google news summaries 
@@ -58,7 +87,7 @@ def index():
 @app.route('/sources', methods=(['GET']))
 def get_sources():
   # global default_sources
-  sources = list(map(lambda x: x.description, default_sources))
+  sources = list(map(lambda x: x.description, default_sources.values()))
   ret = { 'ok': True, 'sources': sources }
   return jsonify(ret)
 

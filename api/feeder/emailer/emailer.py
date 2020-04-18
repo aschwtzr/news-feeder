@@ -39,7 +39,6 @@ def email_body_for_user (user, sources, keywords):
     contents.append(f'<h2 style="color: #33658A; font-weight: 800; margin: 0;">{head}</h2>')
     for index, topic in enumerate(results):
       contents.append(f'<strong style="font-weight=500;"> keywords: {topic.keywords}</strong><br>')
-      print(len(topic.articles))
       for article in topic.articles:
         contents.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
         contents.append(f"<strong>{article.source}</strong>")
