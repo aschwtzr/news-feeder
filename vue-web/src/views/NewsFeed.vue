@@ -3,6 +3,7 @@
     <news-feed-tabs />
     <div style=" padding-top: 1.5rem;" class="container">
       <settings v-if="currentNewsFeedView === 'settings'" />
+      <admin v-if="currentNewsFeedView === 'admin'" />
       <div v-else>
         <div v-if="currentNewsFeedView === 'summaries'">
           {{ summarizerSummary }}
@@ -24,6 +25,7 @@ import _ from 'lodash';
 import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
 import NewsFeedArticleList from '@/components/NewsFeedArticleList.vue';
 import Settings from '@/views/Settings.vue';
+import Admin from '@/views/Admin.vue';
 
 export default {
   name: 'NewsFeed',
@@ -31,6 +33,7 @@ export default {
     NewsFeedTabs,
     NewsFeedArticleList,
     Settings,
+    Admin,
   },
   data() {
     return {

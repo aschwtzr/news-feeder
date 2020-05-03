@@ -38,6 +38,11 @@ const routes = [
     name: 'success',
     component: () => import(/* webpackChunkName: "authsuccess" */ '../components/auth/AuthSuccess.vue'),
   },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: () => import(/* webpackChunkName: "authsuccess" */ '../views/Admin.vue'),
+  },
 ];
 
 const router = new VueRouter({

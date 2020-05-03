@@ -16,10 +16,7 @@
       </div>
     </div>
     <div class="columns is-vcentered">
-      <div class="column">Contact Settings</div>
-      <div class="column">
-        <input class="input" name="username" type="text" :placeholder="user.name">
-      </div>
+      <div class="column">Email Settings</div>
       <div class="column">
         <input class="input" name="email" type="text" :placeholder="user.email">
       </div>
@@ -29,6 +26,10 @@
         <label>
             <input type="checkbox" v-model="smmry">
             Include SMMRY warning: paid service
+        </label>
+        <label>
+            <input type="number" v-model="articleLimit">
+            Article Limit
         </label>
       </div>
     </div>
@@ -49,6 +50,7 @@
 <script>
 import { mapState } from 'vuex';
 import { getFeedSources } from '@/util/api';
+import { getSources } from '../util/firebase';
 
 export default {
   name: 'Settings',
@@ -57,6 +59,7 @@ export default {
       smmry: false,
       sources: [],
       active: {},
+      articleLimit: 8,
     };
   },
   computed: {
@@ -68,6 +71,7 @@ export default {
     getFeedSources().then((results) => {
       this.sources = results.data.sources;
     });
+    getSources();
   },
 };
 </script>

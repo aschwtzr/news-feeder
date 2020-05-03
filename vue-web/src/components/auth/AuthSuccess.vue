@@ -16,6 +16,7 @@
 <script>
 import firebase from 'firebase';
 import { mapState, mapMutations } from 'vuex';
+import { getUserProfile, getUserPreferences } from '../../util/firebase';
 
 export default {
   computed: {
@@ -38,6 +39,12 @@ export default {
     const user = firebase.auth().currentUser;
     if (user) {
       this.saveUserProfile(user);
+      getUserProfile(user);
+      getUserPreferences(user.uid).then((preferences) => {
+        console.log(preferences);
+      }).catch((error) => {
+        console.log(error);
+      });
     }
   },
 };

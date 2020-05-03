@@ -33,6 +33,10 @@ export default {
       {
         description: 'Settings',
         view: 'settings',
+      },
+      {
+        description: 'Admin',
+        view: 'admin',
       }],
     };
   },
