@@ -35,3 +35,5 @@ marisel= {
 users = [albert]
 def runrun():
   run_digest(users)
+
+print_source_articles()
