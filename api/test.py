@@ -32,7 +32,7 @@ marisel= {
 }
 
 # users = [albert, mansi, marisel]
-users = [albert]
+# users = [albert]
 def runrun():
   run_digest(users)
 
