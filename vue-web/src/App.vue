@@ -1,8 +1,22 @@
 <template>
-  <div id="app">
-    <router-view/>
-  </div>
+  <section style="background-color: #F7F7FF;">
+    <div id="app">
+      <news-feed-tabs />
+      <router-view/>
+    </div>
+  </section>
 </template>
+
+<script>
+import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
+
+export default {
+  name: 'App',
+  components: {
+    NewsFeedTabs,
+  },
+};
+</script>
 
 <style lang="scss">
 #app {

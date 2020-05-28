@@ -72,7 +72,7 @@ def get_topics():
             'title': article.title,
             'preview': article.brief,
             'url': article.url,
-            'source': source.description,
+            'source': article.source if article.source else source.description,
             'date': article.date
           }
           topic_dict['articles'].append(formatted)

@@ -1,26 +1,31 @@
 <template>
   <div class="news-briefing-container">
     <div
-      v-for="(briefing, index) in briefings"
-      :key="`${briefing.source}-${index}`"
+      v-for="(source, index) in briefings"
+      :key="`${source.description}-${index}`"
       class="topic-source-wrapper">
-      <strong> {{headline(briefing)}} </strong>
-      <div v-for="article in briefing.articles" :key="article.title" >
-        <article-card
-          :title="article.title"
-          :url="article.url"
-          :content="article.preview"
-          :date="article.date"
-          :summary="article.summary || false"
-          />
+      <strong v-if="groupedBySource"> {{source.description}} </strong>
+      <div v-for="topic in source.topics" :key="topic.keywords.join('')" >
+        <div :style="groupedBySource ? '': 'font-weight: strong'">
+          keywords: {{topic.keywords.join(', ')}}
+        </div>
+        <div v-for="(article, index) in topic.articles" :key="`${source}-${index}`">
+          <strong v-if="!groupedBySource"> {{article.source}} </strong>
+          <article-card
+            :title="article.title"
+            :url="article.url"
+            :content="article.preview"
+            :date="article.date"
+            :summary="article.summary || false"
+            />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import ArticleCard from '@/components/ArticleCard.vue';
+import ArticleCard from '@/components/article/ArticleCard.vue';
 
 export default {
   name: 'NewsFeedArticleList',
@@ -28,35 +33,19 @@ export default {
     ArticleCard,
   },
   props: {
+    groupedBySource: {
+      type: Boolean,
+      default: () => false,
+      require: true,
+    },
     briefings: {
       type: Array,
       default: () => [],
       required: true,
     },
   },
-  methods: {
-    headline(briefing) {
-      let curr = '';
-      if (this.currentNewsFeedView === 'briefings') {
-        curr = briefing.source;
-      } else if (this.currentNewsFeedView === 'world') {
-        curr = `${briefing.title}`;
-      } else if (this.currentNewsFeedView === 'summaries') {
-        console.log('SUMMARIES');
-        console.log(this.briefings);
-        const articleCount = this.briefings[0] && this.briefings[0].articles
-          ? this.briefings[0].articles.length : 0;
-        console.log(`${!!this.briefings[0].articles} ${articleCount}`);
-        curr = `${articleCount} Stories for Summarizer`;
-      }
-      return curr;
-    },
-  },
-  computed: {
-    ...mapGetters({
-      currentNewsFeedView: 'currentNewsFeedView',
-    }),
-  },
+  methods: {},
+  computed: {},
 };
 </script>
 

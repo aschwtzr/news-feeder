@@ -1,8 +1,8 @@
 <template>
   <nav class="tabs is-centered is-boxed">
     <ul v-for="option in tabOptions" :key="option.view" class="container">
-      <li :class="isActive(option.view) ? 'is-active' : ''">
-        <a @click="toggleView(option.view)">
+      <li :class="current === option.routeName ? 'is-active' : ''">
+        <a @click="goTo(option.routeName)">
           <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
           <span>{{option.description}}</span>
         </a>
@@ -12,54 +12,36 @@
 </template>
 
 <script>
-import { mapMutations, mapGetters } from 'vuex';
-// TODO: add tabs for custom Google News
 export default {
   name: 'NewsFeedTabs',
   data() {
     return {
+      current: '',
       tabOptions: [{
-        description: 'Briefings',
-        view: 'briefings',
-      },
-      {
-        description: 'World News',
-        view: 'world',
-      },
-      {
-        description: 'Topics',
-        view: 'topics',
+        description: 'Feed',
+        routeName: 'feed',
       },
       {
         description: 'Summaries',
-        view: 'summaries',
+        routeName: 'summaries',
       },
       {
         description: 'Settings',
-        view: 'settings',
+        routeName: 'settings',
       },
       {
         description: 'Admin',
-        view: 'admin',
+        routeName: 'admin',
       }],
     };
   },
   methods: {
-    ...mapMutations({
-      setNewsFeedView: 'setNewsFeedView',
-    }),
-    toggleView(view) {
-      this.setNewsFeedView(view);
-    },
-    isActive(view) {
-      return this.currentNewsFeedView === view;
+    goTo(name) {
+      this.current = name;
+      this.$router.push({ name });
     },
   },
-  computed: {
-    ...mapGetters({
-      currentNewsFeedView: 'currentNewsFeedView',
-    }),
-  },
+  computed: {},
 };
 </script>
 
