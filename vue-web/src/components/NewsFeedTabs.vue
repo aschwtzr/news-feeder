@@ -27,6 +27,10 @@ export default {
         view: 'world',
       },
       {
+        description: 'Topics',
+        view: 'topics',
+      },
+      {
         description: 'Summaries',
         view: 'summaries',
       },

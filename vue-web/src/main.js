@@ -18,8 +18,8 @@ new Vue({
   created() {
     firebase.initializeApp(firebaseConfig);
     firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.$router.push('/success');
+      if (user && this.$router.path !== '/feed') {
+        this.$router.push('/feed');
       } else {
         this.$router.push('/auth');
       }

@@ -10,7 +10,7 @@
         </span>
       </div>
     </header>
-    <div class="card-content is-loading">
+    <div v-if="summary || content" class="card-content is-loading">
         <div
           v-if="!expanded"
           class="overflowing-text"

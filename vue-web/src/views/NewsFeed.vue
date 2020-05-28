@@ -4,6 +4,7 @@
     <div style=" padding-top: 1.5rem;" class="container">
       <settings v-if="currentNewsFeedView === 'settings'" />
       <admin v-if="currentNewsFeedView === 'admin'" />
+      <topic v-if="currentNewsFeedView === 'topics'" />
       <div v-else>
         <div v-if="currentNewsFeedView === 'summaries'">
           {{ summarizerSummary }}
@@ -26,6 +27,7 @@ import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
 import NewsFeedArticleList from '@/components/NewsFeedArticleList.vue';
 import Settings from '@/views/Settings.vue';
 import Admin from '@/views/Admin.vue';
+import Topic from '@/components/Topic.vue';
 
 export default {
   name: 'NewsFeed',
@@ -34,6 +36,7 @@ export default {
     NewsFeedArticleList,
     Settings,
     Admin,
+    Topic,
   },
   data() {
     return {
@@ -83,7 +86,6 @@ export default {
   },
   watch: {
     articlesForSummarizer(newList) {
-      debugger;
       console.log(newList);
       this.setSummarizerSummary('Summarizing...');
       this.debouncedGetContentSummary(newList);
