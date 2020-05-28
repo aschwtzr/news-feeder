@@ -1,31 +1,30 @@
 <template>
   <div class="card article-card__container">
-    <header class="card-header">
-      <p
-        class="card-header-title"
-        style="min-width: fit-content; width: 60vh;">
+    <header class="card-header" @click="expanded = !expanded" style="cursor: pointer;">
+      <p class="card-header-title" style="min-width: fit-content; width: 60vh;">
         {{title}}
       </p>
-      <p v-if="!expanded"
-        class="overflowing-text"
-        style="cursor: pointer;"
-         @click="expanded = !expanded">
-        {{ summary || content}}
-      </p>
-      <div class="card-header-icon" aria-label="more options" @click="expanded = !expanded">
+      <div class="card-header-icon" aria-label="more options" >
         <span class="icon is-small">
-          <i
-            :class="`mdi mdi-${expanded ? 'chevron-down' : 'chevron-right'}`"/>
+          <i :class="`mdi mdi-${expanded ? 'chevron-down' : 'chevron-right'}`"/>
         </span>
       </div>
     </header>
-    <div class="card-content is-loading" v-show="expanded">
-      <div class="content">
-        {{content}} <br>
-        source:<a :href="url">{{url}}</a>
-        <br>
-        <br>
-        <time datetime="2016-1-1">{{formattedDate}}</time>
+    <div v-if="summary || content" class="card-content is-loading">
+        <div
+          v-if="!expanded"
+          class="overflowing-text"
+          style="cursor: pointer;"
+          @click="expanded = !expanded">
+          {{ summary || content }}
+        </div>
+      <div class="content" v-show="expanded">
+        <div style="padding-bottom: 1rem;">
+          <time datetime="2016-1-1">{{formattedDate}}</time>
+        </div>
+        <div>
+          {{content}}
+        </div>
       </div>
     </div>
       <footer
@@ -53,6 +52,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 import { mapMutations, mapActions, mapGetters } from 'vuex';
 
 export default {
@@ -86,7 +86,7 @@ export default {
     formattedDate() {
       let formatted = '';
       if (this.date) {
-        formatted = new Date(this.date).toString();
+        formatted = moment(this.date).format('MMMM Do YYYY, HH:mm:ss');
       } else {
         formatted = '';
       }
@@ -170,6 +170,7 @@ export default {
     white-space: nowrap;
     padding: .75rem;
     min-width: 40vh;
+    text-align: start;
   }
 
   .card-footer-item {
@@ -183,6 +184,8 @@ export default {
 
   .content {
     text-align: initial;
+    display: flex;
+    flex-direction: column;
   }
 
   .confirmed {

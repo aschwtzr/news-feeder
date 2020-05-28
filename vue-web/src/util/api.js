@@ -19,6 +19,10 @@ export const getGoogleFeed = () => {
   return baseAxios.get('/google-news');
 };
 
+export const getTopics = () => {
+  return baseAxios.get('/topics');
+};
+
 export const getSummaryForURL = (url) => {
   return baseAxios.get(`/smmry?url=${url}`);
 };

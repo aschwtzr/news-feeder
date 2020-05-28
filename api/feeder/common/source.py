@@ -24,11 +24,11 @@ class Source:
 
 
 def custom_google_source (query):
-  return Source(f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en", f'Google News for {query}', feed_getter.google)
+  return Source(f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en", feed_getter.google, f'Google News for {query}')
 
 google = Source('https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', feed_getter.google, 'Google - World News')
 reuters = Source('http://feeds.reuters.com/Reuters/worldNews', feed_getter.rss, 'Reuters - World News', article_formatter.reuters)
 bbc = Source('http://feeds.bbci.co.uk/news/world/rss.xml', feed_getter.rss, 'BBC - World News', article_formatter.bbc)
-guardian = Source('https://www.theguardian.com/world/rss', feed_getter.rss, 'The Guardian- World News', article_formatter.topics_from_guardian_item)
+guardian = Source('https://www.theguardian.com/world/rss', feed_getter.rss, 'The Guardian - World News', article_formatter.guardian)
 # yahoo = Source('https://www.yahoo.com/news/rss/world', article_formatter.yahoo, feed_getter.rss)
 dw = Source('http://rss.dw.com/rdf/rss-en-world', feed_getter.rss, 'Deutsche Welle - World News', article_formatter.dw)

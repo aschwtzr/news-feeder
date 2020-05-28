@@ -1,14 +1,22 @@
 <template>
-  <div id="app">
-    <!-- <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/news">News</router-link> |
-      <router-link to="/settings">Settings</router-link>
-    </div> -->
-    <router-view/>
-  </div>
+  <section style="background-color: #F7F7FF;">
+    <div id="app">
+      <news-feed-tabs />
+      <router-view/>
+    </div>
+  </section>
 </template>
+
+<script>
+import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
+
+export default {
+  name: 'App',
+  components: {
+    NewsFeedTabs,
+  },
+};
+</script>
 
 <style lang="scss">
 #app {

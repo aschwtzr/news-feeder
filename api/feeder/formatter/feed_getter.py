@@ -1,3 +1,4 @@
+# extract provided feed into topics with supplied formatter
 from bs4 import BeautifulSoup
 from feeder.formatter import article_formatter
 from feeder.common.topic import Topic
