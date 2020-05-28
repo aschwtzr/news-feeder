@@ -6,19 +6,6 @@ from feeder.formatter import keyword_extractor
 from feeder.util.time_tools import timestamp_string
 from bs4 import BeautifulSoup
 
-
-def topics_from_guardian_item (article):
-  url = article.link.string
-  title = article.title.string
-  timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
-  brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
-  article = Article('The Guardian', url, title, brief, timestamp)
-  # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
-  keywords = keyword_extractor.keywords_from_article(article)
-  topic = Topic([article], keywords)
-
-  return topic
-
 def topics_from_google_item (item):
   item_soup = BeautifulSoup(item.description.get_text(), "html.parser")
   list_items = item_soup.findAll('li')
@@ -60,6 +47,18 @@ def article_from_google_item (article, timestamp):
 def yahoo (content):
   soup = BeautifulSoup(content, "html.parser")
   return soup.get_text()
+
+def guardian (article):
+  url = article.link.string
+  title = article.title.string
+  timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
+  brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
+  article = Article('The Guardian', url, title, brief, timestamp)
+  # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
+  keywords = keyword_extractor.keywords_from_article(article)
+  topic = Topic([article], keywords)
+
+  return topic
 
 def parse_guardian (content):
   soup = BeautifulSoup(content, "html.parser")

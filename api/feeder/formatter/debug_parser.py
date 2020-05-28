@@ -4,6 +4,13 @@ from collections import defaultdict
 
 topics = defaultdict(list)
 
+import sys
+print("Python version")
+print (sys.version)
+print("Version info.")
+print (sys.version_info)
+
+
 def add_keywords_to_topics(topic):
   for keyword in topic.keywords:
       # print(keyword)
