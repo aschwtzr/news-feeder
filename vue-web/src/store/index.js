@@ -1,15 +1,19 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import auth from './auth';
 import {
   getGoogleFeed,
   getBriefings,
   getSummaryForURL,
   getContentSummary,
 } from '@/util/api';
-
+/* eslint-disable import/prefer-default-export */
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+  modules: {
+    auth,
+  },
   state: {
     newsFeedView: 'briefings',
     summarizerFeed: {},
@@ -17,7 +21,6 @@ export default new Vuex.Store({
     googleFeed: [],
     rssFeeds: [],
     apiLimit: undefined,
-    user: undefined,
   },
   mutations: {
     setNewsFeedView(state, view) {
@@ -41,14 +44,6 @@ export default new Vuex.Store({
     },
     setSummarizerSummary(state, summary) {
       state.summarizerSummary = summary;
-    },
-    saveUserProfile(state, user) {
-      state.user = {
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL,
-        userId: user.uid,
-      };
     },
   },
   actions: {
@@ -145,7 +140,5 @@ export default new Vuex.Store({
         return summary;
       }, '');
     },
-  },
-  modules: {
   },
 });

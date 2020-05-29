@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+// import store from '../store/index';
 
 Vue.use(VueRouter);
 
@@ -7,11 +8,6 @@ const routes = [
   // route level code-splitting
   // this generates a separate chunk (about.[hash].js) for this route
   // which is lazy-loaded when the route is visited.
-  {
-    path: '/',
-    name: 'home',
-    component: () => import(/* webpackChunkName: "newsfeed" */ '../views/Home.vue'),
-  },
   {
     path: '/feed',
     name: 'feed',
@@ -23,14 +19,14 @@ const routes = [
     component: () => import(/* webpackChunkName: "settings" */ '../views/Settings.vue'),
   },
   {
+    path: '/',
+    name: 'home',
+    component: () => import(/* webpackChunkName: "entry" */ '../views/Feed.vue'),
+  },
+  {
     path: '/auth',
     name: 'auth',
     component: () => import(/* webpackChunkName: "auth" */ '../components/auth/Auth.vue'),
-  },
-  {
-    path: '/success',
-    name: 'success',
-    component: () => import(/* webpackChunkName: "authsuccess" */ '../components/auth/AuthSuccess.vue'),
   },
   {
     path: '/admin',
@@ -42,5 +38,15 @@ const routes = [
 const router = new VueRouter({
   routes,
 });
+
+// router.beforeEach((to, from, next) => {
+//   const isAuthenticated = store.getters.user !== undefined;
+//   debugger;
+//   console.log('router before each');
+//   if (!isAuthenticated && to.name !== 'auth') {
+//     console.log('go');
+//     next({ name: 'auth' });
+//   } else next();
+// });
 
 export default router;

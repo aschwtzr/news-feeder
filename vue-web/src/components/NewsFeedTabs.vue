@@ -41,7 +41,9 @@ export default {
       this.$router.push({ name });
     },
   },
-  computed: {},
+  isActive(name) {
+    return this.current === name;
+  },
 };
 </script>
 

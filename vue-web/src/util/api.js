@@ -5,6 +5,7 @@ const baseURL = 'http://localhost:5000';
 const baseAxios = axios.create({
   baseURL,
   responseType: 'json',
+  mode: 'cors',
 });
 
 export const getFeedSources = () => {

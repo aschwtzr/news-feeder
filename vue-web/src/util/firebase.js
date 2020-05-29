@@ -18,6 +18,7 @@ export const createUser = (user) => {
 };
 
 export const getUserProfile = (user) => {
+  // const db = firebase.firestore();
   const userRef = db.collection('users').doc(user.uid);
   userRef.get().then((doc) => {
     if (doc.exists) {
@@ -29,6 +30,7 @@ export const getUserProfile = (user) => {
 };
 
 export const getUserPreferences = (userId) => {
+  // const db = firebase.firestore();
   return new Promise((resolve, reject) => {
     const preferencesRef = db.collection('users').doc(userId).collection('preferences');
     preferencesRef.get().then((preferences) => {

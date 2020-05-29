@@ -1,19 +1,45 @@
 <template>
-  <section style="background-color: #F7F7FF;">
-    <div id="app">
-      <news-feed-tabs />
-      <router-view/>
-    </div>
-  </section>
+  <div id="app" style="background-color: #F7F7FF;">
+    <section>
+        <news-feed-tabs v-if="user" />
+        <router-view/>
+    </section>
+  </div>
 </template>
 
 <script>
+import firebase from 'firebase';
+import { mapState, mapMutations } from 'vuex';
 import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
+import { getUserProfile, getUserPreferences } from './util/firebase';
 
 export default {
   name: 'App',
   components: {
     NewsFeedTabs,
+  },
+  computed: {
+    ...mapState('auth', {
+      user: state => state.user,
+    }),
+  },
+  methods: {
+    ...mapMutations({
+      saveUserProfile: 'saveUserProfile',
+    }),
+  },
+  mounted() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      console.log(user);
+      this.saveUserProfile(user);
+      getUserProfile(user);
+      getUserPreferences(user.uid).then((preferences) => {
+        console.log(preferences);
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
   },
 };
 </script>

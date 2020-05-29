@@ -11,18 +11,17 @@ import firebaseConfig from './util/firebaseConfig';
 Vue.use(Buefy);
 
 Vue.config.productionTip = false;
-
 new Vue({
-  router,
   store,
+  router,
   created() {
     firebase.initializeApp(firebaseConfig);
+    if (!store.state.auth.user) {
+      this.$router.push({ path: '/auth' });
+    }
     firebase.auth().onAuthStateChanged((user) => {
-      if (user && this.$router.path !== '/feed') {
-        this.$router.push('/feed');
-      } else {
-        this.$router.push('/auth');
-      }
+      store.commit('auth/saveUserProfile', user);
+      router.push('/');
     });
   },
   render: h => h(App),
