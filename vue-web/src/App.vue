@@ -25,13 +25,12 @@ export default {
   },
   methods: {
     ...mapMutations({
-      saveUserProfile: 'saveUserProfile',
+      saveUserProfile: 'auth/saveUserProfile',
     }),
   },
   mounted() {
     const user = firebase.auth().currentUser;
     if (user) {
-      console.log(user);
       this.saveUserProfile(user);
       getUserProfile(user);
       getUserPreferences(user.uid).then((preferences) => {
@@ -65,4 +64,6 @@ export default {
     }
   }
 }
+@import "~bulma";
+@import "~buefy/src/scss/buefy";
 </style>

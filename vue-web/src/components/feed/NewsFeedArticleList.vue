@@ -1,5 +1,5 @@
 <template>
-  <div class="news-briefing-container">
+  <div class="" style="">
     <div
       v-for="(source, index) in briefings"
       :key="`${source.description}-${index}`"
@@ -52,13 +52,5 @@ export default {
 <style>
   .topic-source-wrapper {
     margin-bottom: 3rem;
-    overflow-y: auto;
-    width: 90vw;
-  }
-
-  .news-briefing-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
   }
 </style>

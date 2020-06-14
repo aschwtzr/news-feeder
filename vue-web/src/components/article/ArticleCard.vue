@@ -1,7 +1,7 @@
 <template>
   <div class="card article-card__container">
     <header class="card-header" @click="expanded = !expanded" style="cursor: pointer;">
-      <p class="card-header-title" style="min-width: fit-content; width: 60vh;">
+      <p class="card-header-title" style="">
         {{title}}
       </p>
       <div class="card-header-icon" aria-label="more options" >
@@ -18,7 +18,7 @@
           @click="expanded = !expanded">
           {{ summary || content }}
         </div>
-      <div class="content" v-show="expanded">
+      <div class="article-card__summary" v-show="expanded">
         <div style="padding-bottom: 1rem;">
           <time datetime="2016-1-1">{{formattedDate}}</time>
         </div>
@@ -27,9 +27,7 @@
         </div>
       </div>
     </div>
-      <footer
-        class="card-footer"
-        style="background-color: #F7F7FF;">
+      <footer class="card-footer" style="background-color: #F7F7FF;">
         <div
           v-for="button in buttons"
           :key="button.title"
@@ -139,14 +137,14 @@ export default {
       });
     },
     savedButtonClass() {
-      return this.articleInSummarizerFeed(this.url) ? 'confirmed' : '';
+      return this.articleInSummarizerFeed(this.url) ? 'article-card__confirmed' : '';
     },
     viewButtonClass() {
       return { unavailable: !this.url };
     },
     footerSummarizeClass() {
       const outputClass = {
-        'card-footer-item': true,
+        'article-card__footer-item': true,
       };
       if (!this.url) {
         outputClass.unavailable = true;
@@ -167,13 +165,12 @@ export default {
     height: 2.4rem;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    /* white-space: nowrap; */
     padding: .75rem;
-    min-width: 40vh;
     text-align: start;
   }
 
-  .card-footer-item {
+  .article-card__footer-item {
     cursor: pointer;
   }
 
@@ -182,22 +179,22 @@ export default {
     border: .75px solid rgb(121, 87, 213, .5);
   }
 
-  .content {
+  .article-card__summary {
     text-align: initial;
     display: flex;
     flex-direction: column;
   }
 
-  .confirmed {
+  .article-card__confirmed {
     background-color:rgba(99, 180, 209, 0.5);
   }
 
-  .unavailable {
+  .article-card__unavailable {
     opacity: 40%;
     cursor: default;
   }
 
-  .unavailable:hover {
+  .article-card__unavailable:hover {
     opacity: 40%;
     cursor: default;
     background-color:rgb(255, 255, 255)!important;

@@ -18,7 +18,6 @@ export default {
     }),
   },
   mounted() {
-    console.log('auth mounted');
     const uiConfig = {
       signInOptions: [
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
@@ -38,9 +37,7 @@ export default {
     const auth = firebase.auth();
     const ui = new firebaseui.auth.AuthUI(auth);
 
-    console.log('fire ui');
     if (auth.currentUser) {
-      console.log('auth.currentUser exists');
       const user = auth.currentUser;
       this.saveUserProfile(user);
       getUserProfile(user);

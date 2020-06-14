@@ -5,7 +5,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import './registerServiceWorker';
-import 'buefy/dist/buefy.css';
+// import 'buefy/dist/buefy.css';
 import firebaseConfig from './util/firebaseConfig';
 
 Vue.use(Buefy);
