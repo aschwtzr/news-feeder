@@ -1,19 +1,21 @@
 <template>
-  <div class="tabs is-centered is-boxed">
-    <ul>
-      <li
-        v-for="option in tabOptions"
-        :class="current === option.routeName ? 'is-active' : ''"
-        :key="option.view"
-        >
-        <a @click="goTo(option.routeName)">
-          <span class="icon is-small">
-            <i :class="`fas fa-${option.icon}`" aria-hidden="true"/>
-          </span>
-          <span>{{option.description}}</span>
-        </a>
-      </li>
-    </ul>
+  <div style="position: fixed; width: 100%; height: 2.75rem;">
+    <div class="tabs is-centered is-boxed">
+      <ul>
+        <li
+          v-for="option in tabOptions"
+          :class="current === option.routeName ? 'is-active' : ''"
+          :key="option.view"
+          >
+          <a @click="goTo(option.routeName)">
+            <span class="icon is-small">
+              <i :class="`fas fa-${option.icon}`" aria-hidden="true"/>
+            </span>
+            <span>{{option.description}}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 

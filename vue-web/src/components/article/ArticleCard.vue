@@ -27,7 +27,7 @@
         </div>
       </div>
     </div>
-      <footer class="card-footer" style="background-color: #F7F7FF;">
+      <footer class="card-footer" style="background-color: #F7F7FF; border: 1px solid #dbdbdb;">
         <div
           v-for="button in buttons"
           :key="button.title"

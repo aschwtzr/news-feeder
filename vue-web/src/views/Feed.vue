@@ -1,9 +1,9 @@
 <template>
-  <div class="columns">
-    <div class="column is-narrow">
+  <div class="columns feed__full-width-fixed-container">
+    <div class="column is-narrow feed__sidebar-container">
       <sidebar :keywords="sidebarKeywords" @sortChanged="(sort) => currentSort = sort"/>
     </div>
-    <div class="column">
+    <div class="column" style="overflow-y: auto;">
       <news-feed-article-list
         :briefings="groupedBySource ? sources : mappedTopics"
         :groupedBySource="groupedBySource"
@@ -105,7 +105,6 @@ export default {
   .topic-source-wrapper {
     margin-bottom: 3rem;
     overflow-y: auto;
-    width: 90vw;
   }
 
   .feed__component-container {
@@ -113,9 +112,16 @@ export default {
     flex-direction: row;
   }
 
-  /* .feed__article-list { */
-    /* display: flex;
-    flex-direction: column;
-    align-items: center; */
-  /* } */
+  .feed__sidebar-container {
+    border-right: 1px solid rgba(0, 0, 0, .25);
+    overflow-y: auto;
+  }
+
+  .feed__full-width-fixed-container {
+    position: fixed;
+    top: 3.5rem;
+    height:calc(100vh -  2.75rem);
+    width: 100%;
+  }
+
 </style>

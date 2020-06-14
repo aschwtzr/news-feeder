@@ -1,12 +1,17 @@
 <template>
   <aside class="menu">
     <p class="menu-label">
-      Group By
+      Grouped By
     </p>
     <ul class="menu-list">
       <li>
-        <a @click="toggleGrouping">{{views[nextViewIndex]}}</a>
+        <a @click="toggleGrouping">{{views[viewIndex]}}</a>
       </li>
+    </ul>
+    <p class="menu-label">
+      Keywords
+    </p>
+    <ul class="menu-list">
       <li v-for="keyword in keywords" :key="keyword">
         <a @click="toggleSort(keyword)">{{keyword}}</a>
       </li>
