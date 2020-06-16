@@ -15,7 +15,7 @@ yagmail = "*"
 flask-cors = "*"
 uwsgi = "*"
 pattern = "*"
+google-cloud-firestore = "*"
 
 [requires]
 python_version = "3.7"
- 
