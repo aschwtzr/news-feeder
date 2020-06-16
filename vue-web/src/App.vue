@@ -6,10 +6,10 @@
 </template>
 
 <script>
-import firebase from 'firebase';
-import { mapState, mapMutations } from 'vuex';
+// import firebase from 'firebase';
+import { mapState, mapActions } from 'vuex';
 import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
-import { getUserProfile, getUserPreferences } from './util/firebase';
+// import { getUserProfile } from './util/firebase';
 
 export default {
   name: 'App',
@@ -22,21 +22,12 @@ export default {
     }),
   },
   methods: {
-    ...mapMutations({
-      saveUserProfile: 'auth/saveUserProfile',
+    ...mapActions({
+      getAvailableSources: 'getAvailableSources',
     }),
   },
   mounted() {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      this.saveUserProfile(user);
-      getUserProfile(user);
-      getUserPreferences(user.uid).then((preferences) => {
-        console.log(preferences);
-      }).catch((error) => {
-        console.log(error);
-      });
-    }
+    this.getAvailableSources();
   },
 };
 </script>

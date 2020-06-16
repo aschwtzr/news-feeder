@@ -6,6 +6,7 @@ import {
   getBriefings,
   getSummaryForURL,
   getContentSummary,
+  getFeedSources,
 } from '@/util/api';
 /* eslint-disable import/prefer-default-export */
 Vue.use(Vuex);
@@ -21,6 +22,7 @@ export default new Vuex.Store({
     googleFeed: [],
     rssFeeds: [],
     apiLimit: undefined,
+    availableSources: [],
   },
   mutations: {
     setNewsFeedView(state, view) {
@@ -45,8 +47,20 @@ export default new Vuex.Store({
     setSummarizerSummary(state, summary) {
       state.summarizerSummary = summary;
     },
+    setAvailableSources(state, sources) {
+      state.availableSources = sources;
+    },
   },
   actions: {
+    getAvailableSources({ commit }) {
+      return new Promise((resolve, reject) => {
+        getFeedSources().then((results) => {
+          const availableSources = results.data.sources.map(source => source.description);
+          commit('setAvailableSources', availableSources);
+          resolve(availableSources);
+        }).catch(error => reject(error));
+      });
+    },
     getGoogleFeed({ commit }) {
       return new Promise((resolve, reject) => {
         getGoogleFeed().then((results) => {

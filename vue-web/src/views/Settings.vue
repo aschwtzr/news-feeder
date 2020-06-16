@@ -1,30 +1,17 @@
 <template>
   <div>
-    <!-- <div style="position: fixed;">
-      <div class="media">
-        <div class="media-left">
-          <figure class="image is-32x32">
-            <img :src="user.photo" class="is-rounded" alt="Placeholder image">
-          </figure>
-        </div>
-        <div class="media-content">
-          <p class="title is-4">{{user.name}}</p>
-          <p class="subtitle is-6">{{user.email}}</p>
-        </div>
-      </div>
-    </div> -->
     <div class="columns settings__override">
       <div clsas="column">Frequency
         <div class="field">
           <div class="control">
-            <label class="checkbox" style="margin-right: .5rem;">
+            <label
+              v-for="option in ['AM', 'PM']"
+              class="checkbox"
+              style="margin-right: .5rem;"
+              :key="option"
+              >
               <input type="checkbox">
-              AM
-            </label>
-            /
-            <label class="checkbox">
-              <input type="checkbox">
-              PM
+               {{option}}
             </label>
           </div>
         </div>
@@ -53,9 +40,9 @@
     <div class="columns">
       <div class="column">
         <strong>Available Sources</strong>
-          <div v-for="source in sources" :key="source">
+          <div v-for="source in availableSources" :key="source">
           <label class="checkbox">
-            <input type="checkbox" />
+            <input type="checkbox"/>
             {{source}}
           </label>
         </div>
@@ -66,27 +53,27 @@
 
 <script>
 import { mapState } from 'vuex';
-import { getFeedSources } from '@/util/api';
 
 export default {
   name: 'Settings',
   data() {
     return {
       smmry: false,
-      sources: [],
-      active: {},
-      articleLimit: 8,
     };
   },
   computed: {
     ...mapState('auth', {
       user: state => state.user,
+      sources: state => state.sources,
+      articleLimit: state => state.articleLimit,
+      keywords: state => state.keywords,
+      frequency: state => state.frequency,
+    }),
+    ...mapState({
+      availableSources: state => state.availableSources,
     }),
   },
   mounted() {
-    getFeedSources().then((results) => {
-      this.sources = results.data.sources.map(source => source.description);
-    });
   },
 };
 </script>

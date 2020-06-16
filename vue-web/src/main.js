@@ -5,8 +5,8 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import './registerServiceWorker';
-// import 'buefy/dist/buefy.css';
 import firebaseConfig from './util/firebaseConfig';
+import { getUserProfile } from './util/firebase';
 
 Vue.use(Buefy);
 
@@ -21,6 +21,12 @@ new Vue({
     }
     firebase.auth().onAuthStateChanged((user) => {
       store.commit('auth/saveUserProfile', user);
+      getUserProfile(user.uid).then((profile) => {
+        store.commit('auth/setUserPreferences', profile);
+        console.log(profile);
+      }).catch((error) => {
+        console.log(error);
+      });
       router.push('/');
     });
   },

@@ -1,14 +1,5 @@
 import firebase from 'firebase';
 
-
-// function writeUserData(userId, name, email, imageUrl) {
-//     firebase.database().ref('users/' + userId).set({
-//       username: name,
-//       email: email,
-//       profile_picture : imageUrl
-//     });
-//   }
-
 export const createUser = (user) => {
   const db = firebase.firestore();
   db.collection('users').doc(user.uid).set({
@@ -17,26 +8,13 @@ export const createUser = (user) => {
   });
 };
 
-export const getUserProfile = (user) => {
-  const db = firebase.firestore();
-  const userRef = db.collection('users').doc(user.uid);
-  userRef.get().then((doc) => {
-    if (doc.exists) {
-      console.log('user exists');
-    } else {
-      createUser(user);
-    }
-  });
-};
-
-export const getUserPreferences = (userId) => {
+export const getUserProfile = (userId) => {
   const db = firebase.firestore();
   return new Promise((resolve, reject) => {
     const preferencesRef = db.collection('users').doc(userId);
     preferencesRef.get().then((user) => {
       if (user.exists) {
         resolve(user.data());
-        console.log(user.toString());
       } else reject(new Error('No preferences'));
     }).catch((error) => {
       reject(error);
