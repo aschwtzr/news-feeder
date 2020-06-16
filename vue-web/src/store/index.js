@@ -55,7 +55,7 @@ export default new Vuex.Store({
     getAvailableSources({ commit }) {
       return new Promise((resolve, reject) => {
         getFeedSources().then((results) => {
-          const availableSources = results.data.sources.map(source => source.description);
+          const availableSources = results.data.sources;
           commit('setAvailableSources', availableSources);
           resolve(availableSources);
         }).catch(error => reject(error));

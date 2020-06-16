@@ -1,7 +1,7 @@
 <template>
   <section id="app" >
     <news-feed-tabs v-if="user" style="background-color: #F7F7FF; z-index: 10;"/>
-    <router-view style="padding-top: 4rem; height: 100vh" />
+    <router-view style="padding-top: 2.75rem; height: 100vh" />
   </section>
 </template>
 
