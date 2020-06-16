@@ -40,10 +40,10 @@
     <div class="columns">
       <div class="column">
         <strong>Available Sources</strong>
-          <div v-for="source in availableSources" :key="source">
+          <div v-for="source in availableSources" :key="source.key">
           <label class="checkbox">
             <input type="checkbox"/>
-            {{source}}
+            {{source.description}}
           </label>
         </div>
       </div>

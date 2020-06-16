@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100%;">
-    <div class="columns content-view">
+    <div class="columns is-marginless content-view">
       <div class="column is-narrow feed__sidebar-container">
         <sidebar :keywords="sidebarKeywords" @sortChanged="(sort) => currentSort = sort"/>
       </div>
@@ -105,10 +105,10 @@ export default {
 
 <style>
   .content-view {
-    position: fixed;
+    /* position: fixed; */
     top: 3.5rem;
     height:calc(100vh -  2.75rem);
-    width: 100%;
+    /* width: 100%; */
   }
 
   .topic-source-wrapper {
