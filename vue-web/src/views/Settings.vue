@@ -1,24 +1,41 @@
 <template>
-  <section>
-    <div class="columns">
-      <div class="column is-full">
-        <div class="media">
-          <div class="media-left">
-            <figure class="image is-128x128">
-              <img :src="user.photo" class="is-rounded" alt="Placeholder image">
-            </figure>
-          </div>
-          <div class="media-content">
-            <p class="title is-4">{{user.name}}</p>
-            <p class="subtitle is-6">{{user.email}}</p>
+  <div>
+    <!-- <div style="position: fixed;">
+      <div class="media">
+        <div class="media-left">
+          <figure class="image is-32x32">
+            <img :src="user.photo" class="is-rounded" alt="Placeholder image">
+          </figure>
+        </div>
+        <div class="media-content">
+          <p class="title is-4">{{user.name}}</p>
+          <p class="subtitle is-6">{{user.email}}</p>
+        </div>
+      </div>
+    </div> -->
+    <div class="columns settings__override">
+      <div clsas="column">Frequency
+        <div class="field">
+          <div class="control">
+            <label class="checkbox" style="margin-right: .5rem;">
+              <input type="checkbox">
+              AM
+            </label>
+            /
+            <label class="checkbox">
+              <input type="checkbox">
+              PM
+            </label>
           </div>
         </div>
       </div>
-    </div>
-    <div class="columns is-vcentered">
-      <div class="column">Email Settings</div>
       <div class="column">
-        <input class="input" name="email" type="text" :placeholder="user.email">
+        <div class="field">
+          <label class="label">Alternate Delivery Address</label>
+          <div class="control">
+            <input class="input" type="text" :placeholder="user.email">
+          </div>
+        </div>
       </div>
     </div>
     <div class="columns">
@@ -44,13 +61,12 @@
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import { getFeedSources } from '@/util/api';
-import { getSources } from '../util/firebase';
 
 export default {
   name: 'Settings',
@@ -69,13 +85,16 @@ export default {
   },
   mounted() {
     getFeedSources().then((results) => {
-      this.sources = results.data.sources;
+      this.sources = results.data.sources.map(source => source.description);
     });
-    getSources();
   },
 };
 </script>
 
 <style>
+  .settings__override {
+    margin-left: 1rem!important;
+    margin-right: 0px!important;
+  }
 
 </style>

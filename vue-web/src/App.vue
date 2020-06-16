@@ -1,10 +1,8 @@
 <template>
-  <div id="app" style="background-color: #F7F7FF;">
-    <section>
-        <news-feed-tabs v-if="user" />
-        <router-view/>
-    </section>
-  </div>
+  <section id="app" >
+    <news-feed-tabs v-if="user" style="background-color: #F7F7FF; z-index: 10;"/>
+    <router-view style="padding-top: 4rem; height: 100vh" />
+  </section>
 </template>
 
 <script>
@@ -44,26 +42,27 @@ export default {
 </script>
 
 <style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
+  #app {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
     color: #2c3e50;
+  }
 
-    &.router-link-exact-active {
-      color: #63B4D1
+  #nav {
+    padding: 30px;
+
+    a {
+      font-weight: bold;
+      color: #2c3e50;
+
+      &.router-link-exact-active {
+        color: #63B4D1
+      }
     }
   }
-}
-@import "~bulma";
-@import "~buefy/src/scss/buefy";
+  @import "~bulma";
+  @import "~buefy/src/scss/buefy";
 </style>

@@ -32,10 +32,11 @@ export const getUserProfile = (user) => {
 export const getUserPreferences = (userId) => {
   const db = firebase.firestore();
   return new Promise((resolve, reject) => {
-    const preferencesRef = db.collection('users').doc(userId).collection('preferences');
-    preferencesRef.get().then((preferences) => {
-      if (preferences.exists) {
-        resolve(preferences);
+    const preferencesRef = db.collection('users').doc(userId);
+    preferencesRef.get().then((user) => {
+      if (user.exists) {
+        resolve(user.data());
+        console.log(user.toString());
       } else reject(new Error('No preferences'));
     }).catch((error) => {
       reject(error);

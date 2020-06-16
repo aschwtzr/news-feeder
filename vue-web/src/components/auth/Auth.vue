@@ -18,20 +18,23 @@ export default {
     }),
   },
   mounted() {
+    const router = this.$router;
     const uiConfig = {
       signInOptions: [
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         firebase.auth.EmailAuthProvider.PROVIDER_ID,
       ],
       callbacks: {
-        signInSuccessWithAuthResult: function (authResult) {
+        signInSuccessWithAuthResult: (authResult) => {
           const { user } = authResult;
           this.saveUserProfile(user);
           getUserProfile(user);
-          getUserPreferences(user.uid);
-          this.$router.push('/feed');
+          getUserPreferences(user.uid).then((results) => {
+            console.log(results);
+          });
+          router.push('/feed');
           return false;
-        }.bind(this),
+        },
       },
     };
     const auth = firebase.auth();

@@ -1,5 +1,5 @@
 <template>
-  <div style="position: fixed; width: 100%; height: 2.75rem;">
+  <div style="position: fixed; width: 100%;">
     <div class="tabs is-centered is-boxed">
       <ul>
         <li

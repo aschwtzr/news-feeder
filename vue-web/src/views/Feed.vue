@@ -1,13 +1,15 @@
 <template>
-  <div class="columns feed__full-width-fixed-container">
-    <div class="column is-narrow feed__sidebar-container">
-      <sidebar :keywords="sidebarKeywords" @sortChanged="(sort) => currentSort = sort"/>
-    </div>
-    <div class="column" style="overflow-y: auto;">
-      <news-feed-article-list
-        :briefings="groupedBySource ? sources : mappedTopics"
-        :groupedBySource="groupedBySource"
-      />
+  <div style="height: 100%;">
+    <div class="columns content-view">
+      <div class="column is-narrow feed__sidebar-container">
+        <sidebar :keywords="sidebarKeywords" @sortChanged="(sort) => currentSort = sort"/>
+      </div>
+      <div class="column" style="overflow-y: auto;">
+        <news-feed-article-list
+          :briefings="groupedBySource ? sources : mappedTopics"
+          :groupedBySource="groupedBySource"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -102,6 +104,13 @@ export default {
 </script>
 
 <style>
+  .content-view {
+    position: fixed;
+    top: 3.5rem;
+    height:calc(100vh -  2.75rem);
+    width: 100%;
+  }
+
   .topic-source-wrapper {
     margin-bottom: 3rem;
     overflow-y: auto;
@@ -118,10 +127,10 @@ export default {
   }
 
   .feed__full-width-fixed-container {
-    position: fixed;
+    /* position: fixed;
     top: 3.5rem;
     height:calc(100vh -  2.75rem);
-    width: 100%;
+    width: 100%; */
   }
 
 </style>
