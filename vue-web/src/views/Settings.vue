@@ -27,7 +27,7 @@
           >
           <div class="control" @click="toggleSource(source.key, source.id)">
             <label>
-              <input type="checkbox" :checked="source.checked"/>
+              <input type="checkbox" :checked="source.active"/>
               {{source.description}}
             </label>
           </div>
@@ -109,24 +109,13 @@ export default {
       keywords: state => state.keywords,
       frequency: state => state.frequency,
     }),
-    ...mapState({
+    ...mapState('feeds', {
       availableSources: state => state.availableSources,
     }),
     ...mapGetters({
       hasSetPreferences: 'settings/hasSetPreferences',
+      mergedSources: 'mergedSources',
     }),
-    mergedSources() {
-      if (this.sources) {
-        const mappedSources = this.sources.map((key) => {
-          return { ...this.availableSources[key], ...{ checked: true } };
-        });
-        const remainingSources = Object.keys(this.availableSources)
-          .filter(key => !this.sources.includes(key))
-          .map(key => this.availableSources[key]);
-        return [...mappedSources, ...remainingSources];
-      }
-      return this.availableSources;
-    },
   },
   methods: {
     toggleSource(key, id) {

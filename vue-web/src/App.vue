@@ -23,7 +23,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      getAvailableSources: 'getAvailableSources',
+      getAvailableSources: 'feeds/getAvailableSources',
     }),
   },
   mounted() {
