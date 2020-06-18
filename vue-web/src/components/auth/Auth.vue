@@ -13,7 +13,7 @@ import { getUserProfile } from '../../util/firebase';
 export default {
   name: 'auth',
   methods: {
-    ...mapMutations('auth', {
+    ...mapMutations('settings', {
       saveUserProfile: 'saveUserProfile',
       setUserPreferences: 'setUserPreferences',
     }),

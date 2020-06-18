@@ -28,10 +28,23 @@ export const getSources = () => {
   });
 };
 
-export const addSource = (source) => {
-  return firebase.database().ref('sources/').set({
-    description: source.description,
-    id: source.id,
+export const updateUserSources = (sources, userId) => {
+  const db = firebase.firestore();
+  const userSourcesRef = db.collection('users').doc(userId);
+
+  return db.runTransaction((transaction) => {
+    debugger;
+    return transaction.get(userSourcesRef).then((userDoc) => {
+      if (!userDoc.exists) {
+        console.log('user does not exist.');
+      }
+      console.log(sources);
+      transaction.update(userSourcesRef, { sources });
+    });
+  }).then(() => {
+    console.log('Transaction successfully committed!');
+  }).catch((error) => {
+    console.log('Transaction failed: ', error);
   });
 };
 

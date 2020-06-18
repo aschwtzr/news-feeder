@@ -17,7 +17,7 @@ export default {
     NewsFeedTabs,
   },
   computed: {
-    ...mapState('auth', {
+    ...mapState('settings', {
       user: state => state.user,
     }),
   },

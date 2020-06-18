@@ -16,13 +16,13 @@ new Vue({
   router,
   created() {
     firebase.initializeApp(firebaseConfig);
-    if (!store.state.auth.user) {
+    if (!store.state.settings.user) {
       this.$router.push({ path: '/auth' });
     }
     firebase.auth().onAuthStateChanged((user) => {
-      store.commit('auth/saveUserProfile', user);
+      store.commit('settings/saveUserProfile', user);
       getUserProfile(user.uid).then((profile) => {
-        store.commit('auth/setUserPreferences', profile);
+        store.commit('settings/setUserPreferences', profile);
         console.log(profile);
       }).catch((error) => {
         console.log(error);

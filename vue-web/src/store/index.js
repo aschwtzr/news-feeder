@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import auth from './auth';
+import settings from './settings';
 import {
   getGoogleFeed,
   getBriefings,
@@ -13,7 +13,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: {
-    auth,
+    settings,
   },
   state: {
     newsFeedView: 'briefings',
@@ -22,7 +22,7 @@ export default new Vuex.Store({
     googleFeed: [],
     rssFeeds: [],
     apiLimit: undefined,
-    availableSources: [],
+    availableSources: {},
   },
   mutations: {
     setNewsFeedView(state, view) {
@@ -55,7 +55,10 @@ export default new Vuex.Store({
     getAvailableSources({ commit }) {
       return new Promise((resolve, reject) => {
         getFeedSources().then((results) => {
-          const availableSources = results.data.sources;
+          const availableSources = results.data.sources.reduce((acc, curr) => {
+            acc[curr.id] = curr;
+            return acc;
+          }, {});
           commit('setAvailableSources', availableSources);
           resolve(availableSources);
         }).catch(error => reject(error));
