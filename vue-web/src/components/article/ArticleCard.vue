@@ -91,19 +91,13 @@ export default {
       return formatted;
     },
     ...mapGetters({
-      articleInSummarizerFeed: 'articleInSummarizerFeed',
+      articleInSummarizerFeed: 'feeds/articleInSummarizerFeed',
     }),
   },
   methods: {
     ...mapActions({
-      summarizeArticle: 'summarizeArticle',
       toggleSummarizerFeed: 'toggleSummarizerFeed',
     }),
-    summarizeURL(url) {
-      const encodedURL = encodeURIComponent(url);
-      this.loading = true;
-      this.summarizeArticle(encodedURL);
-    },
     ...mapMutations({
       addToSummarizerFeed: 'addToSummarizerFeed',
     }),
@@ -112,29 +106,8 @@ export default {
     },
     toggleSaved() {
       this.saved = !this.saved;
-      // TODO: saved vs summarize button workflow
-      const article = {
-        title: this.title,
-        url: this.url,
-        content: this.content,
-        date: this.date,
-      };
-      this.addToSummarizerFeed(article);
     },
     addToSummarizeFeed() {
-      this.summarize = !this.summarize;
-      this.loading = true;
-      console.log(this.loading);
-      const article = {
-        title: this.title,
-        url: this.url,
-        content: this.content,
-        date: this.date,
-      };
-      this.toggleSummarizerFeed(article).then(() => {
-        this.loading = false;
-        console.log(this.loading);
-      });
     },
     savedButtonClass() {
       return this.articleInSummarizerFeed(this.url) ? 'article-card__confirmed' : '';

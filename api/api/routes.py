@@ -8,6 +8,7 @@ from flask import jsonify
 # import feeder.common.source
 from feeder.common.source import google, guardian, bbc, reuters, dw
 from collections import defaultdict
+from util import firebase
 # from feeder.test import runrun
 
 # import datetime
@@ -102,7 +103,8 @@ def get_google():
 @app.route('/sources', methods=(['GET']))
 def get_sources():
   # global default_sources
-  sources = list(map(lambda x: x.description, default_sources.values()))
+  sources = firebase.get_default_sources()
+
   ret = { 'ok': True, 'sources': sources }
   return jsonify(ret)
 

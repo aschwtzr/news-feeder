@@ -1,14 +1,5 @@
 import firebase from 'firebase';
 
-
-// function writeUserData(userId, name, email, imageUrl) {
-//     firebase.database().ref('users/' + userId).set({
-//       username: name,
-//       email: email,
-//       profile_picture : imageUrl
-//     });
-//   }
-
 export const createUser = (user) => {
   const db = firebase.firestore();
   db.collection('users').doc(user.uid).set({
@@ -17,25 +8,13 @@ export const createUser = (user) => {
   });
 };
 
-export const getUserProfile = (user) => {
-  const db = firebase.firestore();
-  const userRef = db.collection('users').doc(user.uid);
-  userRef.get().then((doc) => {
-    if (doc.exists) {
-      console.log('user exists');
-    } else {
-      createUser(user);
-    }
-  });
-};
-
-export const getUserPreferences = (userId) => {
+export const getUserProfile = (userId) => {
   const db = firebase.firestore();
   return new Promise((resolve, reject) => {
-    const preferencesRef = db.collection('users').doc(userId).collection('preferences');
-    preferencesRef.get().then((preferences) => {
-      if (preferences.exists) {
-        resolve(preferences);
+    const preferencesRef = db.collection('users').doc(userId);
+    preferencesRef.get().then((user) => {
+      if (user.exists) {
+        resolve(user.data());
       } else reject(new Error('No preferences'));
     }).catch((error) => {
       reject(error);
@@ -49,10 +28,23 @@ export const getSources = () => {
   });
 };
 
-export const addSource = (source) => {
-  return firebase.database().ref('sources/').set({
-    description: source.description,
-    id: source.id,
+export const updateUserSources = (sources, userId) => {
+  const db = firebase.firestore();
+  const userSourcesRef = db.collection('users').doc(userId);
+
+  return db.runTransaction((transaction) => {
+    debugger;
+    return transaction.get(userSourcesRef).then((userDoc) => {
+      if (!userDoc.exists) {
+        console.log('user does not exist.');
+      }
+      console.log(sources);
+      transaction.update(userSourcesRef, { sources });
+    });
+  }).then(() => {
+    console.log('Transaction successfully committed!');
+  }).catch((error) => {
+    console.log('Transaction failed: ', error);
   });
 };
 

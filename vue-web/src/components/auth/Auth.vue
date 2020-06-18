@@ -8,30 +8,37 @@
 import { mapMutations } from 'vuex';
 import firebase from 'firebase';
 import * as firebaseui from 'firebaseui';
-import { getUserProfile, getUserPreferences } from '../../util/firebase';
+import { getUserProfile } from '../../util/firebase';
 
 export default {
   name: 'auth',
   methods: {
-    ...mapMutations('auth', {
+    ...mapMutations('settings', {
       saveUserProfile: 'saveUserProfile',
+      setUserPreferences: 'setUserPreferences',
     }),
   },
   mounted() {
+    const router = this.$router;
     const uiConfig = {
       signInOptions: [
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         firebase.auth.EmailAuthProvider.PROVIDER_ID,
       ],
       callbacks: {
-        signInSuccessWithAuthResult: function (authResult) {
+        signInSuccessWithAuthResult: (authResult) => {
           const { user } = authResult;
           this.saveUserProfile(user);
-          getUserProfile(user);
-          getUserPreferences(user.uid);
-          this.$router.push('/feed');
+          getUserProfile(user.uid).then((profile) => {
+            console.log(profile);
+            this.setUserPreferences(profile);
+            this.$router.push({ path: '/' });
+          }).catch((error) => {
+            console.log(error);
+          });
+          router.push('/feed');
           return false;
-        }.bind(this),
+        },
       },
     };
     const auth = firebase.auth();
@@ -40,9 +47,9 @@ export default {
     if (auth.currentUser) {
       const user = auth.currentUser;
       this.saveUserProfile(user);
-      getUserProfile(user);
-      getUserPreferences(user.uid).then((preferences) => {
-        console.log(preferences);
+      getUserProfile(user.uid).then((profile) => {
+        this.setUserPreferences(profile);
+        console.log(profile);
         this.$router.push({ path: '/' });
       }).catch((error) => {
         console.log(error);
