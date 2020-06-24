@@ -1,5 +1,5 @@
 <template>
-  <div class="" style="">
+  <div>
     <div
       v-for="(source, index) in briefings"
       :key="`${source.description}-${index}`"

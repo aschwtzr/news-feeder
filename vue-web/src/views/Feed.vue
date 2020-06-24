@@ -70,10 +70,9 @@ export default {
 
 <style>
   .content-view {
-    /* position: fixed; */
     top: 3.5rem;
     height:calc(100vh -  2.75rem);
-    /* width: 100%; */
+    width: 100vw;
   }
 
   .topic-source-wrapper {
@@ -89,13 +88,6 @@ export default {
   .feed__sidebar-container {
     border-right: 1px solid rgba(0, 0, 0, .25);
     overflow-y: auto;
-  }
-
-  .feed__full-width-fixed-container {
-    /* position: fixed;
-    top: 3.5rem;
-    height:calc(100vh -  2.75rem);
-    width: 100%; */
   }
 
 </style>

@@ -33,7 +33,6 @@ export const updateUserSources = (sources, userId) => {
   const userSourcesRef = db.collection('users').doc(userId);
 
   return db.runTransaction((transaction) => {
-    debugger;
     return transaction.get(userSourcesRef).then((userDoc) => {
       if (!userDoc.exists) {
         console.log('user does not exist.');

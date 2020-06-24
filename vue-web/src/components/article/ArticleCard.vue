@@ -132,13 +132,11 @@ export default {
 
 <style scoped>
   .overflowing-text {
-    /* width: 10em; */
     padding-top: .75rem;
     margin: 0rem;
     height: 2.4rem;
     overflow: hidden;
     text-overflow: ellipsis;
-    /* white-space: nowrap; */
     padding: .75rem;
     text-align: start;
   }
