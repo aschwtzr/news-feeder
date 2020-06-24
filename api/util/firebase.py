@@ -5,12 +5,15 @@ db = firestore.Client()
 def get_default_sources():
     sources_ref = db.collection(u'sources')
     docs = sources_ref.stream()
-    res = []
+    res = {}
     for doc in docs:
-        if doc.id != 'custom-google':
-            source = {
-                "id": doc.id,
-            }
-            source.update(doc.to_dict())
-            res.append(source)
+        res[doc.id] = doc.to_dict()
+    return res
+
+def get_user_sources():
+    sources_ref = db.collection(u'userSources')
+    docs = sources_ref.stream()
+    res = {}
+    for doc in docs:
+        res[doc.id] = doc.to_dict()
     return res
