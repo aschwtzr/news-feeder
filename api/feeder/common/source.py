@@ -5,8 +5,9 @@ class Source:
   def __init__(self, url, rss_algorithm, description, key, description_parser = None):
     self.url = url
     self.rss_algorithm = rss_algorithm
-    self.description_parser = description_parser
     self.description = description
+    self.key = key
+    self.description_parser = description_parser
     # self.
     # save feed articles here to access them later
   
@@ -35,3 +36,4 @@ guardian = Source('https://www.theguardian.com/world/rss', feed_getter.rss, 'The
 dw = Source('http://rss.dw.com/rdf/rss-en-world', feed_getter.rss, 'Deutsche Welle - World News', 'dw-world', article_formatter.dw)
 
 active_topics = [bbc, guardian, dw, google]
+topics_by_key = dict((source.key, source) for source in active_topics)

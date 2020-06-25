@@ -6,7 +6,7 @@ from util.api import get_feed_for, list_rss_sources
 from flask import request
 from flask import jsonify
 # import feeder.common.source
-from feeder.common.source import google, guardian, bbc, dw, active_topics
+from feeder.common.source import google, guardian, bbc, dw, active_topics, topics_by_key
 from collections import defaultdict
 from util import firebase
 # from feeder.test import runrun
@@ -61,13 +61,12 @@ def get_topics():
   keywords = defaultdict(int)
   response = defaultdict(list)
   mapped_sources = []
-  if req_sources is not None:
+  if len(req_sources) > 0:
     sources = firebase.get_default_sources()
-    print(req_sources)
-    print(sources)
-    mapped = list(map(lambda source: sources[source], req_sources))
+    mapped_keys = list(map(lambda source: sources[source]["key"], req_sources[0].split(',')))
+    for key in mapped_keys:
+      mapped_sources.append(topics_by_key[key])
 
-  print(mapped_sources)
   for source in (active_topics if len(mapped_sources) < 1 else mapped_sources):
     source_dict = defaultdict(list)
     source_dict['description'] = source.description

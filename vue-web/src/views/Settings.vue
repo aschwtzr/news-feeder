@@ -90,8 +90,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
-import { updateUserSources } from '@/util/firebase';
+import { mapState, mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'Settings',
@@ -118,13 +117,22 @@ export default {
     }),
   },
   methods: {
+    ...mapActions({
+      updateUserSources: 'settings/updateUserSources',
+    }),
     toggleSource(key, id) {
-      if (this.sources && this.sources.includes(key)) {
-        updateUserSources(this.sources.filter(arrKey => arrKey !== key), this.user.userId);
+      const params = {
+        userId: this.user.userId,
+      };
+      if (this.sources && this.sources.includes(id)) {
+        params.sources = this.sources.filter(sourceId => sourceId !== id);
+        this.updateUserSources(params);
       } else if (this.sources) {
-        updateUserSources([...this.sources, id], this.user.userId);
+        params.sources = [...this.sources, id];
+        this.updateUserSources(params);
       } else {
-        updateUserSources([id], this.user.userId);
+        params.sources = [id];
+        this.updateUserSources(params);
       }
     },
   },

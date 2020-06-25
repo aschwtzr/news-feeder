@@ -33,17 +33,28 @@ const feeds = {
     getAvailableSources({ commit }) {
       return new Promise((resolve, reject) => {
         getFeedSources().then((results) => {
+          /* eslint-disable no-param-reassign */
           const availableSources = results.data.sources.reduce((acc, curr) => {
             acc[curr.id] = curr;
             return acc;
           }, {});
+          /* eslint-enable no-param-reassign */
           commit('setAvailableSources', availableSources);
           resolve(availableSources);
         }).catch(error => reject(error));
       });
     },
-    getTopics({ commit }) {
-      getTopics().then((res) => {
+    getTopics({ commit, rootState }, defaultSources = false) {
+      const options = [];
+      if (rootState.settings.sources && !defaultSources) {
+        const sourceString = `source=${rootState.settings.sources.join(',')}`;
+        options.push(sourceString);
+      }
+      if (rootState.settings.userSource && !defaultSources) {
+        const userSourceString = `user_source=${rootState.settings.userSources.join(',')}`;
+        options.push(userSourceString);
+      }
+      getTopics(options).then((res) => {
         commit('setTopics', res.data.results);
         commit('setKeywords', res.data.keywords);
         const sorted = Object.entries(res.data.keywords)
@@ -58,6 +69,7 @@ const feeds = {
       return state.summarizerFeed[url];
     },
     mappedTopics: state => (currentKeywords) => {
+      /* eslint-disable no-param-reassign */
       const mapped = state.topics.reduce((acc, source) => {
         source.topics.forEach((topic) => {
           const sorted = topic.keywords.sort((a, b) => {
@@ -73,6 +85,7 @@ const feeds = {
         });
         return acc;
       }, {});
+      /* eslint-enable no-param-reassign */
       const topics = currentKeywords.map((keyword) => {
         if (mapped[keyword]) {
           return {

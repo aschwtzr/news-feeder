@@ -1,3 +1,5 @@
+import { updateUserSources } from '@/util/firebase';
+
 const settings = {
   namespaced: true,
   state: {
@@ -17,10 +19,7 @@ const settings = {
       };
     },
     setUserPreferences(state, preferences) {
-      state.sources = preferences.sources;
-      state.articleLimit = preferences.articleLimit;
-      state.keywords = preferences.keywords;
-      state.frequency = preferences.frequency;
+      Object.assign(state, preferences);
     },
   },
   getters: {
@@ -28,6 +27,11 @@ const settings = {
       const preferences = ['frequency', 'keywords', 'articleLimit', 'sources'];
       const filtered = preferences.filter(key => state[key]);
       return !!(filtered.length);
+    },
+  },
+  actions: {
+    updateUserSources({ commit }, params) {
+      updateUserSources(params.sources, params.userId).then(() => commit('setUserPreferences', { sources: params.sources }));
     },
   },
 };
