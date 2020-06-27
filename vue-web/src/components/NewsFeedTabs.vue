@@ -30,6 +30,7 @@ export default {
         routeName: 'feed',
         icon: 'rss',
       },
+      // will need to add these back in once the mvp is up
       {
         description: 'Summaries',
         routeName: 'summaries',
@@ -40,11 +41,12 @@ export default {
         routeName: 'settings',
         icon: 'cog',
       },
-      {
-        description: 'Admin',
-        routeName: 'admin',
-        icon: 'user-shield',
-      }],
+      // {
+      //   description: 'Admin',
+      //   routeName: 'admin',
+      //   icon: 'user-shield',
+      // }
+      ],
     };
   },
   methods: {

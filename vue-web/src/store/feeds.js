@@ -44,14 +44,18 @@ const feeds = {
         }).catch(error => reject(error));
       });
     },
-    getTopics({ commit, rootState }, defaultSources = false) {
+    getTopics({ commit, rootState }, defaults = false) {
       const options = [];
-      if (rootState.settings.sources && !defaultSources) {
+      if (rootState.settings.sources && !defaults) {
         const sourceString = `source=${rootState.settings.sources.join(',')}`;
         options.push(sourceString);
       }
-      if (rootState.settings.userSource && !defaultSources) {
+      if (rootState.settings.userSource && !defaults) {
         const userSourceString = `user_source=${rootState.settings.userSources.join(',')}`;
+        options.push(userSourceString);
+      }
+      if (rootState.settings.articleLimit && !defaults) {
+        const userSourceString = `&limit=${rootState.settings.articleLimit}`;
         options.push(userSourceString);
       }
       getTopics(options).then((res) => {

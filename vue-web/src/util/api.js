@@ -17,7 +17,7 @@ export const getBriefings = () => {
 };
 
 export const getTopics = (options) => {
-  return baseAxios.get(`/topics?${options}`);
+  return baseAxios.get(`/topics?${options.join('')}`);
 };
 
 export const getSummaryForURL = (url) => {
