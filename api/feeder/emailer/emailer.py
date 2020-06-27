@@ -64,7 +64,6 @@ def load_sources ():
   sources['google'] = google.get_feed_articles(20)
   sources['guardian'] = guardian.get_feed_articles(20)
   sources['bbc'] = bbc.get_feed_articles(20)
-  sources['reuters'] = reuters.get_feed_articles(20)
   sources['dw'] = dw.get_feed_articles(20)
   return sources
 
