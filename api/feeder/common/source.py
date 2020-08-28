@@ -24,8 +24,8 @@ class Source:
     return topic_stream
 
 
-def custom_google_source (query):
-  return Source(f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en", feed_getter.google, f'Google News for {query}', 'google-custom')
+def custom_google_source (query, description):
+  return Source(f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en", feed_getter.google, description, 'google-custom')
 
 # reuters = Source('http://feeds.reuters.com/Reuters/worldNews', feed_getter.rss, 'Reuters - World News', 'reuters-world', article_formatter.reuters)
 # yahoo = Source('https://www.yahoo.com/news/rss/world', article_formatter.yahoo, feed_getter.rss)

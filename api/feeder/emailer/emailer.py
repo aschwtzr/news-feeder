@@ -1,7 +1,7 @@
 import yagmail
 import os
 import logging
-from feeder.common.source import google, guardian, bbc, reuters, dw
+from feeder.common.source import google, guardian, bbc, dw
 from collections import defaultdict
 from feeder.util.time_tools import timestamp_string
 
@@ -9,9 +9,9 @@ password = os.environ.get('EMAIL_PASSWORD')
 email = os.environ.get('EMAIL_ADDRESS')
 
 def run_digest (users):
-  sources = load_sources()
-  topic_keywords = map_keywords(sources)
   for user in users:
+    sources = load_sources(user)
+    topic_keywords = map_keywords(sources)
     logging.info(f"emailing {user['email']}")
     body = email_body_for_user(user, sources, topic_keywords)
     yagmail.SMTP(email, password).send(
@@ -20,24 +20,12 @@ def run_digest (users):
       contents=body)
     logging.info(f"email sent at {timestamp_string()}")
 
-def fancy_source (key):
-  fancies = {
-    'google': 'Google News',
-    'guardian': 'The Guardian',
-    'bbc': 'BBC News',
-    'reuters': 'Reuters',
-    'dw': 'Deutsche Welle'
-  }
-  return fancies[key]
-
 def email_body_for_user (user, sources, keywords):
   contents = ['<body>']
 
-  for source in user['sources']:
-    head = fancy_source(source)
-    results = sources[source]
-    contents.append(f'<h2 style="color: #33658A; font-weight: 800; margin: 0;">{head}</h2>')
-    for index, topic in enumerate(results):
+  for (description, topics) in sources.items():
+    contents.append(f'<h2 style="color: #33658A; font-weight: 800; margin: 0;">{description}</h2>')
+    for index, topic in enumerate(topics):
       contents.append(f'<strong style="font-weight=500;"> keywords: {topic.keywords}</strong><br>')
       for article in topic.articles:
         contents.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
@@ -45,11 +33,9 @@ def email_body_for_user (user, sources, keywords):
         contents.append(f"<em>{article.date}</em><br>")
         contents.append(f"<div>{article.brief}<div> {'<br>' if len(article.brief) > 0 else '' } ")
         contents.append("<br>")    
-      if index >= user['limit'] - 1:
-        break
     contents.append("<br><br>")
 
-  if user['experimental'] == True:
+  if True:
     for key, value in keywords.items():
       contents.append(f"{key}: {len(value)}")
       if len(value) < 3:
@@ -57,13 +43,11 @@ def email_body_for_user (user, sources, keywords):
 
   return contents
 
-
-def load_sources ():
+def load_sources (user):
+  limit = user['articleLimit'] if 'articleLimit' in user else 15
   sources = {}
-  sources['google'] = google.get_feed_articles(20)
-  sources['guardian'] = guardian.get_feed_articles(20)
-  sources['bbc'] = bbc.get_feed_articles(20)
-  sources['dw'] = dw.get_feed_articles(20)
+  for source in user['email_sources']:
+    sources[source.description] = source.get_feed_articles(limit)
   return sources
 
 def map_keywords (sources):
