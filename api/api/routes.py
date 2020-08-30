@@ -6,7 +6,7 @@ from util.api import get_feed_for, list_rss_sources
 from flask import request
 from flask import jsonify
 # import feeder.common.source
-from feeder.common.source import google, guardian, bbc, dw, active_topics, topics_by_key
+from feeder.common.source import google, guardian, bbc, dw, active_topics, topics_by_key, custom_google_source
 from collections import defaultdict
 from util import firebase
 # from feeder.test import runrun
@@ -23,6 +23,7 @@ def index():
   return jsonify(ret)
 
 # probably better to rename this feeds
+# old
 @app.route('/briefings', methods=(['GET']))
 def get_headlines():
   req_sources = request.args.getlist('source')
@@ -55,7 +56,7 @@ def get_headlines():
 @app.route('/topics', methods=(['GET']))
 def get_topics():
   req_sources = request.args.getlist('source')
-  # user_sources = request.args.getlist('user_source')
+  user_sources = request.args.getlist('user_source')
   req_limit = (8 if request.args.get('limit') is None else int(request.args.get('limit')))
   
   keywords = defaultdict(int)
@@ -66,6 +67,14 @@ def get_topics():
     mapped_keys = list(map(lambda source: sources[source]["key"], req_sources[0].split(',')))
     for key in mapped_keys:
       mapped_sources.append(topics_by_key[key])
+
+  custom_feeds = firebase.get_custom_feeds()
+  if len(user_sources) > 0:
+    for key in user_sources[0].split(','):
+      config = custom_feeds[key]
+      query_string =  "+".join(config['keywords'])
+      custom_feed = custom_google_source(query_string, config['description'])
+      mapped_sources.append(custom_feed)
 
   for source in (active_topics if len(mapped_sources) < 1 else mapped_sources):
     source_dict = defaultdict(list)
@@ -116,3 +125,7 @@ def get_sources():
     res.append(source)
   ret = { 'ok': True, 'sources': res }
   return jsonify(ret)
+
+@app.route('/custom-feeds', methods=(['GET']))
+def get_custom_feeds():
+  user_id = request.args.get('id')

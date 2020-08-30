@@ -50,12 +50,14 @@ const feeds = {
         const sourceString = `source=${rootState.settings.sources.join(',')}`;
         options.push(sourceString);
       }
-      if (rootState.settings.userSource && !defaults) {
-        const userSourceString = `user_source=${rootState.settings.userSources.join(',')}`;
+      if (rootState.settings.customFeeds && !defaults) {
+        let userSourceString = `user_source=${rootState.settings.customFeeds.join(',')}`;
+        if (options.length > 0) userSourceString = `&${userSourceString}`;
         options.push(userSourceString);
       }
       if (rootState.settings.articleLimit && !defaults) {
-        const userSourceString = `&limit=${rootState.settings.articleLimit}`;
+        let userSourceString = `limit=${rootState.settings.articleLimit}`;
+        if (options.length > 0) userSourceString = `&${userSourceString}`;
         options.push(userSourceString);
       }
       getTopics(options).then((res) => {

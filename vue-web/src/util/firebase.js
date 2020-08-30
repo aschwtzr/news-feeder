@@ -147,9 +147,7 @@ export const createCustomFeed = (feedDescription, feedKeywords, userId) => {
     });
     debugger;
     const userRef = db.collection('users').doc(userId);
-    batch.set(userRef,
-      { customFeeds: [feedRef.id] },
-      { merge: true });
+    batch.update(userRef, { customFeeds: firebase.firestore.FieldValue.arrayUnion(feedRef.id) });
     debugger;
     batch.commit().then(resolve(feedRef)).catch(error => reject(error));
   });
