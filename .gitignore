@@ -30,3 +30,5 @@ web/package-lock.json
 vue-web/.env
 vue-web/yarn.lock
 api/util/firebase_credentials.json
+api/Pipfile.lock
+vue-web/yarn.lock
