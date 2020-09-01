@@ -11,6 +11,7 @@ const feeds = {
     topics: [],
     keywords: {},
     sortedKeywords: [],
+    selectedKeywords: [],
   },
   mutations: {
     setAvailableSources(state, sources) {
@@ -27,6 +28,9 @@ const feeds = {
     },
     setSortedKeywords(state, sortedKeywords) {
       state.sortedKeywords = sortedKeywords;
+    },
+    setSelectedKeywords(state, selectedKeywords) {
+      state.selectedKeywords = selectedKeywords;
     },
   },
   actions: {
@@ -74,9 +78,10 @@ const feeds = {
     articleInSummarizerFeed: state => (url) => {
       return state.summarizerFeed[url];
     },
-    mappedTopics: state => (currentKeywords) => {
+    mappedTopics: (state) => {
       /* eslint-disable no-param-reassign */
-      const mapped = state.topics.reduce((acc, source) => {
+      const stateTopics = [...state.topics];
+      const topicsMap = stateTopics.reduce((acc, source) => {
         source.topics.forEach((topic) => {
           const sorted = topic.keywords.sort((a, b) => {
             return state.keywords[b] - state.keywords[a];
@@ -92,16 +97,17 @@ const feeds = {
         return acc;
       }, {});
       /* eslint-enable no-param-reassign */
-      const topics = currentKeywords.map((keyword) => {
-        if (mapped[keyword]) {
+      const keywords = state.selectedKeywords.length
+        ? [...state.selectedKeywords] : state.sortedKeywords;
+      const topics = keywords.map((keyword) => {
+        if (topicsMap[keyword]) {
           return {
-            keywords: [keyword, ...mapped[keyword].adjacent],
-            articles: mapped[keyword].articles,
+            keywords: [keyword, ...topicsMap[keyword].adjacent],
+            articles: topicsMap[keyword].articles,
           };
         }
         return false;
-      })
-        .filter(res => typeof res === 'object');
+      }).filter(res => typeof res === 'object');
       return [{
         topics,
         description: 'sorted',

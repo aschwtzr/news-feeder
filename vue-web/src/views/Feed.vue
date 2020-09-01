@@ -2,12 +2,12 @@
   <div style="height: 100%;">
     <div class="columns is-marginless content-view">
       <div class="column is-narrow feed__sidebar-container">
-        <sidebar :keywords="sidebarKeywords" @sortChanged="(sort) => currentSort = sort"/>
+        <sidebar :keywords="sidebarKeywords" @sortChanged="(sort) => setSort(sort)"/>
       </div>
       <div class="column" style="overflow-y: auto;">
         <news-feed-article-list
-          :briefings="groupedBySource ? topics : mappedTopics"
-          :groupedBySource="groupedBySource"
+          :briefings="!groupByKeywords ? topics : topicsByKeyword"
+          :groupedBySource="!groupByKeywords"
         />
       </div>
     </div>
@@ -15,7 +15,12 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex';
+import {
+  mapState,
+  mapGetters,
+  mapActions,
+  mapMutations,
+} from 'vuex';
 import NewsFeedArticleList from '@/components/feed/NewsFeedArticleList.vue';
 import Sidebar from '@/components/feed/Sidebar.vue';
 
@@ -34,13 +39,22 @@ export default {
     ...mapActions({
       getTopics: 'feeds/getTopics',
     }),
+    ...mapMutations({
+      setSelectedKeywords: 'feeds/setSelectedKeywords',
+    }),
+    setSort(sort) {
+      if (sort === 'feed' || sort === 'keywords') {
+        this.currentSort = sort;
+        this.setSelectedKeywords([]);
+      } else this.setSelectedKeywords([sort]);
+    },
   },
   computed: {
     ...mapGetters({
       mappedTopics: 'feeds/mappedTopics',
     }),
     sidebarKeywords() {
-      const { topics } = this.mappedTopics(this.currentKeywords)[0];
+      const { topics } = this.mappedTopics[0];
       if (topics.length) {
         return topics.map(topic => topic.keywords[0]);
       }
@@ -51,15 +65,15 @@ export default {
       keywords: state => state.keywords,
       sortedKeywords: state => state.sortedKeywords,
     }),
-
-    groupedBySource() {
-      return this.currentSort === 'feed';
-    },
-    currentKeywords() {
-      if (this.currentSort === 'feed' || this.currentSort === 'keywords') {
-        return this.sortedKeywords;
+    topicsByKeyword() {
+      if (this.groupByKeywords) {
+        return this.mappedTopics;
       }
-      return [this.currentSort];
+      return [];
+    },
+    groupByKeywords() {
+      return (this.currentSort === 'keywords'
+        || (this.selectedKeywords && this.selectedKeywords.length > 0));
     },
   },
   mounted() {
