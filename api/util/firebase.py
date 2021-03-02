@@ -25,3 +25,20 @@ def get_users():
     for doc in docs:
         res[doc.id] = doc.to_dict()
     return res
+
+def create_user(user_id, name, email):
+    data = {
+        u'name': name,
+        u'email': email
+    }
+    db.collection(u'users').document(user_id).set(data)
+
+def get_user_profile(user_id):
+    user_ref = db.collection(u'users').document(user_id)
+    doc = user_ref.get()
+    res = {}
+    if doc.exists:
+        res = doc.to_dict()
+    return res
+# finish moving the firebase stuff over
+# def set_user_sources(sources, user_id):

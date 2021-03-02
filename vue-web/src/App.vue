@@ -9,7 +9,6 @@
 // import firebase from 'firebase';
 import { mapState, mapActions } from 'vuex';
 import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
-// import { getUserProfile } from './util/firebase';
 
 export default {
   name: 'App',

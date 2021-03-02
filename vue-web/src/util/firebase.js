@@ -1,33 +1,5 @@
 import firebase from 'firebase';
 
-export const createUser = (user) => {
-  const db = firebase.firestore();
-  db.collection('users').doc(user.uid).set({
-    name: user.displayName,
-    email: user.email,
-  });
-};
-
-export const getUserProfile = (userId) => {
-  const db = firebase.firestore();
-  return new Promise((resolve, reject) => {
-    const userRef = db.collection('users').doc(userId);
-    userRef.get().then((user) => {
-      if (user.exists) {
-        resolve(user.data());
-      } else reject(new Error('No preferences'));
-    }).catch((error) => {
-      reject(error);
-    });
-  });
-};
-
-export const getSources = () => {
-  return firebase.database().ref('/sources/').once('value').then((snapshot) => {
-    console.log(snapshot);
-  });
-};
-
 export const setUserSources = (sources, userId) => {
   const db = firebase.firestore();
   const userRef = db.collection('users').doc(userId);
@@ -140,15 +112,12 @@ export const createCustomFeed = (feedDescription, feedKeywords, userId) => {
   const batch = db.batch();
   return new Promise((resolve, reject) => {
     const feedRef = db.collection('customFeeds').doc();
-    debugger;
     batch.set(feedRef, {
       description: feedDescription,
       keywords: feedKeywords,
     });
-    debugger;
     const userRef = db.collection('users').doc(userId);
     batch.update(userRef, { customFeeds: firebase.firestore.FieldValue.arrayUnion(feedRef.id) });
-    debugger;
     batch.commit().then(resolve(feedRef)).catch(error => reject(error));
   });
 };

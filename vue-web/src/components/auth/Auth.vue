@@ -8,7 +8,7 @@
 import { mapMutations } from 'vuex';
 import firebase from 'firebase';
 import * as firebaseui from 'firebaseui';
-import { getUserProfile } from '../../util/firebase';
+import { getUserProfile } from '../../util/api';
 
 export default {
   name: 'auth',

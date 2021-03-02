@@ -129,3 +129,18 @@ def get_sources():
 @app.route('/custom-feeds', methods=(['GET']))
 def get_custom_feeds():
   user_id = request.args.get('id')
+
+# not implemented
+@app.route('/create-user', methods=(['POST']))
+def create_user():
+  user_id = request.args.get('userId')
+  name = request.args.get('name')
+  email = request.args.get('email')
+  firebase.create_user(user_id, name, email)
+
+@app.route('/get-user-profile', methods=(['GET']))
+def get_user_profile():
+  user_id = request.args.get('user_id')
+  profile = firebase.get_user_profile(user_id)
+  ret = { 'ok': True, 'profile': profile }
+  return jsonify(ret)

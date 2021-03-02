@@ -9,7 +9,7 @@ const baseAxios = axios.create({
 });
 
 export const getFeedSources = () => {
-  return baseAxios.get(`${baseURL}/sources`);
+  return baseAxios.get('/sources');
 };
 
 export const getBriefings = () => {
@@ -26,6 +26,17 @@ export const getSummaryForURL = (url) => {
 
 export const getContentSummary = (content) => {
   return baseAxios.post('/gensim-summary', { content });
+};
+
+export const createUser = (googleUser) => {
+  return baseAxios.post('/create-user', {
+    userId: googleUser,
+  });
+};
+
+export const getUserProfile = (userId) => {
+  return baseAxios.get(`/get-user-profile?user_id=${userId}`)
+    .then(res => res.data.profile);
 };
 
 export const base = () => {

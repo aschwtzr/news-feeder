@@ -6,7 +6,7 @@ import router from './router';
 import store from './store';
 import './registerServiceWorker';
 import firebaseConfig from './util/firebaseConfig';
-import { getUserProfile } from './util/firebase';
+import { getUserProfile } from './util/api';
 
 Vue.use(Buefy);
 

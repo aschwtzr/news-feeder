@@ -64,6 +64,7 @@ export default {
       topics: state => state.topics,
       keywords: state => state.keywords,
       sortedKeywords: state => state.sortedKeywords,
+      selectedKeywords: state => state.selectedKeywords,
     }),
     topicsByKeyword() {
       if (this.groupByKeywords) {
@@ -72,8 +73,7 @@ export default {
       return [];
     },
     groupByKeywords() {
-      return (this.currentSort === 'keywords'
-        || (this.selectedKeywords && this.selectedKeywords.length > 0));
+      return (this.currentSort === 'keywords' || this.selectedKeywords.length > 0);
     },
   },
   mounted() {
