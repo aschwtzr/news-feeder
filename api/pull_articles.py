@@ -1,13 +1,11 @@
 # from feeder.emailer.emailer import load_sources
 import os
+import psycopg2
 from feeder.common.source import active_topics, topics_by_key, custom_google_source
 from feeder.util.api import get_data_from_uri, get_summary
-import psycopg2
 from re import search
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv, find_dotenv
-
-load_dotenv(find_dotenv())
+from datetime import datetime
 
 def print_articles_for_sources (sources):
   for (description, topics) in sources.items():
@@ -107,9 +105,11 @@ def get_summry_data():
   cur.close()
 
 def extract_url(google_url):
+  print(f'fetching {google_url}')
   data = get_data_from_uri(google_url)
   soup = BeautifulSoup(data, 'html.parser')
   try:
+    print('searching for content in soup')
     message = soup.find(property="og:url").attrs['content']
     return message
   except:
@@ -118,6 +118,16 @@ def extract_url(google_url):
     return 'error'
 
 def fetch_rss_feeds(sources):
+  now = datetime.now()
+  timestamp = now.strftime('%m/%d/%Y, %H:%M:%S')
+  
+  print(f"""
+  *****************************************  
+  *****************************************  
+    FETCHING NEWS AT {timestamp}
+  *****************************************  
+  *****************************************  
+  """)
   cur = conn.cursor()
   for (description, topics) in sources.items():
     for index, topic in enumerate(topics):
@@ -143,7 +153,9 @@ def fetch_rss_feeds(sources):
           continue
 
         # get paid smmry and build sql
+        print(url)
         smr = get_summary(url)
+        print(f"Adding {article.title} - {article.source} via {description}")
         if smr['ok'] == True:
           sql = """
           insert into articles 
@@ -160,8 +172,9 @@ def fetch_rss_feeds(sources):
           data = (description, topic.keywords, article.title, url, article.source, article.date, smr['error'])
         
         # try insert
+        print('try insert')
+        print(data)
         try:
-          print(f"Added {article.title} - {article.source} via {description}")
           cur.execute(sql, data)
           conn.commit()
         except psycopg2.Error as e:

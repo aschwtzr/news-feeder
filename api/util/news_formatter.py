@@ -48,7 +48,6 @@ def summary_from_url (url):
   result = util.api.get_summary(url)
   parsed = json.loads(result)
   # print(parsed)
-  error = parsed["sm_api_error"]
   if "sm_api_error" in parsed:
     ret["ok"] = False
     ret["error"] = parsed["sm_api_message"]
