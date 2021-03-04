@@ -5,8 +5,18 @@ import os
 import json
 
 def get_data_from_uri (uri):
-  results = requests.get(uri)
-  return results.text
+  try:
+    results = requests.get(uri, timeout=60)
+    return {
+      'ok': True, 
+      'data': results.text
+      }
+  except requests.exceptions.RequestException as error:
+    print(error)
+    return {
+      'ok': False,
+      'error': error
+      }
 
 def get_summary (uri):
   key = os.environ.get('SUMMRY_KEY')

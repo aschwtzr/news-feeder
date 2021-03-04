@@ -107,7 +107,11 @@ def get_summry_data():
 def extract_url(google_url):
   print(f'fetching {google_url}')
   data = get_data_from_uri(google_url)
-  soup = BeautifulSoup(data, 'html.parser')
+  if data['ok'] == True:
+    soup = BeautifulSoup(data['data'], 'html.parser')
+  else:
+    print('error pulling feed ', data['error'])
+    
   try:
     print('searching for content in soup')
     message = soup.find(property="og:url").attrs['content']

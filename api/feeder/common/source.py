@@ -14,12 +14,15 @@ class Source:
   def get_feed_articles(self, limit = 99):
     # fetches a source rss feed and returns it as article objects
     data = get_data_from_uri(self.url)
-    if self.description_parser is not None:
-      topic_stream = self.rss_algorithm(data, self.description_parser, limit)
+    if data['ok'] == False:
+      print('error pulling feed ', data['error'])
+      return []
+    elif self.description_parser is not None:
+      topic_stream = self.rss_algorithm(data['data'], self.description_parser, limit)
     else:
       # print(data)
       # print(limit)
-      topic_stream = self.rss_algorithm(data, limit)
+      topic_stream = self.rss_algorithm(data['data'], limit)
 
     return topic_stream
 

@@ -26,28 +26,34 @@ from feeder.common.topic import Topic
   # 
   # ###
 def google (data, limit):
-  soup = BeautifulSoup(data, 'xml')
-  items = soup.findAll('item')
   topics = []
-  for index, topic in enumerate(items):
-    # ignore for now, haven't seen in a while
-    # media = topic.find('content')
-    # if media is not None:
-    #   result['media'] = media['url']
-    topic = article_formatter.topics_from_google_item(topic)
-    topics.append(topic)
-    if index >= limit - 1:
-      break
+  try:
+    soup = BeautifulSoup(data, 'xml')
+    items = soup.findAll('item')
+    for index, topic in enumerate(items):
+      # ignore for now, haven't seen in a while
+      # media = topic.find('content')
+      # if media is not None:
+      #   result['media'] = media['url']
+      topic = article_formatter.topics_from_google_item(topic)
+      topics.append(topic)
+      if index >= limit - 1:
+        break
+  except TypeError as error:
+    print('unable to parse Google feed.', error)
   return topics
 
 def rss (data, supplied_formatter, limit):
-  soup = BeautifulSoup(data, 'xml')
-  items = soup.findAll('item')
   topics = []
-  for index, topic in enumerate(items):
-    topic = supplied_formatter(topic)
-    topics.append(topic)
-    if index >= limit - 1:
-      break
+  try:
+    soup = BeautifulSoup(data, 'xml')
+    items = soup.findAll('item')
+    for index, topic in enumerate(items):
+      topic = supplied_formatter(topic)
+      topics.append(topic)
+      if index >= limit - 1:
+        break
+  except TypeError as error:
+    print('unable to parse Google feed.', error)
   return topics
 
