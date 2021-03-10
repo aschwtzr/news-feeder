@@ -23,6 +23,7 @@ def get_summary (uri):
   request_uri = f"https://api.smmry.com?SM_API_KEY={key}&SM_KEYWORD_COUNT=5&SM_LENGTH=5&SM_URL={uri}"
   result = requests.get(request_uri)
   parsed = json.loads(result.text)
+  print(parsed)
   if "sm_api_error" in parsed:
     print(parsed['sm_api_message'])
     result_hash = {
