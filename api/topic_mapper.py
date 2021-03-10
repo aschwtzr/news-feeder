@@ -157,7 +157,7 @@ def summarize(article_text, sentences):
   summary = ' '.join(summary_sentences)
   return summary
 
-def build_email_body (topics):
+def build_email_body (topics, dev_mode = False):
   contents = ['<body>']
   contents.append(f'<h2 style="color: #33658A; font-weight: 800px; margin: 0;">Hello from the newly Artificially Intelligent News Feeder</h2><br>')
   other_news = False
@@ -175,6 +175,7 @@ def build_email_body (topics):
         articles_html.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
         articles_html.append(f"<strong>{article.source}</strong>")
         articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
+        articles_html.append(f"<div style='{'' if dev_mode is True else 'display: none;'}'>{article.keywords}</div>{'<br>' if dev_mode is True else ''}")
         articles_html.append(f"<div>{'. '.join(list(article.brief.split('. '))[:2])}<div> {'<br>' if len(article.brief) > 0 else '' } ")
         long_string += article.brief
       if len(topic.articles) > 10:
@@ -197,8 +198,9 @@ def build_email_body (topics):
         contents.append('<br><br><h4>Other News </h4>')
         other_news = True
       contents.append(f"<strong style='font-size:15px; font-weight: bold!important'><a href='{article.url}'>{article.title}</a></strong>")
-      articles_html.append(f"<div>{article.source}</div>")
+      articles_html.append(f"<strong>{article.source}</strong>")
       articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
+      articles_html.append(f"<div style='{'' if dev_mode is True else 'display: none;'}'>{article.keywords}</div>{'<br>' if dev_mode is True else ''}")
       articles_html.append(f'<div>{topic.articles[0].brief}</div>')
       contents += articles_html
     contents.append("###<br>")
@@ -217,11 +219,39 @@ df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_su
 
 topic_map = make_topics_map(processed, rel)
 mapped_topics = map(lambda tuple: map_topic(tuple[1]), topic_map.items())
+mapped_topics_list = list(mapped_topics)
+body = build_email_body(mapped_topics_list)
+dev_body = build_email_body(mapped_topics_list, True)
 
-body = build_email_body(list(mapped_topics))
+users = [
+  {
+    'email': 'schweitzer.albert@gmail.com',
+    'body': dev_body
+  },
+  {
+    'email': 'mansidhamija24@gmail.com',
+    'body': body
+  },
+  {
+    'email': 'heschwei@gmail.com',
+    'body': body
+  },
+  {
+    'email': 'kerygma01@yahoo.com',
+    'body': body
+  },
+  {
+    'email': 'mariselp_1305@yahoo.com',
+    'body': body
+  }
+]
 
-emails = ['schweitzer.albert@gmail.com', 'mansidhamija24@gmail.com', 'heschwei@gmail.com', 'kerygma01@yahoo.com', 'mariselp_1305@yahoo.com']
-# emails=['schweitzer.albert@gmail.com']
+users_dev = [
+  {
+    'email': 'schweitzer.albert@gmail.com',
+    'body': body
+  }
+]
 
 now = datetime.datetime.now()
 timestamp = now.strftime('%m/%d/%Y, %H:%M')
@@ -234,13 +264,13 @@ print(f"""
 *****************************************  
 """)
 
-for email in emails:
+for user in users_dev:
   yagmail.SMTP(os.environ.get('EMAIL_ADDRESS'), os.environ.get('EMAIL_PASSWORD')).send(
-    to=email,
+    to=user['email'],
     subject=f"Your {timestamp} News Briefing",
-    contents=body
+    contents=user['body']
   )
-  print(f"EMAIL SENT TO {email}")
+  print(f"EMAIL SENT TO {user['email']}")
 
 
 
