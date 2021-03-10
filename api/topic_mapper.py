@@ -7,7 +7,9 @@ from feeder.common.topic import Topic
 import yagmail
 import os
 import datetime
-from gensim.summarization.summarizer import summarize
+import re
+import nltk
+import heapq
 
 import feeder.util.db as db
 
@@ -122,6 +124,39 @@ def map_topic(topic):
     articles.append(article)
   return Topic(articles, topic['keywords'])
 
+def summarize(article_text, sentences):
+  article_text = re.sub(r'\[[0-9]*\]', ' ', article_text)
+  article_text = re.sub(r'\s+', ' ', article_text)
+  formatted_article_text = re.sub('[^a-zA-Z]', ' ', article_text )
+  formatted_article_text = re.sub(r'\s+', ' ', formatted_article_text)
+  sentence_list = nltk.sent_tokenize(article_text)
+  stopwords = nltk.corpus.stopwords.words('english')
+
+  word_frequencies = {} 
+  for word in nltk.word_tokenize(formatted_article_text):
+    if word not in stopwords:
+      if word not in word_frequencies.keys():
+        word_frequencies[word] = 1
+      else:
+        word_frequencies[word] += 1
+  maximum_frequncy = max(word_frequencies.values())
+
+  for word in word_frequencies.keys(): 
+    word_frequencies[word] = (word_frequencies[word]/maximum_frequncy)
+  sentence_scores = {}
+  for sent in sentence_list:
+    for word in nltk.word_tokenize(sent.lower()):
+      if word in word_frequencies.keys():
+        if len(sent.split(' ')) < 30:
+          if sent not in sentence_scores.keys():
+            sentence_scores[sent] = word_frequencies[word]
+          else:
+            sentence_scores[sent] += word_frequencies[word]
+  summary_sentences = heapq.nlargest(sentences, sentence_scores, key=sentence_scores.get)
+
+  summary = ' '.join(summary_sentences)
+  return summary
+
 def build_email_body (topics):
   contents = ['<body>']
   contents.append(f'<h2 style="color: #33658A; font-weight: 800; margin: 0;">Hello from the newly Artificially Intelligent News Feeder</h2>')
@@ -143,15 +178,15 @@ def build_email_body (topics):
         articles_html.append("<br>")
         long_string += article.brief
       if len(topic.articles) > 10:
-        ratio = .02
+        sentences = 7
       elif len(topic.articles) > 6:
-        ratio = .05
+        sentences = 6
       elif len(topic.articles) > 3:
-        ratio = .1
+        sentences = 5
       else:
-        ratio = .2
+        sentences = 4
       long_string.rstrip()
-      topic_sum = summarize(long_string, ratio=ratio)
+      topic_sum = summarize(long_string, sentences)
     else:
       articles_html.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
       articles_html.append(f"<strong>{article.source}</strong>")
