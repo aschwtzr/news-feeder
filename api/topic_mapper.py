@@ -159,45 +159,50 @@ def summarize(article_text, sentences):
 
 def build_email_body (topics):
   contents = ['<body>']
-  contents.append(f'<h2 style="color: #33658A; font-weight: 800; margin: 0;">Hello from the newly Artificially Intelligent News Feeder</h2>')
+  contents.append(f'<h2 style="color: #33658A; font-weight: 800; margin: 0;">Hello from the newly Artificially Intelligent News Feeder</h2><br>')
+  other_news = False
   for topic in topics:
-    if len(topic.keywords) > 2:
-      headline_kw = topic.keywords
-    else:
-      headline_kw = topic.articles[0].keywords
-    headline = " ".join(list(map(lambda x: x.capitalize(), headline_kw)))
-    contents.append(f'<h3 style="font-weight=500;"> Headline: {headline}</strong><br>')
     long_string = ''
     articles_html = []
     if len(topic.articles) > 1:
+      if len(topic.keywords) > 2:
+        headline_kw = topic.keywords
+      else:
+        headline_kw = topic.articles[0].keywords
+      headline = " ".join(list(map(lambda x: x.capitalize(), headline_kw)))
+      contents.append(f'<strong style="font-size: 15px;">{headline}</strong><br>')
       for article in topic.articles:
         articles_html.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
         articles_html.append(f"<strong>{article.source}</strong>")
         articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
         articles_html.append(f"<div>{article.brief}<div> {'<br>' if len(article.brief) > 0 else '' } ")
-        articles_html.append("<br>")
         long_string += article.brief
       if len(topic.articles) > 10:
-        sentences = 7
+        sentences = 8
       elif len(topic.articles) > 6:
-        sentences = 6
+        sentences = 7
       elif len(topic.articles) > 3:
-        sentences = 5
+        sentences = 6
       else:
-        sentences = 4
+        sentences = 5
       long_string.rstrip()
       topic_sum = summarize(long_string, sentences)
+      contents.append(f'<div>{topic_sum}</div>')
+      contents.append('<br>')
+      contents.append('<strong> *** Articles *** </strong>')
+      contents += articles_html
     else:
-      articles_html.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
+      if other_news is False:
+        contents.append('<br><br><h4>Other News </h4><br>')
+        other_news = True
+      contents.append(f"<a href='{article.url}'><strong style='font-size:15px; font-weight:500;'>{article.title}</strong>")
       articles_html.append(f"<strong>{article.source}</strong>")
       articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
-      articles_html.append("<br>")
-      topic_sum = topic.articles[0].brief
-    contents.append(f'<div>{topic_sum}</div>')
-    contents.append('<br>')
-    contents.append('<strong> *** Articles *** </strong>')
-    contents += articles_html
-    contents.append("<br><br>")
+      articles_html.append(f'<div>{topic.articles[0].brief}</div>')
+      contents += articles_html
+    if other_news is False:
+      contents.append("###<br>")
+    contents.append("<br>")
   contents.append('</body>')
   return contents
 

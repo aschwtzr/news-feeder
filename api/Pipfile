@@ -21,6 +21,7 @@ numpy = "*"
 sklearn = "*"
 psycopg2 = "*"
 pandas = "*"
+heapq = "*"
 
 [requires]
 python_version = "3.7"
