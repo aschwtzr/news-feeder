@@ -192,6 +192,7 @@ def build_email_body (topics):
       contents.append('<strong> *** Articles *** </strong>')
       contents += articles_html
     else:
+      article = topic.articles[0]
       if other_news is False:
         contents.append('<br><br><h4>Other News </h4><br>')
         other_news = True
