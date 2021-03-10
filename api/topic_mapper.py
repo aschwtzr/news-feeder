@@ -29,7 +29,7 @@ ARTICLE_SQL = """
     from articles 
     where smr_summary is not null 
     and smr_keywords is not null
-    and date > now() - interval '24 hours';
+    and date > now() - interval '12 hours';
   """
 
 def fetch_articles():
@@ -216,7 +216,7 @@ mapped_topics = map(lambda tuple: map_topic(tuple[1]), topic_map.items())
 body = build_email_body(list(mapped_topics))
 
 emails = ['schweitzer.albert@gmail.com', 'mansidhamija24@gmail.com', 'heschwei@gmail.com', 'kerygma01@yahoo.com']
-#emails=['schweitzer.albert@gmail.com']
+# emails=['schweitzer.albert@gmail.com']
 
 now = datetime.datetime.now()
 timestamp = now.strftime('%m/%d/%Y, %H:%M')

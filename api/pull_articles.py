@@ -45,9 +45,11 @@ def insert_articles(sources):
 
 
 def load_sources (user):
-  limit = user['articleLimit'] if 'articleLimit' in user else 20
+  limit = user['articleLimit'] if 'articleLimit' in user else 15
   sources = {}
   for source in user['email_sources']:
+    if source.key == 'guardian-world':
+      limit = 10
     sources[source.key] = source.get_feed_articles(limit)
   return sources
 
