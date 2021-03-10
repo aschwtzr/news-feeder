@@ -1,3 +1,5 @@
 deploy_flask.sh
 Pipfile.lock
 .env
+*.pyc
+*-checkpoint.py

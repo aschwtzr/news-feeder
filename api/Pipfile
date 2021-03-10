@@ -16,7 +16,11 @@ flask-cors = "*"
 uwsgi = "*"
 pattern = "*"
 google-cloud-firestore = "*"
+nltk = "*"
+numpy = "*"
+sklearn = "*"
 psycopg2 = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"
