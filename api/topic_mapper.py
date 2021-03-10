@@ -159,7 +159,7 @@ def summarize(article_text, sentences):
 
 def build_email_body (topics):
   contents = ['<body>']
-  contents.append(f'<h2 style="color: #33658A; font-weight: 800; margin: 0;">Hello from the newly Artificially Intelligent News Feeder</h2><br>')
+  contents.append(f'<h2 style="color: #33658A; font-weight: 800px; margin: 0;">Hello from the newly Artificially Intelligent News Feeder</h2><br>')
   other_news = False
   for topic in topics:
     long_string = ''
@@ -175,16 +175,16 @@ def build_email_body (topics):
         articles_html.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
         articles_html.append(f"<strong>{article.source}</strong>")
         articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
-        articles_html.append(f"<div>{article.brief}<div> {'<br>' if len(article.brief) > 0 else '' } ")
+        articles_html.append(f"<div>{'. '.join(list(article.brief.split('. '))[:2])}<div> {'<br>' if len(article.brief) > 0 else '' } ")
         long_string += article.brief
       if len(topic.articles) > 10:
-        sentences = 8
+        sentences = 10
       elif len(topic.articles) > 6:
-        sentences = 7
+        sentences = 8
       elif len(topic.articles) > 3:
         sentences = 6
       else:
-        sentences = 5
+        sentences = 4
       long_string.rstrip()
       topic_sum = summarize(long_string, sentences)
       contents.append(f'<div>{topic_sum}</div>')
@@ -194,15 +194,14 @@ def build_email_body (topics):
     else:
       article = topic.articles[0]
       if other_news is False:
-        contents.append('<br><br><h4>Other News </h4><br>')
+        contents.append('<br><br><h4>Other News </h4>')
         other_news = True
-      contents.append(f"<a href='{article.url}'><strong style='font-size:15px; font-weight:500;'>{article.title}</strong>")
-      articles_html.append(f"<strong>{article.source}</strong>")
+      contents.append(f"<strong style='font-size:15px; font-weight: bold!important'><a href='{article.url}'>{article.title}</a></strong>")
+      articles_html.append(f"<div>{article.source}</div>")
       articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
       articles_html.append(f'<div>{topic.articles[0].brief}</div>')
       contents += articles_html
-    if other_news is False:
-      contents.append("###<br>")
+    contents.append("###<br>")
     contents.append("<br>")
   contents.append('</body>')
   return contents
@@ -221,7 +220,7 @@ mapped_topics = map(lambda tuple: map_topic(tuple[1]), topic_map.items())
 
 body = build_email_body(list(mapped_topics))
 
-emails = ['schweitzer.albert@gmail.com', 'mansidhamija24@gmail.com', 'heschwei@gmail.com', 'kerygma01@yahoo.com']
+emails = ['schweitzer.albert@gmail.com', 'mansidhamija24@gmail.com', 'heschwei@gmail.com', 'kerygma01@yahoo.com', 'mariselp_1305@yahoo.com']
 # emails=['schweitzer.albert@gmail.com']
 
 now = datetime.datetime.now()
