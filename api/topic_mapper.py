@@ -157,19 +157,16 @@ def summarize(article_text, sentences):
   summary = ' '.join(summary_sentences)
   return summary
 
-def build_email_body (topics, dev_mode = False):
+def build_email_body (topics, counts, dev_mode = False):
   contents = ['<body>']
   contents.append(f'<h2 style="color: #33658A; font-weight: 800px; margin: 0;">Hello from the newly Artificially Intelligent News Feeder</h2><br>')
+  contents.append(f"<div>I scanned {counts['articles']} articles into {counts['topics']} news items. Here's the latest news:</div><br>")
   other_news = False
   for topic in topics:
     long_string = ''
     articles_html = []
     if len(topic.articles) > 1:
-      if len(topic.keywords) > 2:
-        headline_kw = topic.keywords
-      else:
-        headline_kw = topic.articles[0].keywords
-      headline = " ".join(list(map(lambda x: x.capitalize(), headline_kw)))
+      headline = summarize('. '.join(list(map(lambda x: x.title, topic.articles))), 1)
       contents.append(f'<strong style="font-size: 15px;">{headline}</strong><br>')
       contents.append(f"<div style='{'' if dev_mode is True else 'display: none;'}'>{topic.keywords}</div>{'<br>' if dev_mode is True else ''}")
       for article in topic.articles:
@@ -221,8 +218,12 @@ df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_su
 topic_map = make_topics_map(processed, rel)
 mapped_topics = map(lambda tuple: map_topic(tuple[1]), topic_map.items())
 mapped_topics_list = list(mapped_topics)
-body = build_email_body(mapped_topics_list)
-dev_body = build_email_body(mapped_topics_list, True)
+counts = {
+  'articles': len(processed),
+  'topics': len(mapped_topics_list),
+}
+body = build_email_body(mapped_topics_list, counts)
+dev_body = build_email_body(mapped_topics_list, counts, True)
 
 users = [
   {
