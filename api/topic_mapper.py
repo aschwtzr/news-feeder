@@ -63,9 +63,9 @@ def map_article_relationships(rows, mapped_kw):
     relationship_map[article[7]] = siblings
   return relationship_map
 
-def intersection(lst1, lst2): 
+def intersection(lst1, lst2):
   return list(set(lst1) & set(lst2))
-    
+
 def make_topics_map (processed, rel):
   topics = defaultdict(dict)
   topic_idx = 0
@@ -98,9 +98,9 @@ def make_topics_map (processed, rel):
       topics[best_match_key]['articles'] = [article[7]]
       topics[best_match_key]['keywords'] = filtered
       topic_idx+=1
-    
+
   return dict(sorted(topics.items(), key=lambda item: len(item[1]['articles']), reverse=True))
-        
+
 
 def print_topic_map(topic_map):
   for k, values in topic_map.items():
@@ -174,18 +174,30 @@ mapped_kw = keyword_frequency_map(processed)
 rel = map_article_relationships(processed, mapped_kw)
 
 df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_summary', 'date', 'headline_keywords', 'smr_keywords', 'id', 'keywords'])
-        
+
 topic_map = make_topics_map(processed, rel)
 mapped_topics = map(lambda tuple: map_topic(tuple[1]), topic_map.items())
 
 body = build_email_body(list(mapped_topics))
 
-emails = ['schweitzer.albert@gmail.com', 'mansidhamija24@gmail.com', 'heschwei@gmail.com']
+emails = ['schweitzer.albert@gmail.com', 'mansidhamija24@gmail.com', 'heschwei@gmail.com', 'kerygma01@yahoo.com']
+#emails=['schweitzer.albert@gmail.com']
+
+now = datetime.datetime.now()
+timestamp = now.strftime('%m/%d/%Y, %H:%M')
+
+print(f"""
+*****************************************  
+*****************************************  
+  SENDING NEWS AT {timestamp}
+*****************************************  
+*****************************************  
+""")
 
 for email in emails:
   yagmail.SMTP(os.environ.get('EMAIL_ADDRESS'), os.environ.get('EMAIL_PASSWORD')).send(
     to=email,
-    subject="Here is your daily news briefing", 
+    subject=f"Your {timestamp} News Briefing",
     contents=body
   )
   print(f"EMAIL SENT TO {email}")
