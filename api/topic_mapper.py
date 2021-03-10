@@ -171,6 +171,7 @@ def build_email_body (topics, dev_mode = False):
         headline_kw = topic.articles[0].keywords
       headline = " ".join(list(map(lambda x: x.capitalize(), headline_kw)))
       contents.append(f'<strong style="font-size: 15px;">{headline}</strong><br>')
+      contents.append(f"<div style='{'' if dev_mode is True else 'display: none;'}'>{topic.keywords}</div>{'<br>' if dev_mode is True else ''}")
       for article in topic.articles:
         articles_html.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
         articles_html.append(f"<strong>{article.source}</strong>")
@@ -249,7 +250,7 @@ users = [
 users_dev = [
   {
     'email': 'schweitzer.albert@gmail.com',
-    'body': body
+    'body': dev_body
   }
 ]
 
