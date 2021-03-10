@@ -29,7 +29,7 @@ ARTICLE_SQL = """
     from articles 
     where smr_summary is not null 
     and smr_keywords is not null
-    and date > now() - interval '12 hours';
+    and date > now() - interval '18 hours';
   """
 
 def fetch_articles():
@@ -67,6 +67,7 @@ def map_article_relationships(rows, mapped_kw):
 
 def intersection(lst1, lst2):
   return list(set(lst1) & set(lst2))
+  # return list(lst1 + lst2)
 
 def make_topics_map (processed, rel):
   topics = defaultdict(dict)
@@ -96,6 +97,7 @@ def make_topics_map (processed, rel):
     if best_match_key in topics:
       topics[best_match_key]['articles'].append(article[7])
       topics[best_match_key]['keywords'] = list(set(topics[best_match_key]['keywords']) | set(filtered))
+      # topics[best_match_key]['keywords'] =  topics[best_match_key]['keywords'] + filtered
     else:
       topics[best_match_key]['articles'] = [article[7]]
       topics[best_match_key]['keywords'] = filtered
@@ -225,7 +227,7 @@ counts = {
 body = build_email_body(mapped_topics_list, counts)
 dev_body = build_email_body(mapped_topics_list, counts, True)
 
-users = [
+all_users = [
   {
     'email': 'schweitzer.albert@gmail.com',
     'body': dev_body
@@ -266,7 +268,9 @@ print(f"""
 *****************************************  
 """)
 
-for user in users_dev:
+users = all_users if os.environ.get("PROD") is True else users_dev
+
+for user in users:
   yagmail.SMTP(os.environ.get('EMAIL_ADDRESS'), os.environ.get('EMAIL_PASSWORD')).send(
     to=user['email'],
     subject=f"Your {timestamp} News Briefing",
