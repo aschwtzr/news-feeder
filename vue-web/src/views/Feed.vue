@@ -4,9 +4,9 @@
       <div class="column is-narrow feed__sidebar-container">
         <sidebar :keywords="sidebarKeywords" @sortChanged="(sort) => setSort(sort)"/>
       </div>
-      <div class="column" style="overflow-y: auto;">
+      <div class="column feed__article-list">
         <news-feed-article-list
-          :briefings="!groupByKeywords ? topics : topicsByKeyword"
+          :briefings="groupByKeywords ? topics : topicsByKeyword"
           :groupedBySource="!groupByKeywords"
         />
       </div>
@@ -28,7 +28,7 @@ export default {
   name: 'Feed',
   data() {
     return {
-      currentSort: 'feed',
+      currentSort: 'keywords',
     };
   },
   components: {
@@ -89,11 +89,6 @@ export default {
     width: 100vw;
   }
 
-  .topic-source-wrapper {
-    margin-bottom: 3rem;
-    overflow-y: auto;
-  }
-
   .feed__component-container {
     display: flex;
     flex-direction: row;
@@ -101,7 +96,17 @@ export default {
 
   .feed__sidebar-container {
     border-right: 1px solid rgba(0, 0, 0, .25);
-    overflow-y: auto;
+    overflow-y: scroll;
   }
+
+  .feed__article-list {
+      overflow-y: scroll;
+  }
+  @media screen and (max-width: 600px) {
+    .feed__sidebar-container {
+      display: none;
+      overflow-y: visible;
+    }
+}
 
 </style>

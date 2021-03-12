@@ -22,6 +22,7 @@ export default {
     const router = this.$router;
     const uiConfig = {
       signInOptions: [
+        firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID,
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         firebase.auth.EmailAuthProvider.PROVIDER_ID,
       ],

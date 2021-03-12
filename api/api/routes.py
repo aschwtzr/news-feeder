@@ -8,10 +8,13 @@ from flask import jsonify
 # import feeder.common.source
 from feeder.common.source import google, guardian, bbc, dw, active_topics, topics_by_key, custom_google_source
 from collections import defaultdict
+from feeder.formatter import topic_mapper
+import pandas as pd
 from util import firebase
+from feeder.util import time_tools
 # from feeder.test import runrun
 
-# import datetime
+import datetime
 
 default_sources = { 'guardian': guardian, 'bbc': bbc, 'dw': dw  }
 sources = []
@@ -51,6 +54,86 @@ def get_headlines():
     for source in req_sources:
       print('womp womp')
   response["ok"] = True
+  return jsonify(response)
+
+@app.route('/topics_new', methods=(['GET']))
+def get_topics_new():
+  req_limit = (18 if request.args.get('hours_ago') is None else int(request.args.get('hours_ago')))
+  
+  articles = topic_mapper.fetch_articles(req_limit)
+  processed = topic_mapper.process_db_rows(articles)
+
+  mapped_kw = topic_mapper.keyword_frequency_map(processed)
+
+  rel = topic_mapper.map_article_relationships(processed, mapped_kw)
+
+  df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_summary', 'date', 'headline_keywords', 'smr_keywords', 'id', 'keywords'])
+
+  topic_map = topic_mapper.make_topics_map(processed, rel, df)
+  mapped_topics = map(lambda tuple: topic_mapper.map_topic(tuple[1], df), topic_map.items())
+  mapped_topics_list = list(mapped_topics)
+  counts = {
+    'articles': len(processed),
+    'topics': len(mapped_topics_list),
+  }
+  results = []
+  len(mapped_topics_list)
+  for topic in mapped_topics_list:
+    topic_dict = {
+      'keywords': topic.keywords,
+      'articles': [],
+    }
+    if len(topic.articles) > 1:
+      topic_dict['title'] = topic_mapper.summarize('. '.join(list(map(lambda x: x.title, topic.articles))), 1)
+      long_string = ''
+      for article in topic.articles:
+        formatted = {
+          'title': article.title,
+          'preview': article.brief,
+          'url': article.url,
+          'source': article.source,
+          'date': article.date,
+          'keywords': article.keywords,
+          'id': article.id
+        }
+        topic_dict['articles'].append(formatted)
+        long_string += article.brief
+      if len(topic.articles) > 10:
+        sentences = 10
+      elif len(topic.articles) > 6:
+        sentences = 8
+      elif len(topic.articles) > 3:
+        sentences = 6
+      else:
+        sentences = 4
+      long_string.rstrip()
+      topic_dict['topic_sum'] = topic_mapper.summarize(long_string, sentences)
+    else:
+      article = topic.articles[0]
+      topic_dict['title'] = article.title
+      topic_dict['topic_sum'] = article.brief
+      topic_dict['keywords'] = article.keywords
+      formatted = {
+        'title': article.title,
+        'preview': article.brief,
+        'url': article.url,
+        'source': article.source,
+        'date': article.date,
+        'keywords': article.keywords,
+        'id': article.id
+      }
+      topic_dict['articles'].append(formatted)
+    results.append(topic_dict)
+  source = {
+    'description': f"News at {time_tools.timestamp_string()}",
+    'topics': results
+  }
+  response = {
+    'ok': True,
+    'results': [source],
+    'keywords': mapped_kw,
+    'counts': counts
+  }
   return jsonify(response)
 
 @app.route('/topics', methods=(['GET']))

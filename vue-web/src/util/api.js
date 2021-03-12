@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 const baseURL = 'http://localhost:5000';
-
+const memeAxios = axios.create({
+  baseURL: 'https://api.imgflip.com',
+  responseType: 'json',
+});
 const baseAxios = axios.create({
   baseURL,
   responseType: 'json',
@@ -17,7 +20,7 @@ export const getBriefings = () => {
 };
 
 export const getTopics = (options) => {
-  return baseAxios.get(`/topics?${options.join('')}`);
+  return baseAxios.get(`/topics_new?${options.join('')}`);
 };
 
 export const getSummaryForURL = (url) => {
@@ -37,6 +40,19 @@ export const createUser = (googleUser) => {
 export const getUserProfile = (userId) => {
   return baseAxios.get(`/get-user-profile?user_id=${userId}`)
     .then(res => res.data.profile);
+};
+
+export const getTopicImage = (options) => {
+  const reducedOptions = Object.entries(options).reduce((acc, curr) => {
+    const outstr = `${acc}&${curr[0]}=${curr[1]}`;
+    return outstr;
+  }, '');
+  return new Promise((resolve, reject) => {
+    memeAxios.post(`/caption_image?${reducedOptions}`)
+      .then((res) => {
+        resolve(res.data);
+      }).catch(err => reject(err));
+  });
 };
 
 export const base = () => {

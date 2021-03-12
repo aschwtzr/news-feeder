@@ -14,8 +14,9 @@ import heapq
 import feeder.util.db as db
 
 conn = db.get_db_conn()
-topic_keywords = defaultdict(list)
-ARTICLE_SQL = """
+
+def fetch_articles(hours_ago = 18):
+  ARTICLE_SQL = f"""
     select 
       source, 
       url, 
@@ -29,14 +30,13 @@ ARTICLE_SQL = """
     from articles 
     where smr_summary is not null 
     and smr_keywords is not null
-    and date > now() - interval '18 hours';
+    and date > now() - interval '{str(hours_ago)} hours';
   """
-
-def fetch_articles():
   cur = conn.cursor()
   cur.execute(ARTICLE_SQL)
   articles = cur.fetchall()
   cur.close()
+  conn.close()
   print(f"*** FETCHED {len(articles)} ROWS FROM THE DATABASE")
   return articles
 

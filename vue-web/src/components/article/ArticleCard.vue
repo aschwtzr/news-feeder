@@ -1,12 +1,12 @@
 <template>
   <div class="card article-card__container">
     <header class="card-header" @click="expanded = !expanded" style="cursor: pointer;">
-      <p class="card-header-title" style="">
-        {{title}}
+      <p class="card-header-title" >
+        {{`${title} ${showSourceInHeader ? ` - ${source}` : ''}`}}
       </p>
       <div class="card-header-icon" aria-label="more options" >
         <span class="icon is-small">
-          <i :class="`mdi mdi-${expanded ? 'chevron-down' : 'chevron-right'}`"/>
+          <i :class="`fas fa-angle-${expanded ? 'down' : 'right'}`"/>
         </span>
       </div>
     </header>
@@ -19,8 +19,16 @@
           {{ summary || content }}
         </div>
       <div class="article-card__summary" v-show="expanded">
-        <div style="padding-bottom: 1rem;">
+        <em style="padding-bottom: 1rem;">
           <time datetime="2016-1-1">{{formattedDate}}</time>
+        </em>
+        <div class="topic__keyword-container smells">
+          <div
+            v-for="(keyword, index) in keywords"
+            :key="`${keyword}-${index}-${id}`"
+            >
+            <button class="button is-white">{{`${keyword} `}}</button>
+          </div>
         </div>
         <div>
           {{content}}
@@ -54,7 +62,7 @@ import moment from 'moment';
 import { mapMutations, mapActions, mapGetters } from 'vuex';
 
 export default {
-  props: ['title', 'url', 'content', 'date', 'summary'],
+  props: ['title', 'url', 'content', 'date', 'summary', 'keywords', 'id', 'showSourceInHeader', 'source'],
   components: {
   },
   data() {
@@ -132,13 +140,12 @@ export default {
 
 <style scoped>
   .overflowing-text {
-    padding-top: .75rem;
     margin: 0rem;
     height: 2.4rem;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: .75rem;
     text-align: start;
+    white-space: nowrap;
   }
 
   .article-card__footer-item {

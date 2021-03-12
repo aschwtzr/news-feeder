@@ -10,6 +10,9 @@ const feeds = {
     summarizerFeed: {},
     topics: [],
     keywords: {},
+    articleCount: 0,
+    topicsCount: 0,
+    mappedKeywords: {},
     sortedKeywords: [],
     selectedKeywords: [],
   },
@@ -28,6 +31,9 @@ const feeds = {
     },
     setSortedKeywords(state, sortedKeywords) {
       state.sortedKeywords = sortedKeywords;
+    },
+    setMappedKeywords(state, mappedKeywords) {
+      state.mappedKeywords = mappedKeywords;
     },
     setSelectedKeywords(state, selectedKeywords) {
       state.selectedKeywords = selectedKeywords;
@@ -68,15 +74,18 @@ const feeds = {
         commit('setTopics', res.data.results);
         commit('setKeywords', res.data.keywords);
         const sorted = Object.entries(res.data.keywords)
-          .sort((a, b) => b[1] - a[1])
+          .sort((a, b) => b[1].length - a[1].length)
           .map(pair => pair[0]);
         commit('setSortedKeywords', sorted);
+        commit('setMappedKeywords', res.data.keywords);
       });
     },
   },
   getters: {
     articleInSummarizerFeed: state => (url) => {
       return state.summarizerFeed[url];
+    },
+    byKeyword: () => {
     },
     mappedTopics: (state) => {
       /* eslint-disable no-param-reassign */
