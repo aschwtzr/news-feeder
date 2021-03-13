@@ -1,12 +1,12 @@
 <template>
   <div>
-    <p v-if="!hide" class="title is-4">
+    <p v-if="!hide && !groupedBySource" class="title is-4">
       {{topic.title}}
     <!-- </strong> -->
     <div class="card">
       <header class="card-header" @click="hide = !hide" style="cursor: pointer;">
         <p class="card-header-title">
-          {{ hide ? topic.title : ''}}
+          {{ hide || groupedBySource ? topic.title : ''}}
         <div class="card-header-icon">
           <span class="icon" :id="`${topicId}-${hide}`">
             <i
@@ -22,18 +22,20 @@
           </span>
         </div>
       </header>
+      <div class="card-content" v-if="groupedBySource && hide">
+        {{`${topic.topic_summ.split('. ').splice(0,2).join('. ')}.`}}
+      </div>
       <div class="card-content" :style="hide ? 'display: none;' : ''">
         <div class="media">
-          <div class="media-left" style="width: 30vw;">
+          <!-- <div class="media-left" style="width: 30vw;">
             <figure class="image is-square">
               <img :src="imageURL" alt="Placeholder image">
             </figure>
             {{templateId}}
-          </div>
+          </div> -->
           <div class="media-content">
             <p class="subtitle is-6">
-              {{topic.topic_sum}}
-            </p>
+              {{topic.topic_summ}}
             <div class="subtitle is-6 topic__keyword-container">
               <div
                 v-for="(keyword, index) in topic.keywords"
@@ -45,24 +47,23 @@
             </div>
           </div>
         </div>
-        <em :style="!groupedBySource ? 'display: none;': 'font-weight: strong'">
-          <div class="subtitle is-6">keywords:  </div>
-        </em>
-        <div
-          v-for="(article, index) in topic.articles"
-          :key="`${article.keywords.slice(0,3).join('-')}-${index}`"
-          >
-          <article-card
-            :showSourceInHeader="!groupedBySource"
-            :source="article.source"
-            :title="article.title"
-            :url="article.url"
-            :content="article.preview"
-            :date="article.date"
-            :id="article.id"
-            :keywords="article.keywords"
-            :summary="article.summary || false"
-            />
+        <div  v-if="!groupedBySource">
+          <div
+            v-for="(article, index) in topic.articles"
+            :key="`${article.keywords.slice(0,3).join('-')}-${index}`"
+            >
+            <article-card
+              :showSourceInHeader="!groupedBySource"
+              :source="article.source"
+              :title="article.title"
+              :url="article.url"
+              :content="article.preview"
+              :date="article.date"
+              :id="article.id"
+              :keywords="article.keywords"
+              :summary="article.summary || false"
+              />
+          </div>
         </div>
       </div>
     </div>
@@ -131,11 +132,15 @@ export default {
       text0: firstHalf,
       text1: secondHalf,
     };
-    await getTopicImage(params).then((res) => {
-      if (res.data.url) {
-        setImageUrl(res.data.url);
-      } else setImageUrl('https://i.imgflip.com/51dvy5.jpg');
-    });
+    console.log(params);
+    console.log(getTopicImage);
+    setImageUrl('https://i.imgflip.com/51dvy5.jpg');
+    this.hide = this.groupedBySource;
+    // await getTopicImage(params).then((res) => {
+    //   if (res.data.url) {
+    //     setImageUrl(res.data.url);
+    //   } else setImageUrl('https://i.imgflip.com/51dvy5.jpg');
+    // });
   },
 };
 </script>

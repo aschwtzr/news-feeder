@@ -26,7 +26,7 @@ export default {
   data() {
     return {
       viewIndex: 0,
-      views: ['keywords', 'feed'],
+      views: ['keywords', 'sources'],
     };
   },
   methods: {

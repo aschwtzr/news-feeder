@@ -107,11 +107,11 @@ def get_topics_new():
       else:
         sentences = 4
       long_string.rstrip()
-      topic_dict['topic_sum'] = topic_mapper.summarize(long_string, sentences)
+      topic_dict['topic_summ'] = topic_mapper.summarize(long_string, sentences)
     else:
       article = topic.articles[0]
       topic_dict['title'] = article.title
-      topic_dict['topic_sum'] = article.brief
+      topic_dict['topic_summ'] = article.brief
       topic_dict['keywords'] = article.keywords
       formatted = {
         'title': article.title,

@@ -26,6 +26,10 @@ const feeds = {
     setTopics(state, topics) {
       state.topics = topics;
     },
+    setCounts(state, counts) {
+      state.articleCount = counts.articles;
+      state.topicsCount = counts.topics;
+    },
     setKeywords(state, keywords) {
       state.keywords = keywords;
     },
@@ -72,12 +76,9 @@ const feeds = {
       }
       getTopics(options).then((res) => {
         commit('setTopics', res.data.results);
-        commit('setKeywords', res.data.keywords);
-        const sorted = Object.entries(res.data.keywords)
-          .sort((a, b) => b[1].length - a[1].length)
-          .map(pair => pair[0]);
-        commit('setSortedKeywords', sorted);
-        commit('setMappedKeywords', res.data.keywords);
+        commit('setKeywords', { ...res.data.keywords });
+        commit('setCounts', { ...res.data.counts, keywords: res.data.keywords.length });
+        commit('setMappedKeywords', { ...res.data.keywords });
       });
     },
   },
@@ -85,7 +86,31 @@ const feeds = {
     articleInSummarizerFeed: state => (url) => {
       return state.summarizerFeed[url];
     },
-    byKeyword: () => {
+    topicsBySource: (state) => {
+      const articles = state.topics[0].topics.reduce((acc, topic) => {
+        return [...acc, ...topic.articles];
+      }, []);
+      const bySourceDict = articles.reduce((acc, curr) => {
+        if (acc[curr.source]) {
+          acc[curr.source].push(curr);
+        } else acc[curr.source] = [curr];
+        return acc;
+      }, {});
+      return Object.entries(bySourceDict).sort((a, b) => {
+        return b[1].length - a[1].length;
+      }).map((source) => {
+        return {
+          description: source[0],
+          topics: source[1].map((article) => {
+            return {
+              topic_summ: article.preview,
+              keywords: article.keywords,
+              title: article.title,
+              articles: [article],
+            };
+          }),
+        };
+      });
     },
     mappedTopics: (state) => {
       /* eslint-disable no-param-reassign */

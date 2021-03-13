@@ -6,7 +6,7 @@
       </div>
       <div class="column feed__article-list">
         <news-feed-article-list
-          :briefings="groupByKeywords ? topics : topicsByKeyword"
+          :briefings="groupByKeywords ? topics : topicsBySource"
           :groupedBySource="!groupByKeywords"
         />
       </div>
@@ -43,7 +43,7 @@ export default {
       setSelectedKeywords: 'feeds/setSelectedKeywords',
     }),
     setSort(sort) {
-      if (sort === 'feed' || sort === 'keywords') {
+      if (sort === 'sources' || sort === 'keywords') {
         this.currentSort = sort;
         this.setSelectedKeywords([]);
       } else this.setSelectedKeywords([sort]);
@@ -52,13 +52,12 @@ export default {
   computed: {
     ...mapGetters({
       mappedTopics: 'feeds/mappedTopics',
+      topicsBySource: 'feeds/topicsBySource',
     }),
     sidebarKeywords() {
-      const { topics } = this.mappedTopics[0];
-      if (topics.length) {
-        return topics.map(topic => topic.keywords[0]);
-      }
-      return [];
+      return Object.entries(this.keywords).sort((a, b) => {
+        return b[1].length - a[1].length;
+      }).map(entry => entry[0]);
     },
     ...mapState('feeds', {
       topics: state => state.topics,
@@ -70,7 +69,7 @@ export default {
       if (this.groupByKeywords) {
         return this.mappedTopics;
       }
-      return [];
+      return this.topicsBySource;
     },
     groupByKeywords() {
       return (this.currentSort === 'keywords' || this.selectedKeywords.length > 0);
