@@ -75,6 +75,10 @@ def dw (article):
   topic = default(article, 'Deutsche Welle')
   return topic
 
+def az_central (article):
+  topic = default(article, 'AZ Central')
+  return topic
+
 def default (article, source):
   url = article.link.string
   title = article.title.string

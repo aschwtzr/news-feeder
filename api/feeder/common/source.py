@@ -37,6 +37,7 @@ google = Source('https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZN
 bbc = Source('http://feeds.bbci.co.uk/news/world/rss.xml', feed_getter.rss, 'BBC - World News', 'bbc-world', article_formatter.bbc)
 guardian = Source('https://www.theguardian.com/world/rss', feed_getter.rss, 'The Guardian - World News', 'guardian-world', article_formatter.guardian)
 dw = Source('http://rss.dw.com/rdf/rss-en-world', feed_getter.rss, 'Deutsche Welle - World News', 'dw-world', article_formatter.dw)
+az_central = Source('http://rssfeeds.azcentral.com/phoenix/local', feed_getter.rss, 'AZ Central - Local', 'azc-local', article_formatter.az_central)
 
-active_topics = [bbc, guardian, dw, google]
+active_topics = [bbc, guardian, dw, google, az_central]
 topics_by_key = dict((source.key, source) for source in active_topics)

@@ -54,6 +54,6 @@ def rss (data, supplied_formatter, limit):
       if index >= limit - 1:
         break
   except TypeError as error:
-    print('unable to rss parse feed.', error)
+    print('unable to parse rss feed.', error)
   return topics
 

@@ -193,6 +193,7 @@ db_user = {
   'email_sources': active_topics
 }
 
+# sources = print_articles_for_sources([az_central])
 sources = load_sources(db_user)
 conn = get_db_conn()
 fetch_rss_feeds(sources)

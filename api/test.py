@@ -1,6 +1,5 @@
-from feeder.formatter.debug_parser import print_source_articles
-from feeder.emailer.emailer import run_digest
 
+from feeder.common.source import active_topics, topics_by_key, custom_google_source, az_central
 # print_source_articles()
 
 # user settings coming soon! 
@@ -31,9 +30,17 @@ marisel= {
   'experimental': True
 }
 
-# users = [albert, mansi, marisel]
-# users = [albert]
-def runrun():
-  run_digest(users)
+def print_articles_for_sources (sources):
+  for (description, topics) in sources.items():
+    print(description)
+    for index, topic in enumerate(topics):
+      print(topic.keywords)
+      for article in topic.articles:
+        print(article.title)
+        print(article.url)
+        print(article.source)
+        print(article.date)
 
-print_source_articles()
+articles = az_central.get_feed_articles(10)
+print_articles_for_sources({'azc-local': articles})
+
