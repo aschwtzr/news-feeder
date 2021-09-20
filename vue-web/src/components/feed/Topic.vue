@@ -27,12 +27,12 @@
       </div>
       <div class="card-content" :style="hide ? 'display: none;' : ''">
         <div class="media">
-          <!-- <div class="media-left" style="width: 30vw;">
+          <div class="media-left" style="width: 30vw;">
             <figure class="image is-square">
               <img :src="imageURL" alt="Placeholder image">
             </figure>
             {{templateId}}
-          </div> -->
+          </div>
           <div class="media-content">
             <p class="subtitle is-6">
               {{topic.topic_summ}}
@@ -134,13 +134,13 @@ export default {
     };
     console.log(params);
     console.log(getTopicImage);
-    setImageUrl('https://i.imgflip.com/51dvy5.jpg');
+    // setImageUrl('https://i.imgflip.com/51dvy5.jpg');
     this.hide = this.groupedBySource;
-    // await getTopicImage(params).then((res) => {
-    //   if (res.data.url) {
-    //     setImageUrl(res.data.url);
-    //   } else setImageUrl('https://i.imgflip.com/51dvy5.jpg');
-    // });
+    await getTopicImage(params).then((res) => {
+      if (res.data.url) {
+        setImageUrl(res.data.url);
+      } else setImageUrl('https://i.imgflip.com/51dvy5.jpg');
+    });
   },
 };
 </script>

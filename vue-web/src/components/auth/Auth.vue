@@ -44,7 +44,6 @@ export default {
     };
     const auth = firebase.auth();
     const ui = new firebaseui.auth.AuthUI(auth);
-
     if (auth.currentUser) {
       const user = auth.currentUser;
       this.saveUserProfile(user);

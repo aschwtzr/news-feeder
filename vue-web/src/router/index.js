@@ -20,8 +20,8 @@ const routes = [
   },
   {
     path: '/',
-    name: 'home',
-    component: () => import(/* webpackChunkName: "entry" */ '../views/Feed.vue'),
+    name: 'summaries',
+    component: () => import(/* webpackChunkName: "entry" */ '../views/Summaries.vue'),
   },
   {
     path: '/auth',
