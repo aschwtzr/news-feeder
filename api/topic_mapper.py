@@ -16,7 +16,7 @@ from feeder.common.topic import Topic
 
 conn = db.get_db_conn()
 
-def fetch_articles(hours_ago = 24):
+def fetch_articles(hours_ago = 18):
   ARTICLE_SQL = f"""
     select 
       source, 
