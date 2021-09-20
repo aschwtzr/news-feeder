@@ -1,3 +1,4 @@
+# Primarily a grouping of articles useful when pulling from Google News
 class Topic:
   def __init__(self, articles, keywords):
     self.articles = articles
