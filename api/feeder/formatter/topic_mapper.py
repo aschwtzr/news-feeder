@@ -132,7 +132,8 @@ def map_topic(topic, dataframe):
       brief = f"{row['title']}. "
     article = Article(row['source'], row['url'], row['title'], brief, row['date'], row['keywords'], row['id'])
     articles.append(article)
-  return Topic(articles, topic['keywords'])
+  by_brief = sorted(articles, key=lambda x: len(x.brief), reverse=True)
+  return Topic(by_brief, topic['keywords'])
 
 def summarize(article_text, sentences):
   article_text = re.sub(r'\[[0-9]*\]', ' ', article_text)

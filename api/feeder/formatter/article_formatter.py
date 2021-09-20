@@ -98,7 +98,8 @@ def default (article, source):
   else:
     timestamp = timestamp_string()
   brief = article.description.get_text() if article.description else article.title.string + '...'
-  head, sep, tail = brief.partition('.<div')
+  photoless = re.sub('Photos: ', '', brief)
+  head, sep, tail = photoless.partition('.<div')
   article = Article(source, url, title, head, timestamp)
   # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
   keywords = keyword_extractor.keywords_from_article(article)
