@@ -59,26 +59,9 @@ def get_headlines():
 @app.route('/topics_new', methods=(['GET']))
 def get_topics_new():
   req_limit = (18 if request.args.get('hours_ago') is None else int(request.args.get('hours_ago')))
-  
-  articles = topic_mapper.fetch_articles(req_limit)
-  processed = topic_mapper.process_db_rows(articles)
-
-  mapped_kw = topic_mapper.keyword_frequency_map(processed)
-
-  rel = topic_mapper.map_article_relationships(processed, mapped_kw)
-
-  df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_summary', 'date', 'headline_keywords', 'smr_keywords', 'id', 'keywords'])
-
-  topic_map = topic_mapper.make_topics_map(processed, rel, df)
-  mapped_topics = map(lambda tuple: topic_mapper.map_topic(tuple[1], df), topic_map.items())
-  mapped_topics_list = list(mapped_topics)
-  counts = {
-    'articles': len(processed),
-    'topics': len(mapped_topics_list),
-  }
+  res = topic_mapper.get_summary(req_limit)
   results = []
-  len(mapped_topics_list)
-  for topic in mapped_topics_list:
+  for topic in res['topics']:
     topic_dict = {
       'keywords': topic.keywords,
       'articles': [],
@@ -92,9 +75,9 @@ def get_topics_new():
           'preview': article.brief,
           'url': article.url,
           'source': article.source,
-          'date': article.date,
+          'date': article.date.strftime('%m/%d/%Y, %H:%M'),
           'keywords': article.keywords,
-          'id': article.id
+          'id': int(article.id)
         }
         topic_dict['articles'].append(formatted)
         long_string += article.brief
@@ -118,9 +101,9 @@ def get_topics_new():
         'preview': article.brief,
         'url': article.url,
         'source': article.source,
-        'date': article.date,
+        'date': article.date.strftime('%m/%d/%Y, %H:%M'),
         'keywords': article.keywords,
-        'id': article.id
+        'id': int(article.id)
       }
       topic_dict['articles'].append(formatted)
     results.append(topic_dict)
@@ -128,11 +111,12 @@ def get_topics_new():
     'description': f"News at {time_tools.timestamp_string()}",
     'topics': results
   }
+  print(results)
   response = {
     'ok': True,
     'results': [source],
-    'keywords': mapped_kw,
-    'counts': counts
+    'keywords': res['mapped_kw'],
+    'counts': res['counts']
   }
   return jsonify(response)
 

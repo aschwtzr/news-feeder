@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import re
 
 def parse_description_for_source (description, source):
   parse_func = parsers[source]
@@ -27,7 +28,7 @@ def parse_guardian (content):
     if index == 0:
       text += '. '
 
-  return text
+  return re.sub(r'([a-zA-Z])\.([a-zA-Z])', r"\1. \2", text)
 
 def parse_reuters (content):
   soup = BeautifulSoup(content, "html.parser")

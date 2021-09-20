@@ -1,13 +1,16 @@
-import feeder.formatter.keyword_extractor as keyword_extractor
-from collections import defaultdict
+# general imports
+import heapq
+import re
+from collections import Counter, defaultdict
+import nltk
 import pandas as pd
-from collections import Counter
+
+# feeder imports
+import feeder.formatter.keyword_extractor as keyword_extractor
+import feeder.util.db as db
+from feeder.util.api import summarize_text
 from feeder.common.article import Article
 from feeder.common.topic import Topic
-from feeder.util import db
-import re
-import nltk
-import heapq
 
 def fetch_articles(hours_ago = 18):
   conn = db.get_db_conn()
@@ -17,15 +20,16 @@ def fetch_articles(hours_ago = 18):
       url, 
       title, 
       smr_summary, 
-      to_char(date, 'YYYY-MM-DD HH24:MI'), 
+      date, 
       keywords, 
       smr_keywords, 
       id, 
-      keywords || smr_keywords as grouped_keywords 
+      keywords || smr_keywords as grouped_keywords,
+      content 
     from articles 
-    where smr_summary is not null 
-    and smr_keywords is not null
-    and date > now() - interval '{str(hours_ago)} hours';
+    --where smr_summary is not null 
+    --and smr_keywords is not null
+    where date > now() - interval '{str(hours_ago)} hours';
   """
   cur = conn.cursor()
   cur.execute(ARTICLE_SQL)
@@ -40,8 +44,9 @@ def process_db_rows(rows=[]):
   for row in rows:
     row_list = list(row)
     row_list[8] = keyword_extractor.filter_stopwords_from_keywords(row[8])
-    row_list[3] = row_list[3].replace('ADVERTISEMENT', '')
-    row_list[2] = keyword_extractor.remove_publication_after_pipe(row_list[2])
+    if row_list[3] is not None:
+      row_list[3] = row_list[3].replace('ADVERTISEMENT', '')
+    # row_list[2] = keyword_extractor.remove_publication_after_pipe(row_list[2])
     res.append(tuple(row_list))
   return res
 
@@ -64,7 +69,6 @@ def map_article_relationships(rows, mapped_kw):
 
 def intersection(lst1, lst2):
   return list(set(lst1) & set(lst2))
-  # return list(lst1 + lst2)
 
 def make_topics_map (processed, rel, dataframe):
   topics = defaultdict(dict)
@@ -77,7 +81,7 @@ def make_topics_map (processed, rel, dataframe):
     for id, freq in dict(rel[article[7]]).items():
       # find sibling articles (at least two kw match)
       if freq > 2:
-        # print(df.loc[df['id'] == id]['title'])
+        # print(dataframe.loc[dataframe['id'] == id]['title'])
         topic_article_ids.append(id)
         a = dataframe.loc[dataframe['id'] == id]
         all_keywords += a.iloc[0]['keywords']
@@ -119,7 +123,14 @@ def map_topic(topic, dataframe):
   articles = []
   for id in topic['articles']:
     a = dataframe.loc[dataframe['id'] == id]
-    article = Article(a.iloc[0]['source'], a.iloc[0]['url'], a.iloc[0]['title'], a.iloc[0]['smr_summary'], a.iloc[0]['date'], a.iloc[0]['keywords'], int(a.iloc[0]['id']))
+    row = a.iloc[0]
+    if row['smr_summary'] is not None:
+      brief = row['smr_summary']
+    elif row['content'] is not None and len(row['content']) > 0:
+      brief = row['content']
+    else:
+      brief = f"{row['title']}. "
+    article = Article(row['source'], row['url'], row['title'], brief, row['date'], row['keywords'], row['id'])
     articles.append(article)
   return Topic(articles, topic['keywords'])
 
@@ -152,6 +163,28 @@ def summarize(article_text, sentences):
           else:
             sentence_scores[sent] += word_frequencies[word]
   summary_sentences = heapq.nlargest(sentences, sentence_scores, key=sentence_scores.get)
-
   summary = ' '.join(summary_sentences)
   return summary
+
+def get_summary(hours_ago=18):
+  articles = fetch_articles(hours_ago)
+  processed = process_db_rows(articles)
+
+  mapped_kw = keyword_frequency_map(processed)
+
+  rel = map_article_relationships(processed, mapped_kw)
+
+  df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_summary', 'date', 'headline_keywords', 'smr_keywords', 'id', 'keywords', 'content'])
+
+  topic_map = make_topics_map(processed, rel, df)
+  mapped_topics = map(lambda tuple: map_topic(tuple[1], df), topic_map.items())
+  mapped_topics_list = list(mapped_topics)
+  counts = {
+    'articles': len(processed),
+    'topics': len(mapped_topics_list),
+  }
+  return {
+    'counts': counts,
+    'topics': mapped_topics_list,
+    'mapped_kw': mapped_kw
+  }
