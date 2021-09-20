@@ -1,21 +1,22 @@
+import datetime
+import heapq
+import os
+import re
+from collections import Counter, defaultdict
+
+import nltk
+
 import feeder.formatter.keyword_extractor as keyword_extractor
-from collections import defaultdict
+import feeder.util.db as db
+from feeder.util.api import summarize_text
 import pandas as pd
-from collections import Counter
+import yagmail
 from feeder.common.article import Article
 from feeder.common.topic import Topic
-import yagmail
-import os
-import datetime
-import re
-import nltk
-import heapq
-
-import feeder.util.db as db
 
 conn = db.get_db_conn()
 
-def fetch_articles(hours_ago = 18):
+def fetch_articles(hours_ago = 24):
   ARTICLE_SQL = f"""
     select 
       source, 
@@ -26,11 +27,12 @@ def fetch_articles(hours_ago = 18):
       keywords, 
       smr_keywords, 
       id, 
-      keywords || smr_keywords as grouped_keywords 
+      keywords || smr_keywords as grouped_keywords,
+      content 
     from articles 
-    where smr_summary is not null 
-    and smr_keywords is not null
-    and date > now() - interval '{str(hours_ago)} hours';
+    --where smr_summary is not null 
+    --and smr_keywords is not null
+    where date > now() - interval '{str(hours_ago)} hours';
   """
   cur = conn.cursor()
   cur.execute(ARTICLE_SQL)
@@ -122,7 +124,14 @@ def map_topic(topic):
   articles = []
   for id in topic['articles']:
     a = df.loc[df['id'] == id]
-    article = Article(a.iloc[0]['source'], a.iloc[0]['url'], a.iloc[0]['title'], a.iloc[0]['smr_summary'], a.iloc[0]['date'], a.iloc[0]['keywords'], a.iloc[0]['id'])
+    row = a.iloc[0]
+    if row['smr_summary'] is not None:
+      brief = row['smr_summary']
+    elif row['content'] is not None and len(row['content']) > 0:
+      brief = row['content']
+    else:
+      brief = f"{row['title']}. "
+    article = Article(row['source'], row['url'], row['title'], brief, row['date'], row['keywords'], row['id'])
     articles.append(article)
   return Topic(articles, topic['keywords'])
 
@@ -155,7 +164,6 @@ def summarize(article_text, sentences):
           else:
             sentence_scores[sent] += word_frequencies[word]
   summary_sentences = heapq.nlargest(sentences, sentence_scores, key=sentence_scores.get)
-
   summary = ' '.join(summary_sentences)
   return summary
 
@@ -176,18 +184,26 @@ def build_email_body (topics, counts, dev_mode = False):
         articles_html.append(f"<strong>{article.source}</strong>")
         articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
         articles_html.append(f"<div style='{'' if dev_mode is True else 'display: none;'}'>{article.keywords}</div>{'<br>' if dev_mode is True else ''}")
+        # if article.brief is not None:
         articles_html.append(f"<div>{'. '.join(list(article.brief.split('. '))[:2])}<div> {'<br>' if len(article.brief) > 0 else '' } ")
         long_string += article.brief
       if len(topic.articles) > 10:
-        sentences = 10
-      elif len(topic.articles) > 6:
-        sentences = 8
-      elif len(topic.articles) > 3:
-        sentences = 6
-      else:
+        # sentences = 10
         sentences = 4
+      elif len(topic.articles) > 6:
+        # sentences = 8
+        sentences = 3
+      elif len(topic.articles) > 3:
+        # sentences = 6
+        sentences = 2
+      else:
+        # sentences = 4
+        sentences = 1
       long_string.rstrip()
+      print(long_string)
+      # if len(long_string) > 0:
       topic_sum = summarize(long_string, sentences)
+      # topic_sum = summarize_text(long_string, sentences)
       contents.append(f'<div>{topic_sum}</div>')
       contents.append('<br>')
       contents.append('<strong> *** Articles *** </strong>')
@@ -215,7 +231,7 @@ mapped_kw = keyword_frequency_map(processed)
 
 rel = map_article_relationships(processed, mapped_kw)
 
-df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_summary', 'date', 'headline_keywords', 'smr_keywords', 'id', 'keywords'])
+df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_summary', 'date', 'headline_keywords', 'smr_keywords', 'id', 'keywords', 'content'])
 
 topic_map = make_topics_map(processed, rel)
 mapped_topics = map(lambda tuple: map_topic(tuple[1]), topic_map.items())
@@ -277,6 +293,3 @@ for user in users:
     contents=user['body']
   )
   print(f"EMAIL SENT TO {user['email']}")
-
-
-

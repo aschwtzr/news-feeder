@@ -30,7 +30,8 @@ class Article:
     print(f"url: {self.url[:50]}...")
     print(f"source: {self.source}")
     print(f"date: {self.date}")
-    print(f"brief: {self.brief[:80]}...")
+    if self.brief is not None:
+      print(f"brief: {self.brief[:80]}...")
     if hasattr(self, 'summary'):
       print(f"summary: {self.summary}")
       
