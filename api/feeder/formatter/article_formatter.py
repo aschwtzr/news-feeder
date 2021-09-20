@@ -60,8 +60,9 @@ def guardian (article):
   title = article.title.string
   timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
   brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
+  article = Article('The Guardian', url, title, brief, timestamp)
   keywords = keyword_extractor.keywords_from_article(article)
-  article = Article('The Guardian', url, title, brief, timestamp, keywords)
+  article.keywords = keywords
   # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
   topic = Topic([article], keywords)
 
@@ -110,8 +111,9 @@ def reuters (article):
   title = article.title.string
   timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
   brief = parse_reuters(article.description.get_text()) if article.description else article.title.string + '...'
+  article = Article('Reuters', url, title, brief, timestamp)
   keywords = keyword_extractor.keywords_from_article(article)
-  article = Article('Reuters', url, title, brief, timestamp, keywords)
+  article.keywords = keywords
   # keywords = keyword_extractor.keywords_from_string_list([brief])
   topic = Topic([article], keywords)
 
