@@ -250,19 +250,19 @@ all_users = [
   },
   {
     'email': 'mansidhamija24@gmail.com',
-    'body': body
+    'body': dev_body
   },
   {
     'email': 'heschwei@gmail.com',
-    'body': body
+    'body': dev_body
   },
   {
     'email': 'kerygma01@yahoo.com',
-    'body': body
+    'body': dev_body
   },
   {
     'email': 'mariselp_1305@yahoo.com',
-    'body': body
+    'body': dev_body
   }
 ]
 
