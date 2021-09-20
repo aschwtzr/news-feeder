@@ -43,14 +43,11 @@ def insert_articles(sources):
   conn.commit()
   cur.close()
 
-
-def load_sources (user):
-  limit = user['articleLimit'] if 'articleLimit' in user else 15
+# pulls articles from a user configuration
+def load_source_feeds (feed_sources):
   sources = {}
-  for source in user['email_sources']:
-    if source.key == 'guardian-world' or source.key == 'bbc-world':
-      limit = 10
-    sources[source.key] = source.get_feed_articles(limit)
+  for source in feed_sources:
+    sources[source.key] = source.get_feed_articles(source.limit)
   return sources
 
 def update_google_news_urls():
@@ -159,23 +156,16 @@ def fetch_rss_feeds(sources):
           continue
 
         # get paid smmry and build sql
-        print(url)
-        smr = get_summary(url)
+        # print(url)
+        # smr = get_free_summary(url)
+        # smr = get_summary(url)
         print(f"Adding {article.title} - {article.source} via {description}")
-        if smr['ok'] == True:
-          sql = """
+        sql = """
           insert into articles 
-          (feed_source, keywords, title, url, source, date, smr_summary, smr_keywords, smr_char_count, smr_credits_used)
-          values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-          """ 
-          data = (description, topic.keywords, article.title, url, article.source, article.date, smr['summary'], smr['keywords'], smr['character_count'], smr['credits_used'])
-        else:
-          sql = """
-            insert into articles 
-            (feed_source, keywords, title, url, source, date, smr_error)
-            values (%s, %s, %s, %s, %s, %s, %s)
-            """ 
-          data = (description, topic.keywords, article.title, url, article.source, article.date, smr['error'])
+          (feed_source, keywords, title, url, source, date, content)
+          values (%s, %s, %s, %s, %s, %s, %s)
+        """ 
+        data = (description, article.keywords, article.title, url, article.source, article.date, article.brief)
         
         # try insert
         print('try insert')
@@ -189,12 +179,7 @@ def fetch_rss_feeds(sources):
           print(error)
   cur.close()
 
-db_user = {
-  'email_sources': active_topics
-}
-
-# sources = print_articles_for_sources([az_central])
-sources = load_sources(db_user)
+sources = load_source_feeds(active_topics)
 conn = get_db_conn()
 fetch_rss_feeds(sources)
 conn.close()

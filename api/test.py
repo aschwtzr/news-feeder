@@ -1,5 +1,5 @@
 
-from feeder.common.source import active_topics, topics_by_key, custom_google_source, az_central
+from feeder.common.source import active_topics, topics_by_key, custom_google_source, az_central, google
 # print_source_articles()
 
 # user settings coming soon! 
@@ -34,13 +34,14 @@ def print_articles_for_sources (sources):
   for (description, topics) in sources.items():
     print(description)
     for index, topic in enumerate(topics):
-      print(topic.keywords)
+      # print(topic.keywords)
       for article in topic.articles:
         print(article.title)
         print(article.url)
         print(article.source)
         print(article.date)
+        print(article.keywords)
 
-articles = az_central.get_feed_articles(10)
-print_articles_for_sources({'azc-local': articles})
+articles = google.get_feed_articles(10)
+print_articles_for_sources({'google': articles})
 

@@ -30,6 +30,11 @@ def topics_from_google_item (item):
       articles.append(article)
     headlines = list(map(lambda article: article.title, articles))
     keywords = keyword_extractor.keywords_from_string_list(headlines)
+    for article in articles:
+      article_kw = set(article.keywords)
+      topic_kw = set(keywords)
+      article.keywords += list(topic_kw - article_kw)
+
     if len(keywords) < 1:
       keywords = keyword_extractor.word_ranker(headlines)
       print(f"first keywords failed, using word ranker keywords")
@@ -39,8 +44,10 @@ def topics_from_google_item (item):
 def article_from_google_item (article, timestamp):
   a = article.find('a')
   title = a.get_text()
+  clean_title = keyword_extractor.remove_publication_after_pipe(title)
   source = article.find('font').get_text()
-  article = Article(source, a['href'], title, '', timestamp)
+  keywords = keyword_extractor.keywords_from_string(title)
+  article = Article(source, a['href'], clean_title, '', timestamp, keywords)
   return article
 
 
@@ -53,9 +60,9 @@ def guardian (article):
   title = article.title.string
   timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
   brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
-  article = Article('The Guardian', url, title, brief, timestamp)
-  # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
   keywords = keyword_extractor.keywords_from_article(article)
+  article = Article('The Guardian', url, title, brief, timestamp, keywords)
+  # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
   topic = Topic([article], keywords)
 
   return topic
@@ -93,6 +100,7 @@ def default (article, source):
   article = Article(source, url, title, brief, timestamp)
   # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
   keywords = keyword_extractor.keywords_from_article(article)
+  article.keywords = keywords
   topic = Topic([article], keywords)
 
   return topic
@@ -102,9 +110,9 @@ def reuters (article):
   title = article.title.string
   timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
   brief = parse_reuters(article.description.get_text()) if article.description else article.title.string + '...'
-  article = Article('Reuters', url, title, brief, timestamp)
-  # keywords = keyword_extractor.keywords_from_string_list([brief])
   keywords = keyword_extractor.keywords_from_article(article)
+  article = Article('Reuters', url, title, brief, timestamp, keywords)
+  # keywords = keyword_extractor.keywords_from_string_list([brief])
   topic = Topic([article], keywords)
 
   return topic

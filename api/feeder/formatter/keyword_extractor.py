@@ -42,19 +42,15 @@ def keywords_from_string (input):
     keywords_from_text = keywords(sanitized, split=True, words=4, lemmatize=True, scores=False)
     # keywords_from_text = keywords(sanitize_string(input), split=True, words=4, lemmatize=True, pos_filter=('NN', 'NNS', 'NNPS', 'VBN', 'VBD', 'VB', '-OBJ', '-SBJ'), scores=False)
   except IndexError as e:
-    logging.warning(f"string: {sanitized}")
-    logging.warning(repr(e))
+    logging.warning(f"ERROR: {repr(e)} STRING: {sanitized}")
     # logging.exception('Error extracting keywords. Lowering lemmas and word count')
   except RuntimeError as e:
-    logging.warning(f"string: {sanitized}")
-    logging.warning(repr(e))
+    logging.warning(f"ERROR: {repr(e)} STRING: {sanitized}")
     # logging.exception('Error extracting keywords. Lowering lemmas and word count')
   try:
     keywords_from_text = keywords(sanitized, split=True, words=3, lemmatize=False, scores=False)
   except:
-    # logging.exception('Failed second attempt at extracting keywords.')
-    # logging.warning(f"string: {sanitized}")
-    logging.warning("Final attempt.")
+    logging.warning(f"Final attempt. STRING: {sanitized}")
   try:
     keywords_from_text = keywords(sanitized, split=True, words=3, lemmatize=False, scores=False)
   except:
@@ -76,7 +72,8 @@ def remove_publication_after_pipe (string):
   return formatted
 
 def sanitize_string (string):
-  parsed = re.sub(r'(:)|(\'s)', '', string)
+  depubbed = remove_publication_after_pipe(string)
+  parsed = re.sub(r'(:)|(\'s)', '', depubbed)
   filtered = filter_stopwords_from_title(parsed)
   return filtered
 
