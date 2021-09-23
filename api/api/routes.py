@@ -12,6 +12,7 @@ from feeder.formatter import topic_mapper
 import pandas as pd
 from util import firebase
 from feeder.util import time_tools
+from feeder.util.db import fetch_articles
 # from feeder.test import runrun
 
 import datetime
@@ -179,6 +180,15 @@ def get_google():
   
   ret = { 'ok': True, 'news': news }
   return jsonify(ret)
+
+# list of available news sources
+@app.route('/articles', methods=(['GET']))
+def get_articles():
+  print(request.args)
+  filters = request.args.to_dict()
+  print(request.args.get('source'))
+  res = fetch_articles(filters)
+  return jsonify(res)
 
 # list of available news sources
 @app.route('/sources', methods=(['GET']))
