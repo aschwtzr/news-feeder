@@ -4,6 +4,7 @@ import re
 from collections import Counter, defaultdict
 import nltk
 import pandas as pd
+import json
 
 # feeder imports
 import feeder.formatter.keyword_extractor as keyword_extractor
@@ -70,17 +71,18 @@ def map_article_relationships(rows, mapped_kw):
 def intersection(lst1, lst2):
   return list(set(lst1) & set(lst2))
 
-def make_topics_map (processed, rel, dataframe):
+def make_topics_map (processed, relationship_map, dataframe):
   topics = defaultdict(dict)
   topic_idx = 0
   for article in processed:
+    # print(article)
     # print(f"KEYWORDS {', '.join(article[8])}")
     # print(f"SIBS: {rel[article[7]]}")
     topic_article_ids = []
     all_keywords = []
-    for id, freq in dict(rel[article[7]]).items():
+    for id, freq in dict(relationship_map[article[7]]).items():
       # find sibling articles (at least two kw match)
-      if freq > 2:
+      if freq > 1:
         # print(dataframe.loc[dataframe['id'] == id]['title'])
         topic_article_ids.append(id)
         a = dataframe.loc[dataframe['id'] == id]
@@ -92,7 +94,7 @@ def make_topics_map (processed, rel, dataframe):
     best_match_key = f"topic_{topic_idx}"
     for topic_key, topic in topics.items():
       overlap = len(intersection(topic['keywords'], filtered))
-      if overlap > 2 and overlap > best_match_cnt:
+      if overlap > 1 and overlap > best_match_cnt:
         best_match_cnt = overlap
         best_match_key = topic_key
     if best_match_key in topics:
@@ -101,7 +103,7 @@ def make_topics_map (processed, rel, dataframe):
       # topics[best_match_key]['keywords'] =  topics[best_match_key]['keywords'] + filtered
     else:
       topics[best_match_key]['articles'] = [article[7]]
-      topics[best_match_key]['keywords'] = filtered
+      topics[best_match_key]['keywords'] = article[8]
       topic_idx+=1
 
   return dict(sorted(topics.items(), key=lambda item: len(item[1]['articles']), reverse=True))
@@ -110,6 +112,8 @@ def make_topics_map (processed, rel, dataframe):
 def print_topic_map(topic_map, dataframe):
   for k, values in topic_map.items():
     print(values['keywords'])
+    print(len(values['articles']))
+    # print(values)
     titles = []
     for id in values['articles']:
       a = dataframe.loc[dataframe['id'] == id]
@@ -173,11 +177,13 @@ def get_summary(hours_ago=18):
 
   mapped_kw = keyword_frequency_map(processed)
 
-  rel = map_article_relationships(processed, mapped_kw)
+  relationship_map = map_article_relationships(processed, mapped_kw)
+  print(json.dumps(relationship_map, sort_keys=True, indent=2))
 
   df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_summary', 'date', 'headline_keywords', 'smr_keywords', 'id', 'keywords', 'content'])
 
-  topic_map = make_topics_map(processed, rel, df)
+  topic_map = make_topics_map(processed, relationship_map, df)
+  print_topic_map(topic_map, df)
   mapped_topics = map(lambda tuple: map_topic(tuple[1], df), topic_map.items())
   mapped_topics_list = list(mapped_topics)
   counts = {

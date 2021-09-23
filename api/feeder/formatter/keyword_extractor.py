@@ -52,7 +52,7 @@ def keywords_from_string (input):
   except:
     logging.warning(f"Final attempt. STRING: {sanitized}")
   try:
-    keywords_from_text = keywords(sanitized, split=True, words=3, lemmatize=False, scores=False)
+    keywords_from_text = keywords(sanitized, split=True, words=2, lemmatize=False, scores=False)
   except:
     logging.warning("All keyword extractions failed.")
   # gensim doesn't always split cleanly

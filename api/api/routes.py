@@ -112,7 +112,6 @@ def get_topics_new():
     'description': f"News at {time_tools.timestamp_string()}",
     'topics': results
   }
-  print(results)
   response = {
     'ok': True,
     'results': [source],
