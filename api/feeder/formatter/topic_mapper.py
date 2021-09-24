@@ -105,7 +105,7 @@ def make_topics_map (processed, relationship_map, dataframe):
       topics[best_match_key]['articles'] = [article[7]]
       topics[best_match_key]['keywords'] = article[8]
       topic_idx+=1
-
+  print(json.dumps(topics, sort_keys=True, indent=2))
   return dict(sorted(topics.items(), key=lambda item: len(item[1]['articles']), reverse=True))
 
 
@@ -185,7 +185,7 @@ def get_summary(hours_ago=18):
   topic_map = make_topics_map(processed, relationship_map, df)
   print_topic_map(topic_map, df)
   mapped_topics = map(lambda tuple: map_topic(tuple[1], df), topic_map.items())
-  mapped_topics_list = list(mapped_topics)
+  mapped_topics_list = sorted(list(mapped_topics), key=lambda topic: (len(topic.articles), topic.date), reverse=True)
   counts = {
     'articles': len(processed),
     'topics': len(mapped_topics_list),

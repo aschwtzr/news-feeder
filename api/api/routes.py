@@ -65,6 +65,7 @@ def get_topics_new():
   for topic in res['topics']:
     topic_dict = {
       'keywords': topic.keywords,
+      'date': topic.date.strftime('%m/%d/%Y, %H:%M'),
       'articles': [],
     }
     if len(topic.articles) > 1:

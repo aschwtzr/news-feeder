@@ -3,9 +3,13 @@ class Topic:
   def __init__(self, articles, keywords):
     self.articles = articles
     self.keywords = keywords
+    self.date = sorted(articles, key=lambda x: x.date, reverse=True)[0].date
   
   def add_articles(self, articles):
     self.articles += articles
+  
+  def string_date(self):
+    self.date.strftime('%m/%d/%Y, %H:%M')
 
   def set_keywords(self, keywords):
     self.keywords = keywords
