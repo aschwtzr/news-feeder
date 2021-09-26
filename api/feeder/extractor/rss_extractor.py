@@ -1,8 +1,8 @@
 import feeder.util.db as db
-from feeder.models.source import Source, article_formatter_hash, feed_getter_hash
+from feeder.models.source import Source, article_formatter_hash, feed_parser_hash
 from bs4 import BeautifulSoup
 from re import search
-from feeder.util.api import get_data_from_uri, get_summary
+from feeder.util.api import get_data_from_uri, get_summary, get_content_from_uri
 from datetime import datetime
 
 
@@ -20,7 +20,7 @@ def source_from_row(row):
     formatter = article_formatter_hash[row['text_parser_key']]
   else:
     formatter = None
-  return Source(row['url'], feed_getter_hash[row['feed_extractor_key']], row['name'], row['key'], row['default_limit'], row['id'], formatter)
+  return Source(row['url'], feed_parser_hash[row['feed_extractor_key']], row['name'], row['key'], row['default_limit'], row['id'], formatter)
 
 def extract_url(google_url):
   print(f'fetching {google_url}')
@@ -38,6 +38,16 @@ def extract_url(google_url):
     # print(soup)
     # print(google_url)
     return 'error'
+
+def get_full_text(url):
+  content = get_content_from_uri(url)
+  if content['ok'] == True:
+    soup = BeautifulSoup(content['data'], 'lxml')
+    # soup = BeautifulSoup(content, 'html.parser')
+    text = ' '.join(map(lambda p: p.text, soup.find_all('p')))
+    return {'ok': True, 'text': text}
+  else:
+    return content
 
 def fetch_rss_feeds(sources):
   now = datetime.now()
@@ -68,7 +78,7 @@ def fetch_rss_feeds(sources):
         # print(url)
         # smr = get_free_summary(url)
         # smr = get_summary(url)
-        insert_article(description, article.keywords, article.title, url, article.source, article.date, article.brief)
+        db.insert_article(description, article.keywords, article.title, url, article.source, article.date, article.brief)
 
 def get_feeds():
   sources = load_source_feeds()

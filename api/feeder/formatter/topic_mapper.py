@@ -40,6 +40,12 @@ def fetch_articles(hours_ago = 18):
   print(f"*** FETCHED {len(articles)} ROWS FROM THE DATABASE")
   return articles
 
+def map_articles(rows):
+  articles = []
+  for row in rows:
+    articles.append(Article(row[0], row[1], row[2], None, row[4], row[5], row[7]))
+  return articles
+
 def process_db_rows(rows=[]):
   res = []
   for row in rows:

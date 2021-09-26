@@ -1,4 +1,5 @@
-from feeder.formatter import feed_getter, article_formatter
+from feeder.formatter import article_formatter
+from feeder.extractor import feed_parser
 from feeder.util.api import get_data_from_uri
 
 class Source:
@@ -27,23 +28,23 @@ class Source:
 
 
 def custom_google_source (query, description):
-  return Source(f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en", feed_getter.google, description, f"custom-{query}", 10)
+  return Source(f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en", feed_parser.google, description, f"custom-{query}", 10)
 
 # reuters = Source('http://feeds.reuters.com/Reuters/worldNews', feed_getter.rss, 'Reuters - World News', 'reuters-world', article_formatter.reuters)
 # yahoo = Source('https://www.yahoo.com/news/rss/world', article_formatter.yahoo, feed_getter.rss)
 
-google = Source('https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', feed_getter.google, 'Google - World News', 'google-world', 15)
-bbc = Source('http://feeds.bbci.co.uk/news/world/rss.xml', feed_getter.rss, 'BBC - World News', 'bbc-world', 10, article_formatter.bbc)
-guardian = Source('https://www.theguardian.com/world/rss', feed_getter.rss, 'The Guardian - World News', 'guardian-world', 10, article_formatter.guardian)
-dw = Source('http://rss.dw.com/rdf/rss-en-world', feed_getter.rss, 'Deutsche Welle - World News', 'dw-world', 15, article_formatter.dw)
-az_central = Source('http://rssfeeds.azcentral.com/phoenix/local', feed_getter.rss, 'AZ Central - Local', 'azc-local', 10, article_formatter.az_central)
+google = Source('https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=en-US&gl=US&ceid=US:en', feed_parser.google, 'Google - World News', 'google-world', 15)
+bbc = Source('http://feeds.bbci.co.uk/news/world/rss.xml', feed_parser.rss, 'BBC - World News', 'bbc-world', 10, article_formatter.bbc)
+guardian = Source('https://www.theguardian.com/world/rss', feed_parser.rss, 'The Guardian - World News', 'guardian-world', 10, article_formatter.guardian)
+dw = Source('http://rss.dw.com/rdf/rss-en-world', feed_parser.rss, 'Deutsche Welle - World News', 'dw-world', 15, article_formatter.dw)
+az_central = Source('http://rssfeeds.azcentral.com/phoenix/local', feed_parser.rss, 'AZ Central - Local', 'azc-local', 10, article_formatter.az_central)
 
 active_topics = [bbc, guardian, dw, google, az_central]
 topics_by_key = dict((source.key, source) for source in active_topics)
 
-feed_getter_hash = {
-  'rss': feed_getter.rss,
-  'google': feed_getter.google
+feed_parser_hash = {
+  'rss': feed_parser.rss,
+  'google': feed_parser.google
 }
 
 article_formatter_hash = {

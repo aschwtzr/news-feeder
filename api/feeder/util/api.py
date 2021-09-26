@@ -66,3 +66,17 @@ def get_summary (uri):
       'credit_balance': int(parsed['sm_api_credit_balance'])
     }
   return result_hash
+
+def get_content_from_uri (uri):
+  try:
+    res = requests.get(uri, timeout=60)
+    return {
+      'ok': True, 
+      'data': res.content
+      }
+  except requests.exceptions.RequestException as error:
+    print(error)
+    return {
+      'ok': False,
+      'error': error
+      }
