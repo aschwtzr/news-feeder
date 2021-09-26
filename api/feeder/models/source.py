@@ -2,7 +2,7 @@ from feeder.formatter import feed_getter, article_formatter
 from feeder.util.api import get_data_from_uri
 
 class Source:
-  def __init__(self, url, feed_algorithm, description, key, limit, description_parser = None):
+  def __init__(self, url, feed_algorithm, description, key, limit, id=None, description_parser = None):
     self.url = url
     self.feed_algorithm = feed_algorithm
     self.description = description
@@ -40,3 +40,14 @@ az_central = Source('http://rssfeeds.azcentral.com/phoenix/local', feed_getter.r
 
 active_topics = [bbc, guardian, dw, google, az_central]
 topics_by_key = dict((source.key, source) for source in active_topics)
+
+feed_getter_hash = {
+  'rss': feed_getter.rss,
+  'google': feed_getter.google
+}
+
+article_formatter_hash = {
+  'bbc-world': article_formatter.bbc,
+  'dw-world': article_formatter.dw,
+  'guardian-world': article_formatter.guardian
+}

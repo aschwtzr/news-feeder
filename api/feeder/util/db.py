@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg2, psycopg2.extras
 import os
 
 def get_db_conn():
@@ -42,10 +42,76 @@ def fetch_articles(filters):
     ;
   """
   print(ARTICLE_SQL)
-  cur = conn.cursor()
+  cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
   cur.execute(ARTICLE_SQL)
   articles = cur.fetchall()
   cur.close()
   conn.close()
   print(f"*** FETCHED {len(articles)} ROWS FROM THE DATABASE")
   return articles
+
+def fetch_sources(filters=None):
+  conn = get_db_conn()
+  SOURCES_SQL = f"""
+    select
+      id,
+      name,
+      key,
+      category,
+      active,
+      feed_extractor_key,
+      text_parser_key,
+      custom_keywords,
+      url,
+      default_limit
+    from sources
+    where type = 'rss'
+    and active is true
+  """
+  cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+  cur.execute(SOURCES_SQL)
+  sources = cur.fetchall()
+  cur.close()
+  conn.close()
+  return sources
+
+def article_exists(source, url):
+  conn = get_db_conn()
+  cur = conn.cursor()
+  exists_query = """
+    select exists (
+        select 1
+        from articles
+        where source = %s
+        and url = %s
+    )"""
+  cur.execute(exists_query, (source, url))
+  res = cur.fetchone()[0]
+  cur.close()
+  conn.close()
+  if res is not None:
+    return True
+  else:
+    return False
+
+def insert_article(description, keywords, title, url, source, date, brief):
+  conn = get_db_conn()
+  cur = conn.cursor()
+  print(f"Adding {article.title} - {article.source} via {description}")
+  sql = """
+    insert into articles 
+    (feed_source, keywords, title, url, source, date, content)
+    values (%s, %s, %s, %s, %s, %s, %s)
+  """ 
+  data = (description, keywords, title, url, source, date, brief)
+  
+  # try insert
+  print('try insert')
+  print(data)
+  try:
+    cur.execute(sql, data)
+    conn.commit()
+  except psycopg2.Error as e:
+    error = e.pgerror
+    code = e.pgcode
+    print(error)
