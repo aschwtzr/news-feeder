@@ -1,9 +1,10 @@
+from feeder.models.source import Source, feed_parser_hash, article_formatter_hash
 import feeder.util.db as db
-from feeder.models.source import Source, article_formatter_hash, feed_parser_hash
 from bs4 import BeautifulSoup
 from re import search
 from feeder.util.api import get_data_from_uri, get_summary, get_content_from_uri
 from datetime import datetime
+from feeder.formatter.article_formatter import get_full_text
 
 
 def load_source_feeds ():
@@ -11,11 +12,10 @@ def load_source_feeds ():
   sources = list(map(lambda row: source_from_row(row), sources))
   source_dict = {}
   for source in sources:
-    source_dict[source.key] = source.get_feed_articles(source.limit)
+    source_dict[source.key] = source.get_feed_articles(20)
   return source_dict
 
 def source_from_row(row):
-  print(row)
   if row['text_parser_key'] in article_formatter_hash:
     formatter = article_formatter_hash[row['text_parser_key']]
   else:
@@ -38,16 +38,6 @@ def extract_url(google_url):
     # print(soup)
     # print(google_url)
     return 'error'
-
-def get_full_text(url):
-  content = get_content_from_uri(url)
-  if content['ok'] == True:
-    soup = BeautifulSoup(content['data'], 'lxml')
-    # soup = BeautifulSoup(content, 'html.parser')
-    text = ' '.join(map(lambda p: p.text, soup.find_all('p')))
-    return {'ok': True, 'text': text}
-  else:
-    return content
 
 def fetch_rss_feeds(sources):
   now = datetime.now()

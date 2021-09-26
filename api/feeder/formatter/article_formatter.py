@@ -4,8 +4,20 @@ from feeder.models.article import Article
 from feeder.models.topic import Topic
 from feeder.formatter import keyword_extractor
 from feeder.util.time_tools import timestamp_string
+from feeder.util.api import get_content_from_uri
 from bs4 import BeautifulSoup
 import re
+
+def get_full_text(url):
+  content = get_content_from_uri(url)
+  if content['ok'] == True:
+    soup = BeautifulSoup(content['data'], 'lxml')
+    # soup = BeautifulSoup(content, 'html.parser')
+    text = ' '.join(map(lambda p: p.text, soup.find_all('p')))
+    return {'ok': True, 'text': text}
+  else:
+    print('### NO TEXT')
+    return content
 
 def topics_from_google_item (item):
   item_soup = BeautifulSoup(item.description.get_text(), "html.parser")
@@ -15,7 +27,10 @@ def topics_from_google_item (item):
   if len(list_items) < 2:
     article = article_from_google_item(item_soup, timestamp)
     # keywords = keyword_extractor.keywords_from_string_list([article.title])
-    keywords = keyword_extractor.keywords_from_string(article.title)
+    if len(article.brief) > 1:
+      keywords = keyword_extractor.keywords_from_article(article)
+    else:
+      keywords = keyword_extractor.keywords_from_string(article.title)
     if len(keywords) < 1:
       keywords = article.title.split(' ')
     return Topic([article], keywords)
@@ -48,9 +63,13 @@ def article_from_google_item (article, timestamp):
   clean_title = keyword_extractor.remove_publication_after_pipe(title)
   source = article.find('font').get_text()
   keywords = keyword_extractor.keywords_from_string(title)
-  article = Article(source, a['href'], clean_title, '', timestamp, keywords)
+  brief = get_full_text(a['href'])
+  if brief['ok'] == True:
+    brief = brief['text']
+  else:
+    brief = ''
+  article = Article(source, a['href'], clean_title, brief, timestamp, keywords)
   return article
-
 
 def yahoo (content):
   soup = BeautifulSoup(content, "html.parser")
@@ -60,7 +79,11 @@ def guardian (article):
   url = article.link.string
   title = article.title.string
   timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
-  brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
+  brief = get_full_text(url)
+  if brief['ok'] == True:
+    brief = brief['text']
+  else:
+    brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
   article = Article('The Guardian', url, title, brief, timestamp)
   keywords = keyword_extractor.keywords_from_article(article)
   article.keywords = keywords
@@ -97,7 +120,11 @@ def default (article, source):
     timestamp = article.date.string
   else:
     timestamp = timestamp_string()
-  brief = article.description.get_text() if article.description else article.title.string + '...'
+  brief = get_full_text(url)
+  if brief['ok'] == True:
+    brief = brief['text']
+  else:
+    brief = article.description.get_text() if article.description else article.title.string + '...'
   photoless = re.sub('Photos: ', '', brief)
   head, sep, tail = photoless.partition('.<div')
   article = Article(source, url, title, head, timestamp)

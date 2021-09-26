@@ -89,15 +89,12 @@ def article_exists(source, url):
   res = cur.fetchone()[0]
   cur.close()
   conn.close()
-  if res is not None:
-    return True
-  else:
-    return False
+  return res
 
 def insert_article(description, keywords, title, url, source, date, brief):
   conn = get_db_conn()
   cur = conn.cursor()
-  print(f"Adding {article.title} - {article.source} via {description}")
+  print(f"Adding {title} - {source} via {description}")
   sql = """
     insert into articles 
     (feed_source, keywords, title, url, source, date, content)

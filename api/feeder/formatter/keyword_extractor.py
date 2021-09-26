@@ -9,10 +9,10 @@ import nltk
 
 def keywords_from_article (article):
   # strategy: 
-  # 1. attempt to extract keywords from headline
-  # 2. attempt to extract keywords from summary
+  # 1. attempt to extract keywords from brief
+  # 2. attempt to extract keywords from brief and title
   # 3. split a headline with split(' ')
-  output = keywords_from_string(article.title)
+  output = keywords_from_string(article.brief)
   if len(output) < 2 and article.brief is not None:
     output = keywords_from_string(f"{article.title} {article.brief}")
   if len(output) < 2:
