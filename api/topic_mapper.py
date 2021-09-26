@@ -65,7 +65,7 @@ def build_email_body (topics, counts, dev_mode = False):
   contents.append('</body>')
   return contents
 
-res = topic_mapper.get_summary(24)
+res = topic_mapper.get_summary(18)
 body = build_email_body(res['topics'], res['counts'])
 dev_body = build_email_body(res['topics'], res['counts'], True)
 
