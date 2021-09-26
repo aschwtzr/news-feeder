@@ -1,4 +1,4 @@
-from feeder.common.source import google, guardian, reuters, yahoo, bbc, dw, custom_google_source
+from feeder.models.source import google, guardian, reuters, yahoo, bbc, dw, custom_google_source
 
 users = {
   1: {

@@ -1,6 +1,6 @@
 from feeder.emailer.emailer import run_digest
-from util import firebase
-from feeder.common.source import active_topics, topics_by_key, custom_google_source
+from feeder.util import firebase
+from feeder.models.source import active_topics, topics_by_key, custom_google_source
 
 sources = firebase.get_default_sources()
 customFeeds = firebase.get_custom_feeds()

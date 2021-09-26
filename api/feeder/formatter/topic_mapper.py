@@ -10,8 +10,8 @@ import json
 import feeder.formatter.keyword_extractor as keyword_extractor
 import feeder.util.db as db
 from feeder.util.api import summarize_text
-from feeder.common.article import Article
-from feeder.common.topic import Topic
+from feeder.models.article import Article
+from feeder.models.topic import Topic
 
 def fetch_articles(hours_ago = 18):
   conn = db.get_db_conn()

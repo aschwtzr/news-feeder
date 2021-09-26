@@ -1,7 +1,7 @@
 # from feeder.emailer.emailer import load_sources
 import os
 import psycopg2
-from feeder.common.source import active_topics, topics_by_key, custom_google_source
+from feeder.models.source import active_topics, topics_by_key, custom_google_source
 from feeder.util.api import get_data_from_uri, get_summary
 from re import search
 from bs4 import BeautifulSoup

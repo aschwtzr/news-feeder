@@ -1,5 +1,5 @@
 
-from feeder.common.source import active_topics, topics_by_key, custom_google_source, az_central, google
+from feeder.models.source import active_topics, topics_by_key, custom_google_source, az_central, google
 # print_source_articles()
 
 # user settings coming soon! 

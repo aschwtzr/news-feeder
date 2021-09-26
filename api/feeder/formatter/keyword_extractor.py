@@ -1,5 +1,5 @@
 import logging
-from feeder.common.article import Article
+from feeder.models.article import Article
 from gensim.summarization import keywords
 import re
 from datetime import date

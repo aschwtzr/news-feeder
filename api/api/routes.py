@@ -1,16 +1,12 @@
 from flask import Blueprint, render_template
 from flask import current_app as app
-import util.news_formatter
-import util.feed_getters
-from util.api import get_feed_for, list_rss_sources
 from flask import request
 from flask import jsonify
-# import feeder.common.source
-from feeder.common.source import google, guardian, bbc, dw, active_topics, topics_by_key, custom_google_source
+from feeder.models.source import google, guardian, bbc, dw, active_topics, topics_by_key, custom_google_source
 from collections import defaultdict
 from feeder.formatter import topic_mapper
 import pandas as pd
-from util import firebase
+from feeder.util import firebase
 from feeder.util import time_tools
 from feeder.util.db import fetch_articles
 # from feeder.test import runrun
@@ -167,19 +163,6 @@ def get_topics():
   response["ok"] = True
   response["keywords"] = keywords
   return jsonify(response)
-
-# get google news summaries 
-@app.route('/google-news', methods=(['GET']))
-def get_google():
-  topic = request.args.get('topic')
-  if topic is not None:
-    # TODO: custom topics search
-    news = util.feed_getters.get_google_world_news_feed(topic = topic)
-  else:
-    news = util.feed_getters.get_google_world_news_feed()
-  
-  ret = { 'ok': True, 'news': news }
-  return jsonify(ret)
 
 # list of available news sources
 @app.route('/articles', methods=(['GET']))

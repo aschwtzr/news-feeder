@@ -1,7 +1,7 @@
 # extract rss feed content and package it into topics and articles
 # extract keywords
-from feeder.common.article import Article
-from feeder.common.topic import Topic
+from feeder.models.article import Article
+from feeder.models.topic import Topic
 from feeder.formatter import keyword_extractor
 from feeder.util.time_tools import timestamp_string
 from bs4 import BeautifulSoup

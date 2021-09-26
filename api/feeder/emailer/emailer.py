@@ -2,7 +2,7 @@
 import yagmail
 import os
 import logging
-from feeder.common.source import google, guardian, bbc, dw
+from feeder.models.source import google, guardian, bbc, dw
 from collections import defaultdict
 from feeder.util.time_tools import timestamp_string
 
