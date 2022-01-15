@@ -13,11 +13,25 @@ def get_full_text(url):
   if content['ok'] == True:
     soup = BeautifulSoup(content['data'], 'lxml')
     # soup = BeautifulSoup(content, 'html.parser')
-    text = ' '.join(map(lambda p: p.text, soup.find_all('p')))
+    text = ' '.join(map(lambda p: p.get_text(), soup.find_all('p')))
+    text = clean_content(text)
     return {'ok': True, 'text': text}
   else:
     print('### NO TEXT')
     return content
+
+# remove junk content from article body text
+def clean_content(string):
+  string = re.sub("Take a look at the beta version of dw.com. We're not done yet! Your opinion can help us make it better.", '', string)
+  string = re.sub("We use cookies to improve our service for you. You can find more information in our data protection declaration.", '', string)
+  string = re.sub("Got a confidential news tip? We want to hear from you.", '', string)
+  string = re.sub("By subscribing I accept the terms of use and privacy policy", '', string)
+  string = re.sub(r"(© 2021 Deutsche Welle.*)", '', string)
+  string = re.sub(r"(Sign up for.*).", '', string)
+  string = re.sub(r"(© 2021 CNBC.*)", '', string)
+  string = re.sub(r"(\\n\\n.*\\n\\n)", '', string)
+  string = re.sub(r'(( \| )|( \- )).*', '', string)
+  return string
 
 def topics_from_google_item (item):
   item_soup = BeautifulSoup(item.description.get_text(), "html.parser")

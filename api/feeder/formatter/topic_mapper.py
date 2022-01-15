@@ -13,7 +13,7 @@ from feeder.util.api import summarize_text
 from feeder.models.article import Article
 from feeder.models.topic import Topic
 
-def fetch_articles(hours_ago = 18):
+def fetch_articles(hours_ago = 18, limit=None):
   conn = db.get_db_conn()
   ARTICLE_SQL = f"""
     select 
@@ -30,8 +30,10 @@ def fetch_articles(hours_ago = 18):
     from articles 
     --where smr_summary is not null 
     --and smr_keywords is not null
-    where date > now() - interval '{str(hours_ago)} hours';
+    where date > now() - interval '{str(hours_ago)} hours'
   """
+  if limit is not None:
+    ARTICLE_SQL += f"limit {limit}"
   cur = conn.cursor()
   cur.execute(ARTICLE_SQL)
   articles = cur.fetchall()
@@ -43,7 +45,7 @@ def fetch_articles(hours_ago = 18):
 def map_articles(rows):
   articles = []
   for row in rows:
-    articles.append(Article(row[0], row[1], row[2], None, row[4], row[5], row[7]))
+    articles.append(Article(row[0], row[1], row[2], row[9], row[4], row[5], row[7]))
   return articles
 
 def process_db_rows(rows=[]):

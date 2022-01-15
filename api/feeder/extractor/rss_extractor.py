@@ -8,7 +8,7 @@ from feeder.formatter.article_formatter import get_full_text
 
 
 def load_source_feeds ():
-  sources = db.fetch_sources({})
+  sources = db.fetch_sources()
   sources = list(map(lambda row: source_from_row(row), sources))
   source_dict = {}
   for source in sources:

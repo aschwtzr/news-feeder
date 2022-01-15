@@ -112,3 +112,26 @@ def insert_article(description, keywords, title, url, source, date, brief):
     error = e.pgerror
     code = e.pgcode
     print(error)
+
+def upsert_article(keywords, title, url, source, date, brief, id):
+  conn = get_db_conn()
+  cur = conn.cursor()
+  print(f"Adding {title} - {source} via {feed_source}")
+  sql = """
+    insert into articles 
+    (feed_source, keywords, title, url, source, date, content)
+    values (%s, %s, %s, %s, %s, %s, %s)
+    where id = %s
+  """ 
+  data = (keywords, title, url, source, date, brief, id)
+  
+  # try insert
+  print('try insert')
+  print(data)
+  try:
+    cur.execute(sql, data)
+    conn.commit()
+  except psycopg2.Error as e:
+    error = e.pgerror
+    code = e.pgcode
+    print(error)
