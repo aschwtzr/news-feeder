@@ -32,7 +32,7 @@ def email_body_for_user (user, sources, keywords):
         contents.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
         contents.append(f"<strong>{article.source}</strong>")
         contents.append(f"<em>{article.date}</em><br>")
-        contents.append(f"<div>{article.brief}<div> {'<br>' if len(article.brief) > 0 else '' } ")
+        contents.append(f"<div>{article.raw_text}<div> {'<br>' if len(article.raw_text) > 0 else '' } ")
         contents.append("<br>")    
     contents.append("<br><br>")
 

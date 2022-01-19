@@ -1,5 +1,5 @@
 # extract rss feed content and package it into topics and articles
-# extract keywords
+
 from feeder.models.article import Article
 from feeder.models.topic import Topic
 from feeder.formatter import keyword_extractor
@@ -14,35 +14,22 @@ def get_full_text(url):
     soup = BeautifulSoup(content['data'], 'lxml')
     # soup = BeautifulSoup(content, 'html.parser')
     text = ' '.join(map(lambda p: p.get_text(), soup.find_all('p')))
-    text = clean_content(text)
+    text = keyword_extractor.remove_known_junk(text, False)
     return {'ok': True, 'text': text}
   else:
     print('### NO TEXT')
-    return content
-
-# remove junk content from article body text
-def clean_content(string):
-  string = re.sub("Take a look at the beta version of dw.com. We're not done yet! Your opinion can help us make it better.", '', string)
-  string = re.sub("We use cookies to improve our service for you. You can find more information in our data protection declaration.", '', string)
-  string = re.sub("Got a confidential news tip? We want to hear from you.", '', string)
-  string = re.sub("By subscribing I accept the terms of use and privacy policy", '', string)
-  string = re.sub(r"(© 2021 Deutsche Welle.*)", '', string)
-  string = re.sub(r"(Sign up for.*).", '', string)
-  string = re.sub(r"(© 2021 CNBC.*)", '', string)
-  string = re.sub(r"(\\n\\n.*\\n\\n)", '', string)
-  string = re.sub(r'(( \| )|( \- )).*', '', string)
-  return string
+    return {'ok': False, 'text': content}
 
 def topics_from_google_item (item):
+  item = item[0]
   item_soup = BeautifulSoup(item.description.get_text(), "html.parser")
   list_items = item_soup.findAll('li')
 
   timestamp = (item.pubDate.string if item.pubDate is not None else timestamp_string())
   if len(list_items) < 2:
     article = article_from_google_item(item_soup, timestamp)
-    # keywords = keyword_extractor.keywords_from_string_list([article.title])
-    if len(article.brief) > 1:
-      keywords = keyword_extractor.keywords_from_article(article)
+    if len(article.raw_text) > 1:
+      keywords = keyword_extractor.keywords_from_text_title(article.raw_text, article.title)
     else:
       keywords = keyword_extractor.keywords_from_string(article.title)
     if len(keywords) < 1:
@@ -59,16 +46,12 @@ def topics_from_google_item (item):
         
       articles.append(article)
     headlines = list(map(lambda article: article.title, articles))
-    keywords = keyword_extractor.keywords_from_string_list(headlines)
+    keywords = keyword_extractor.keywords_from_title_list(headlines)
     for article in articles:
       article_kw = set(article.keywords)
       topic_kw = set(keywords)
       article.keywords += list(topic_kw - article_kw)
 
-    if len(keywords) < 1:
-      keywords = keyword_extractor.word_ranker(headlines)
-      print(f"first keywords failed, using word ranker keywords")
-      print(keywords)
     return Topic(articles, keywords)
 
 def article_from_google_item (article, timestamp):
@@ -76,13 +59,12 @@ def article_from_google_item (article, timestamp):
   title = a.get_text()
   clean_title = keyword_extractor.remove_publication_after_pipe(title)
   source = article.find('font').get_text()
-  keywords = keyword_extractor.keywords_from_string(title)
-  brief = get_full_text(a['href'])
-  if brief['ok'] == True:
-    brief = brief['text']
+  raw_text = get_full_text(a['href'])
+  if raw_text['ok'] == True:
+    raw_text = raw_text['text']
   else:
-    brief = ''
-  article = Article(source, a['href'], clean_title, brief, timestamp, keywords)
+    raw_text = ''
+  article = Article(source=source, url=a['href'], title=clean_title, raw_text=raw_text, date=timestamp)
   return article
 
 def yahoo (content):
@@ -90,18 +72,16 @@ def yahoo (content):
   return soup.get_text()
 
 def guardian (article):
-  url = article.link.string
-  title = article.title.string
+  article = article[0]
+  url_title = common_fields(article)
   timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
-  brief = get_full_text(url)
-  if brief['ok'] == True:
-    brief = brief['text']
+  raw_text = get_full_text(url_title['url'])
+  if raw_text['ok'] == True:
+    raw_text = raw_text['text']
   else:
-    brief = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
-  article = Article('The Guardian', url, title, brief, timestamp)
-  keywords = keyword_extractor.keywords_from_article(article)
-  article.keywords = keywords
-  # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
+    raw_text = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
+  keywords = keyword_extractor.keywords_from_text_title(raw_text, url_title['title'])
+  article = Article(source='The Guardian', url=url_title['url'], title=url_title['title'], raw_text=raw_text, date=timestamp, keywords=keywords)
   topic = Topic([article], keywords)
 
   return topic
@@ -118,55 +98,40 @@ def parse_guardian (content):
   return text
 
 def dw (article):
-  topic = default(article, 'Deutsche Welle')
+  topic = default(article[0], 'Deutsche Welle')
   return topic
 
 def az_central (article):
-  topic = default(article, 'AZ Central')
+  topic = default(article[0], 'AZ Central')
   return topic
 
 def default (article, source):
-  url = article.link.string
-  title = article.title.string
+  url_title = common_fields(article)
   if article.pubDate is not None:
    timestamp = article.pubDate.string
   elif article.date is not None:
     timestamp = article.date.string
   else:
     timestamp = timestamp_string()
-  brief = get_full_text(url)
-  if brief['ok'] == True:
-    brief = brief['text']
+  raw_text = get_full_text(url_title['url'])
+  if raw_text['ok'] == True:
+    raw_text = raw_text['text']
   else:
-    brief = article.description.get_text() if article.description else article.title.string + '...'
-  photoless = re.sub('Photos: ', '', brief)
+    raw_text = article.description.get_text() if article.description else article.title.string + '...'
+  photoless = re.sub('Photos: ', '', raw_text)
   head, sep, tail = photoless.partition('.<div')
-  article = Article(source, url, title, head, timestamp)
-  # keywords = keyword_extractor.keywords_from_string_list(brief.split('. '))
-  keywords = keyword_extractor.keywords_from_article(article)
-  article.keywords = keywords
+  keywords = keyword_extractor.keywords_from_text_title(head, url_title['title'])
+  article = Article(source=source, url=url_title['url'], title=url_title['title'], raw_text=head, date=timestamp, keywords=keywords)
   topic = Topic([article], keywords)
 
   return topic
-
-def reuters (article):
-  url = article.link.string
-  title = article.title.string
-  timestamp = timestamp_string() if article.pubDate is None else article.pubDate.string
-  brief = parse_reuters(article.description.get_text()) if article.description else article.title.string + '...'
-  article = Article('Reuters', url, title, brief, timestamp)
-  keywords = keyword_extractor.keywords_from_article(article)
-  article.keywords = keywords
-  # keywords = keyword_extractor.keywords_from_string_list([brief])
-  topic = Topic([article], keywords)
-
-  return topic
-
-def parse_reuters (description):
-  split = description.split('<div class="feedflare">')
-  # soup = BeautifulSoup(description, 'html.parser')
-  return split[0]
-
+  
 def bbc (article):
-  topic = default(article, 'BBC')
+  topic = default(article[0], 'BBC')
   return topic
+
+def common_fields(article_soup):
+  return {
+    'url': article_soup.link.string,
+    'title': article_soup.title.string
+  }

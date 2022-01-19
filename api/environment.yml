@@ -1,0 +1,36 @@
+name: news-feeder
+channels:
+  - apple
+  - defaults
+  - conda-forge
+  - huggingface
+dependencies:
+  - python=3.8
+  - beautifulsoup4
+  - lxml
+  - flask
+  - html5lib
+  - yagmail
+  - numpy==1.19.5
+  - flask-cors
+  - uwsgi
+  - pattern
+  - google-cloud-firestore
+  - nltk
+  - sqlalchemy
+  - psycopg2
+  - peewee
+  - pip
+  - transformers
+  - tensorboard
+  - tensorboard-data-server
+  - tensorboard-plugin-wit
+  - tensorflow-deps
+  - pip:
+
+    - tensorflow-estimator
+    - tensorflow-macos
+    - tensorflow-metal
+    - pandas
+    - numpy
+    - yake

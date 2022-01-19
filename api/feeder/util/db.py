@@ -18,7 +18,6 @@ def fetch_articles(filters):
   hours_start = filters.get('hours_start', 18)
   hours_end = filters.get('hours_end', 0)
   source = filters.get('source')
-  # source = 
   # source_string = f"and source ilike {filters['source']}" if filters['source'] is not None else ''
   # title_string = f"and title ilike {filters['title']}" if filters['title'] is not None else ''
   # kw_string = f"and keywords @> {filters['keywords']}" if filters['keywords'] is not None else ''
@@ -91,7 +90,7 @@ def article_exists(source, url):
   conn.close()
   return res
 
-def insert_article(description, keywords, title, url, source, date, brief):
+def insert_article(feed_source, keywords, title, url, source, date, raw_text):
   conn = get_db_conn()
   cur = conn.cursor()
   print(f"Adding {title} - {source} via {description}")
@@ -100,7 +99,7 @@ def insert_article(description, keywords, title, url, source, date, brief):
     (feed_source, keywords, title, url, source, date, content)
     values (%s, %s, %s, %s, %s, %s, %s)
   """ 
-  data = (description, keywords, title, url, source, date, brief)
+  data = (feed_source, keywords, title, url, source, date, raw_text)
   
   # try insert
   print('try insert')
@@ -113,7 +112,7 @@ def insert_article(description, keywords, title, url, source, date, brief):
     code = e.pgcode
     print(error)
 
-def upsert_article(keywords, title, url, source, date, brief, id):
+def upsert_article(keywords, title, url, source, date, raw_text, id):
   conn = get_db_conn()
   cur = conn.cursor()
   print(f"Adding {title} - {source} via {feed_source}")
@@ -123,7 +122,7 @@ def upsert_article(keywords, title, url, source, date, brief, id):
     values (%s, %s, %s, %s, %s, %s, %s)
     where id = %s
   """ 
-  data = (keywords, title, url, source, date, brief, id)
+  data = (keywords, title, url, source, date, raw_text, id)
   
   # try insert
   print('try insert')

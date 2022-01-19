@@ -2,25 +2,9 @@ from feeder.models.source import Source, feed_parser_hash, article_formatter_has
 import feeder.util.db as db
 from bs4 import BeautifulSoup
 from re import search
-from feeder.util.api import get_data_from_uri, get_summary, get_content_from_uri
+from feeder.util.api import get_data_from_uri
 from datetime import datetime
-from feeder.formatter.article_formatter import get_full_text
-
-
-def load_source_feeds ():
-  sources = db.fetch_sources()
-  sources = list(map(lambda row: source_from_row(row), sources))
-  source_dict = {}
-  for source in sources:
-    source_dict[source.key] = source.get_feed_articles(20)
-  return source_dict
-
-def source_from_row(row):
-  if row['text_parser_key'] in article_formatter_hash:
-    formatter = article_formatter_hash[row['text_parser_key']]
-  else:
-    formatter = None
-  return Source(row['url'], feed_parser_hash[row['feed_extractor_key']], row['name'], row['key'], row['default_limit'], row['id'], formatter)
+from feeder.models.article import Article
 
 def extract_url(google_url):
   print(f'fetching {google_url}')
@@ -39,7 +23,7 @@ def extract_url(google_url):
     # print(google_url)
     return 'error'
 
-def fetch_rss_feeds(sources):
+def fetch_new_articles(sources):
   now = datetime.now()
   timestamp = now.strftime('%m/%d/%Y, %H:%M:%S')
   
@@ -50,27 +34,24 @@ def fetch_rss_feeds(sources):
   *****************************************  
   *****************************************  
   """)
-  for (description, topics) in sources.items():
-    for index, topic in enumerate(topics):
+  for source in sources:
+    topics = source.map_topic_stream(20)
+    for topic in topics:
       for article in topic.articles:
         # skip google news articles we can't parse
-        if description == 'google-world':
+        if source.key == 'google-world':
           url = extract_url(article.url)
           if url == 'error' or search('https://www.youtube.com', url):
             continue
         else:
           url = article.url
-
-        if db.article_exists(article.source, url):
+        exists = Article.select().where(Article.source==article.source, Article.url==article.url)
+        if len(exists.execute()) > 0:
           continue
-        
-        # get paid smmry and build sql
-        # print(url)
-        # smr = get_free_summary(url)
-        # smr = get_summary(url)
-        db.insert_article(description, article.keywords, article.title, url, article.source, article.date, article.brief)
+        # works in theory
+        article.save()
 
 def get_feeds():
-  sources = load_source_feeds()
-  fetch_rss_feeds(sources)
+  sources = Source.select()
+  fetch_new_articles(sources)
 

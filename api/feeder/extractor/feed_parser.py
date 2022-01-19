@@ -1,7 +1,20 @@
 # extract provided feed into topics with supplied formatter
 from bs4 import BeautifulSoup
 from feeder.formatter import article_formatter
-from feeder.models.topic import Topic
+
+def parse_feed_data (source, data, limit, supplied_formatter=None):
+  topics = []
+  try:
+    soup = BeautifulSoup(data, 'xml')
+    items = soup.findAll('item')
+    for index, topic in enumerate(items):
+      topic = supplied_formatter(topic)
+      topics.append(topic)
+      if index >= limit - 1:
+        break
+  except TypeError as error:
+    print(f"Unable to parse feed for {source}", error)
+  return topics
 
   ###
   # sample xml
@@ -25,35 +38,3 @@ from feeder.models.topic import Topic
   # </item>
   # 
   # ###
-def google (data, limit):
-  topics = []
-  try:
-    soup = BeautifulSoup(data, 'xml')
-    items = soup.findAll('item')
-    for index, topic in enumerate(items):
-      # ignore for now, haven't seen in a while
-      # media = topic.find('content')
-      # if media is not None:
-      #   result['media'] = media['url']
-      topic = article_formatter.topics_from_google_item(topic)
-      topics.append(topic)
-      if index >= limit - 1:
-        break
-  except TypeError as error:
-    print('unable to parse Google feed.', error)
-  return topics
-
-def rss (data, supplied_formatter, limit):
-  topics = []
-  try:
-    soup = BeautifulSoup(data, 'xml')
-    items = soup.findAll('item')
-    for index, topic in enumerate(items):
-      topic = supplied_formatter(topic)
-      topics.append(topic)
-      if index >= limit - 1:
-        break
-  except TypeError as error:
-    print('unable to parse rss feed.', error)
-  return topics
-
