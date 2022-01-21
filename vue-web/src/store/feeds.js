@@ -1,6 +1,7 @@
 import {
   getFeedSources,
   getTopics,
+  getArticles,
 } from '@/util/api';
 
 const feeds = {
@@ -15,6 +16,7 @@ const feeds = {
     mappedKeywords: {},
     sortedKeywords: [],
     selectedKeywords: [],
+    articles: [],
   },
   mutations: {
     setAvailableSources(state, sources) {
@@ -42,8 +44,16 @@ const feeds = {
     setSelectedKeywords(state, selectedKeywords) {
       state.selectedKeywords = selectedKeywords;
     },
+    setArticles(state, articles) {
+      state.articles = [...state.articles, ...articles];
+    },
   },
   actions: {
+    getArticles({ commit }) {
+      getArticles().then((res) => {
+        commit('setArticles', res.data.articles);
+      });
+    },
     getAvailableSources({ commit }) {
       return new Promise((resolve, reject) => {
         getFeedSources().then((results) => {

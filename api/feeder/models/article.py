@@ -15,6 +15,8 @@ class Article(BaseModel):
   raw_text = TextField(column_name='content')
   keywords = ArrayField(default=[])
   id = IntegerField()
+  summary = TextField(column_name='smr_summary')
+  nlp_kw = ArrayField(column_name='smr_keywords')
   
   def get_smmry(self):
     text = get_summary(self.url)
@@ -24,12 +26,16 @@ class Article(BaseModel):
     self.summary = (self.summary if self.summary is None else self.raw_text)
 
   def woof(self):
-    print(f"title: {self.title}")
-    print(f"url: {self.url[:50]}...")
-    print(f"source: {self.source}")
-    print(f"date: {self.date}")
-    if self.raw_text is not None:
-      print(f"raw_text: {self.raw_text[:80]}...")
-    if hasattr(self, 'summary'):
+    print(f"{self.source} --  {self.title}")
+    # print(f"url: {self.url[:50]}...")
+    # print(f"source: {self.source}")
+    # print(f"date: {self.date}")
+    print(f"keywords: {self.keywords}")
+    if self.nlp_kw is not None and len(self.nlp_kw) > 0:
+      print(f"nlp_kw: {self.nlp_kw}")
+    if self.summary is not None and len(self.summary) > 0:
       print(f"summary: {self.summary}")
+    if self.raw_text is not None and len(self.raw_text) > 0:
+      print(f"raw_text: {self.raw_text[:600]}...")
+    print(f"\n")
       

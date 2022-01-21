@@ -5,90 +5,88 @@ from collections import Counter, defaultdict
 import nltk
 import pandas as pd
 import json
+from datetime import datetime, timedelta
+from transformers import pipeline
 
 # feeder imports
-import feeder.formatter.keyword_extractor as keyword_extractor
+from feeder.formatter import keyword_extractor
 import feeder.util.db as db
 from feeder.util.api import summarize_text
 from feeder.models.article import Article
 from feeder.models.topic import Topic
 
-def fetch_articles(hours_ago = 18, limit=None):
-  conn = db.get_db_conn()
-  ARTICLE_SQL = f"""
-    select 
-      source, 
-      url, 
-      title, 
-      smr_summary, 
-      date, 
-      keywords, 
-      smr_keywords, 
-      id, 
-      keywords || smr_keywords as grouped_keywords,
-      content 
-    from articles 
-    --where smr_summary is not null 
-    --and smr_keywords is not null
-    where date > now() - interval '{str(hours_ago)} hours'
-  """
-  if limit is not None:
-    ARTICLE_SQL += f"limit {limit}"
-  cur = conn.cursor()
-  cur.execute(ARTICLE_SQL)
-  articles = cur.fetchall()
-  cur.close()
-  conn.close()
-  print(f"*** FETCHED {len(articles)} ROWS FROM THE DATABASE")
-  return articles
+# ner_pipe = pipeline("ner")
+summarizer = pipeline("summarization")
 
 def map_articles(rows):
   articles = []
   for row in rows:
-    articles.append(Article(row[0], row[1], row[2], row[9], row[4], row[5], row[7]))
+    articles.append(Article(source=row[0], url=row[1], title=row[2], raw_text=row[9], date=row[4], keywords=row[5], id=row[7]))
   return articles
 
-def process_db_rows(rows=[]):
-  res = []
-  for row in rows:
-    row_list = list(row)
-    row_list[8] = keyword_extractor.filter_stopwords_from_keywords(row[8])
-    if row_list[3] is not None:
-      row_list[3] = row_list[3].replace('ADVERTISEMENT', '')
-    # row_list[2] = keyword_extractor.remove_publication_after_pipe(row_list[2])
-    res.append(tuple(row_list))
-  return res
+def update_article_keywords(article, debug=False):
+  cleaned = keyword_extractor.remove_known_junk(article.raw_text, True)
+  keywords = keyword_extractor.keywords_from_text_title(cleaned, article.title)
+  article.keywords = keywords
+  if debug == True:
+    # print("AFTER\n")
+    # print(cleaned)
+    print("\nKEYWORDS\n")
+    print(keywords)
+  return article
 
-def keyword_frequency_map(rows):
+def update_article_summary(article, debug):
+  try:
+    summary = summarize_nlp(article.raw_text, debug)
+  except IndexError as e:
+    print(f"unable to transform ID: {article.id}, trying NLTK")
+    summary = summarize(article.raw_text, 12)
+  article.summary = summary
+  article.nlp_kw = keyword_extractor.keywords_from_text_title(article.summary, article.title)
+
+def clean_article_data(article, kw=False, summ=False, debug=False):
+  print(f"ARTICLE_ID: {article.id}")
+  if debug == True:
+    print("BEFORE\n")
+    print(article.raw_text)
+  if kw is True:
+    update_article_keywords(article, debug)
+  if summ is True and article.summary is None:
+    update_article_summary(article, debug)
+  article.save()
+  return article
+
+def keyword_frequency_map(articles):
   kw_map = defaultdict(list)
-  for row in rows:
-    for keyword in row[8]:
-      kw_map[keyword].append(row[7])
+  for article in articles:
+    for keyword in article.keywords:
+      kw_map[keyword].append(article.id)
   return dict(sorted(kw_map.items(), key=lambda item: len(item[1]), reverse=True))
 
 def map_article_relationships(rows, mapped_kw):
   relationship_map = {}
   for article in rows:
     siblings = defaultdict(int)
-    for keyword in article[8]:
+    for keyword in article.keywords:
       for id in mapped_kw[keyword]:
         siblings[id] += 1
-    relationship_map[article[7]] = siblings
+    relationship_map[article.id] = siblings
   return relationship_map
 
 def intersection(lst1, lst2):
   return list(set(lst1) & set(lst2))
 
-def make_topics_map (processed, relationship_map, dataframe):
+def make_topics_map (processed, relationship_map, dataframe, debug=False):
   topics = defaultdict(dict)
   topic_idx = 0
   for article in processed:
-    # print(article)
-    # print(f"KEYWORDS {', '.join(article[8])}")
-    # print(f"SIBS: {rel[article[7]]}")
+    if debug ==True:
+      print(article.id)
+      print(f"KEYWORDS {', '.join(article.keywords)}")
+      print(f"SIBS: {relationship_map[article.id]}")
     topic_article_ids = []
     all_keywords = []
-    for id, freq in dict(relationship_map[article[7]]).items():
+    for id, freq in dict(relationship_map[article.id]).items():
       # find sibling articles (at least two kw match)
       if freq > 1:
         # print(dataframe.loc[dataframe['id'] == id]['title'])
@@ -106,14 +104,14 @@ def make_topics_map (processed, relationship_map, dataframe):
         best_match_cnt = overlap
         best_match_key = topic_key
     if best_match_key in topics:
-      topics[best_match_key]['articles'].append(article[7])
+      topics[best_match_key]['articles'].append(article.id)
       topics[best_match_key]['keywords'] = list(set(topics[best_match_key]['keywords']) | set(filtered))
       # topics[best_match_key]['keywords'] =  topics[best_match_key]['keywords'] + filtered
     else:
-      topics[best_match_key]['articles'] = [article[7]]
-      topics[best_match_key]['keywords'] = article[8]
+      topics[best_match_key]['articles'] = [article.id]
+      topics[best_match_key]['keywords'] = article.keywords
       topic_idx+=1
-  print(json.dumps(topics, sort_keys=True, indent=2))
+  # print(json.dumps(topics, sort_keys=True, indent=2))
   return dict(sorted(topics.items(), key=lambda item: len(item[1]['articles']), reverse=True))
 
 
@@ -134,18 +132,62 @@ def print_topic_map(topic_map, dataframe):
 def map_topic(topic, dataframe):
   articles = []
   for id in topic['articles']:
+    topic_summary = ''
     a = dataframe.loc[dataframe['id'] == id]
     row = a.iloc[0]
-    if row['smr_summary'] is not None:
-      brief = row['smr_summary']
-    elif row['content'] is not None and len(row['content']) > 0:
-      brief = row['content']
+    if row['content'] is not None and len(row['content']) > 0:
+      raw_text = row['content']
     else:
-      brief = f"{row['title']}. "
-    article = Article(row['source'], row['url'], row['title'], brief, row['date'], row['keywords'], row['id'])
+      raw_text = f"{row['title']}. "
+    article = Article(
+      source=row['source'], 
+      url=row['url'], 
+      title=row['title'], 
+      raw_text=raw_text, 
+      date=row['date'], 
+      keywords=row['keywords'], 
+      id=row['id'], 
+      summary=row['summary'], 
+      nlp_kw=row['nlp_kw']
+    )
     articles.append(article)
-  by_brief = sorted(articles, key=lambda x: len(x.brief), reverse=True)
-  return Topic(by_brief, topic['keywords'])
+    if article.summary is not None:
+      topic_summary += article.summary
+  by_brief = sorted(articles, key=lambda x: x.date, reverse=True)
+  if len(articles) > 1: 
+    reduced = " ".join(list(map(lambda x: x.summary if x.summary is not None else '', articles[:5])))
+    summary = small_summarize_nlp(reduced)
+    if len(summary) > 120:
+      nlp_kw = keyword_extractor.keywords_from_string(summary)
+      headline = summarize(summary, 1)
+    else:
+      nlp_kw = None
+      headline = None
+  else:
+    nlp_kw = None
+    headline = None
+    summary = None
+  return Topic(by_brief, topic['keywords'], headline, summary, nlp_kw)
+
+
+def map_topic_test(topic, dataframe):
+  # print(topic)
+  # print(dataframe)
+  articles = []
+  for id in topic['articles']:
+    a = dataframe.loc[dataframe['id'] == id]
+    # print(a.iloc[0])  
+    row = a.iloc[0]
+    if row['content'] is not None and len(row['content']) > 0:
+      raw_text = row['content']
+    else:
+      raw_text = f"{row['title']}. "
+    article = Article(source=row['source'], url=row['url'], title=row['title'], raw_text=raw_text, date=row['date'], keywords=row['keywords'], id=row['id'])
+    articles.append(article)
+  by_brief = sorted(articles, key=lambda x: len(x.raw_text), reverse=True)
+  topic = Topic(by_brief, topic['keywords'])
+  topic.woof()
+  return topic
 
 def summarize(article_text, sentences):
   article_text = re.sub(r'\[[0-9]*\]', ' ', article_text)
@@ -177,23 +219,117 @@ def summarize(article_text, sentences):
             sentence_scores[sent] += word_frequencies[word]
   summary_sentences = heapq.nlargest(sentences, sentence_scores, key=sentence_scores.get)
   summary = ' '.join(summary_sentences)
+  print(summary)
   return summary
 
+def summarize_nlp(text, debug=False):
+  if debug is True:
+    print("\n")
+    print(f"SUMMARIZE NLP INPUT: {len(text)}")
+    print(text[:300])
+  long_text = len(text) > 5000
+  sentences = 30
+  while len(text) > 4500:
+    text = summarize(text, sentences)
+    sentences -= 5
+    if debug is True:
+      print(f"\nTRIMMED: {len(text)}")
+
+  if debug is True:
+    print(f"LEGGO: {len(text)}")
+  if long_text is True:
+    print(text[:300])
+  
+  if len(text) < 200:
+    return text
+  elif len(text) < 400:
+    max_length = 100
+    min_length = 20
+  elif len(text) < 600:
+    max_length = 130
+    min_length = 30
+  elif len(text) < 900:
+    max_length = 150
+    min_length = 50
+  elif len(text) < 1400:
+    max_length = 220
+    min_length = 150
+  elif len(text) < 2200:
+    max_length = 180
+    min_length = 80
+  else:
+    max_length = 220
+    min_length = 100
+
+  summary = summarizer(text, max_length=max_length, min_length=min_length, do_sample=False)
+  if debug is True:
+    print(f"\SUMMARY: {len(summary[0]['summary_text'])}")
+    print(summary[0]['summary_text'])
+  return summary[0]['summary_text']
+
+def small_summarize_nlp(text, debug=False):
+  # if debug is True:
+  #   print("\n")
+  #   print(f"SUMMARIZE NLP INPUT: {len(text)}")
+  #   print(text[:300])
+  # long_text = len(text) > 5000
+  # sentences = 30
+  # while len(text) > 4500:
+  #   text = summarize(text, sentences)
+  #   sentences -= 5
+  #   if debug is True:
+  #     print(f"\nTRIMMED: {len(text)}")
+
+  if debug is True:
+    print(f"LEGGO: {len(text)}")
+
+  if len(text) < 100:
+    max_length = 10
+    min_length = 5  
+  if len(text) < 130:
+    max_length = 30
+    min_length = 10
+  elif len(text) < 200:
+    max_length = 60
+    min_length = 30
+  elif len(text) < 400:
+    max_length = 80
+    min_length = 40
+  elif len(text) < 600:
+    max_length = 100
+    min_length = 50
+  elif len(text) < 900:
+    max_length = 120
+    min_length = 60
+  else:
+    max_length = 140
+    min_length = 80
+  
+  summary = summarizer(text, max_length=max_length, min_length=min_length, do_sample=False)
+  if debug is True:
+    print(f"\SUMMARY: {len(summary[0]['summary_text'])}")
+    print(summary[0]['summary_text'])
+  return summary[0]['summary_text']
+
 def get_summary(hours_ago=18):
-  articles = fetch_articles(hours_ago)
-  processed = process_db_rows(articles)
+  hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
+  articles = Article.select().where(Article.date > hours_ago_date_time)
+
+  processed = list(map(lambda article: clean_article_data(article, False, False, False), articles))
 
   mapped_kw = keyword_frequency_map(processed)
+  # print(mapped_kw)
 
   relationship_map = map_article_relationships(processed, mapped_kw)
-  print(json.dumps(relationship_map, sort_keys=True, indent=2))
+  # print(json.dumps(relationship_map, sort_keys=True, indent=2))
 
-  df = pd.DataFrame(data = processed, columns = ['source', 'url', 'title', 'smr_summary', 'date', 'headline_keywords', 'smr_keywords', 'id', 'keywords', 'content'])
+  df = pd.DataFrame(data = list(map(lambda x: [x.source, x.url, x.title, x.date, x.id, x.keywords, x.raw_text, x.summary, x.nlp_kw], processed)), columns = ['source', 'url', 'title', 'date', 'id', 'keywords', 'content', 'summary', 'nlp_kw'])
 
   topic_map = make_topics_map(processed, relationship_map, df)
   print_topic_map(topic_map, df)
   mapped_topics = map(lambda tuple: map_topic(tuple[1], df), topic_map.items())
-  mapped_topics_list = sorted(list(mapped_topics), key=lambda topic: (len(topic.articles), topic.date), reverse=True)
+  mapped_topics_list = sorted(list(mapped_topics), key=lambda topic: (len(topic.articles), topic.date), reverse=True)   
+      
   counts = {
     'articles': len(processed),
     'topics': len(mapped_topics_list),
@@ -203,3 +339,9 @@ def get_summary(hours_ago=18):
     'topics': mapped_topics_list,
     'mapped_kw': mapped_kw
   }
+
+# res = get_summary()
+
+# i = iter(range(res['counts']['topics']))
+# while (x := next(i, None)) is not None and x < 5:
+#   res['topics'][x].woof()

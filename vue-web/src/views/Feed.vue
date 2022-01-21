@@ -76,7 +76,7 @@ export default {
     },
   },
   mounted() {
-    this.getTopics();
+    // this.getTopics();
   },
 };
 </script>

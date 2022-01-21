@@ -16,37 +16,35 @@ def build_email_body (topics, counts, dev_mode = False):
   for topic in topics:
     long_string = ''
     articles_html = []
-    if len(topic.articles) > 1:
-      headline = topic_mapper.summarize('. '.join(list(map(lambda x: x.title, topic.articles))), 1)
-      contents.append(f'<strong style="font-size: 15px;">{headline}</strong><br>')
-      contents.append(f"<div style='{'' if dev_mode is True else 'display: none;'}'>{topic.keywords}</div>{'<br>' if dev_mode is True else ''}")
-      for article in topic.articles:
-        articles_html.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
-        articles_html.append(f"<strong>{article.source}</strong>")
+    if len(topic.articles) > 2:
+      contents.append(f'<strong style="font-size: 15px;">{topic.headline}</strong>')
+      if topic.keywords is not None:
+        contents.append(f"<br><div style=''>NLP KW: {topic.keywords}</div>")
+      if topic.nlp_kw is not None:
+        contents.append(f"<br><div style=''>NLP KW: {topic.nlp_kw}</div>")
+      if topic.summary is not None:
+        contents.append(f"<br><div style=''>SUMMARY: {topic.summary}</div>")
+      contents.append("<br>")
+        
+      
+      article_len = len(topic.articles)
+      i = iter(range(article_len))
+      while (x := next(i, None)) is not None and x < 3:
+        article = topic.articles[x]
+        articles_html.append(f"<a href='{article.url}'><strong>{article.source} {article.title}</strong></a><br>")
         articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
+        articles_html.append(f"<div style=''>{article.summary}</div>")
         articles_html.append(f"<div style='{'' if dev_mode is True else 'display: none;'}'>{article.keywords}</div>{'<br>' if dev_mode is True else ''}")
-        # if article.brief is not None:
-        articles_html.append(f"<div>{'. '.join(list(article.brief.split('. '))[:2])}<div> {'<br>' if len(article.brief) > 0 else '' } ")
-        long_string += article.brief
-      if len(topic.articles) > 10:
-        # sentences = 10
-        sentences = 4
-      elif len(topic.articles) > 6:
-        # sentences = 8
-        sentences = 3
-      elif len(topic.articles) > 3:
-        # sentences = 6
-        sentences = 2
-      else:
-        # sentences = 4
-        sentences = 1
-      long_string.rstrip()
-      print(long_string)
-      # if len(long_string) > 0:
-      topic_sum = topic_mapper.summarize(long_string, sentences)
+      if article_len > 3:
+        for x in range(article_len - 4):
+          article = topic.articles[x]
+          articles_html.append(f"<a href='{article.url}'><strong>{article.title}</strong></a><br>")
+
+        # if article.raw_text is not None:
+        # articles_html.append(f"<div>{'. '.join(list(article.raw_text.split('. '))[:2])}<div> {'<br>' if len(article.raw_text) > 0 else '' } ")
+        # long_string += article.raw_text
+   
       # topic_sum = summarize_text(long_string, sentences)
-      contents.append(f'<div>{topic_sum}</div>')
-      contents.append('<br>')
       contents.append('<strong> *** Articles *** </strong>')
       contents += articles_html
     else:
@@ -54,19 +52,20 @@ def build_email_body (topics, counts, dev_mode = False):
       if other_news is False:
         contents.append('<br><br><h4>Other News </h4>')
         other_news = True
-      contents.append(f"<strong style='font-size:15px; font-weight: bold!important'><a href='{article.url}'>{article.title}</a></strong>")
-      articles_html.append(f"<strong>{article.source}</strong>")
-      articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
-      articles_html.append(f"<div style='{'' if dev_mode is True else 'display: none;'}'>{article.keywords}</div>{'<br>' if dev_mode is True else ''}")
-      articles_html.append(f'<div>{topic.articles[0].brief}</div>')
-      contents += articles_html
+      contents.append(f"<strong style='font-size:15px; font-weight: bold!important'><a href='{article.url}'>{article.source} {article.title}</a></strong>")
+      contents.append(f"<div style=''>{article.keywords}</div><br>")
+      
+      # articles_html.append(f"<strong></strong>")
+      # articles_html.append(f"<em>{article.date.strftime('%m/%d/%Y, %H:%M')}</em><br>")
+      # articles_html.append(f'<div>{topic.articles[0].raw_text}</div>')
+      # contents += articles_html
     contents.append("###<br>")
     contents.append("<br>")
   contents.append('</body>')
   return contents
 
-res = topic_mapper.get_summary(18)
-body = build_email_body(res['topics'], res['counts'])
+res = topic_mapper.get_summary()
+# body = build_email_body(res['topics'], res['counts'])
 dev_body = build_email_body(res['topics'], res['counts'], True)
 
 all_users = [
@@ -110,8 +109,8 @@ print(f"""
 *****************************************  
 """)
 
-users = all_users if os.environ.get("PROD") is True else users_dev
-
+# users = all_users if os.environ.get("PROD") is True else users_dev
+users = users_dev
 for user in users:
   yagmail.SMTP(os.environ.get('EMAIL_ADDRESS'), os.environ.get('EMAIL_PASSWORD')).send(
     to=user['email'],

@@ -1,8 +1,11 @@
 # Primarily a grouping of articles useful when pulling from Google News
 class Topic:
-  def __init__(self, articles, keywords):
+  def __init__(self, articles, keywords, headline='', summary='', nlp_kw=[], kw_map={}):
     self.articles = articles
     self.keywords = keywords
+    self.summary = summary
+    self.nlp_kw = nlp_kw
+    self.headline = headline
     self.date = sorted(articles, key=lambda x: x.date, reverse=True)[0].date
   
   def add_articles(self, articles):
@@ -15,8 +18,24 @@ class Topic:
     self.keywords = keywords
 
   def woof(self):
+    print(f"{self.headline}")
     print(f"{len(self.articles)} articles")
-    for article in self.articles:
-      article.woof()
-    print(f"keywords: {self.keywords}")
+    if self.summary is not None:
+      print(f"{self.summary}\n")
+    print(f"TOPIC KW: {self.keywords}")
+    if self.nlp_kw is not None:
+      print(f"NLP KW: {self.nlp_kw}")
+    print(f"\n")
+    i = iter(range(len(self.articles)))
+    while (x := next(i, None)) is not None and x < 5:
+      article = self.articles[x]
+      print(f"{article.source} -- {article.title}")
+      print(f"KW: {article.keywords}")
+      if article.nlp_kw is not None:
+        print(f"NLP KW: {article.nlp_kw}")
+      if article.summary is not None:
+        print(f"{article.summary}")
+      print("\n")
+    print(f"\n")
+    print(f"###")
     print(f"\n\n")

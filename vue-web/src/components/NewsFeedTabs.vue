@@ -41,6 +41,11 @@ export default {
         routeName: 'settings',
         icon: 'cog',
       },
+      {
+        description: 'Articles',
+        routeName: 'articles',
+        icon: 'newspaper',
+      },
       // {
       //   description: 'Admin',
       //   routeName: 'admin',

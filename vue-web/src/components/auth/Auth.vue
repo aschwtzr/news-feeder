@@ -8,7 +8,7 @@
 import { mapMutations } from 'vuex';
 import firebase from 'firebase';
 import * as firebaseui from 'firebaseui';
-import { getUserProfile } from '../../util/api';
+// import { getUserProfile } from '../../util/api';
 
 export default {
   name: 'auth',
@@ -30,14 +30,14 @@ export default {
         signInSuccessWithAuthResult: (authResult) => {
           const { user } = authResult;
           this.saveUserProfile(user);
-          getUserProfile(user.uid).then((profile) => {
-            console.log(profile);
-            this.setUserPreferences(profile);
-            this.$router.push({ path: '/' });
-          }).catch((error) => {
-            console.log(error);
-          });
-          router.push('/feed');
+          // getUserProfile(user.uid).then((profile) => {
+          //   console.log(profile);
+          //   this.setUserPreferences(profile);
+          //   this.$router.push({ path: '/' });
+          // }).catch((error) => {
+          //   console.log(error);
+          // });
+          router.push('/articles');
           return false;
         },
       },
@@ -47,13 +47,13 @@ export default {
     if (auth.currentUser) {
       const user = auth.currentUser;
       this.saveUserProfile(user);
-      getUserProfile(user.uid).then((profile) => {
-        this.setUserPreferences(profile);
-        console.log(profile);
-        this.$router.push({ path: '/' });
-      }).catch((error) => {
-        console.log(error);
-      });
+      // getUserProfile(user.uid).then((profile) => {
+      //   this.setUserPreferences(profile);
+      //   console.log(profile);
+      //   this.$router.push({ path: '/' });
+      // }).catch((error) => {
+      //   console.log(error);
+      // });
     } else ui.start('#firebaseui-auth-container', uiConfig);
   },
 };

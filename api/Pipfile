@@ -17,11 +17,9 @@ uwsgi = "*"
 pattern = "*"
 google-cloud-firestore = "*"
 nltk = "*"
-numpy = "*"
 sklearn = "*"
 psycopg2 = "*"
 pandas = "*"
-gensim = "~=3.8.3"
 
 [requires]
 python_version = "3.7"

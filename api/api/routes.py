@@ -2,25 +2,45 @@ from flask import Blueprint, render_template
 from flask import current_app as app
 from flask import request
 from flask import jsonify
-from feeder.models.source import google, guardian, bbc, dw, active_topics, topics_by_key, custom_google_source
+from feeder.models.source import Source
+from feeder.models.article import Article
 from collections import defaultdict
-from feeder.formatter import topic_mapper
-import pandas as pd
-from feeder.util import firebase
+from feeder.formatter.topic_mapper import get_summary, summarize
+from markupsafe import escape
+# import pandas as pd
+# from feeder.util import firebase
 from feeder.util import time_tools
 from feeder.util.db import fetch_articles
 # from feeder.test import runrun
+from playhouse.flask_utils import get_object_or_404, object_list
 
 import datetime
 
-default_sources = { 'guardian': guardian, 'bbc': bbc, 'dw': dw  }
+# default_sources = { 'guardian': guardian, 'bbc': bbc, 'dw': dw  }
 sources = []
+
+# @app.before_request
+# def before_request():
+#     database.connect()
+
+# @app.after_request
+# def after_request(response):
+#     database.close()
+#     return response
 
 @app.route('/')
 @app.route('/health')
 def index():
   ret = {'ok': True}
   return jsonify(ret)
+
+@app.after_request
+def after_request(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
+    header['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    header['Access-Control-Allow-Methods'] = 'OPTIONS, HEAD, GET, POST, DELETE, PUT'
+    return response
 
 # probably better to rename this feeds
 # old
@@ -39,7 +59,7 @@ def get_headlines():
         for article in topic.articles:
           formatted = {
             'title': article.title,
-            'preview': article.brief,
+            'preview': article.raw_text,
             'url': article.url,
             'source': source.description,
             'date': article.date
@@ -56,7 +76,7 @@ def get_headlines():
 @app.route('/topics_new', methods=(['GET']))
 def get_topics_new():
   req_limit = (18 if request.args.get('hours_ago') is None else int(request.args.get('hours_ago')))
-  res = topic_mapper.get_summary(req_limit)
+  res = get_summary(req_limit)
   results = []
   for topic in res['topics']:
     topic_dict = {
@@ -65,12 +85,12 @@ def get_topics_new():
       'articles': [],
     }
     if len(topic.articles) > 1:
-      topic_dict['title'] = topic_mapper.summarize('. '.join(list(map(lambda x: x.title, topic.articles))), 1)
+      topic_dict['title'] = summarize('. '.join(list(map(lambda x: x.title, topic.articles))), 1)
       long_string = ''
       for article in topic.articles:
         formatted = {
           'title': article.title,
-          'preview': article.brief,
+          'preview': article.raw_text,
           'url': article.url,
           'source': article.source,
           'date': article.date.strftime('%m/%d/%Y, %H:%M'),
@@ -78,7 +98,7 @@ def get_topics_new():
           'id': int(article.id)
         }
         topic_dict['articles'].append(formatted)
-        long_string += article.brief
+        long_string += article.raw_text
       if len(topic.articles) > 10:
         sentences = 10
       elif len(topic.articles) > 6:
@@ -88,15 +108,15 @@ def get_topics_new():
       else:
         sentences = 4
       long_string.rstrip()
-      topic_dict['topic_summ'] = topic_mapper.summarize(long_string, sentences)
+      topic_dict['topic_summ'] = summarize(long_string, sentences)
     else:
       article = topic.articles[0]
       topic_dict['title'] = article.title
-      topic_dict['topic_summ'] = article.brief
+      topic_dict['topic_summ'] = article.raw_text
       topic_dict['keywords'] = article.keywords
       formatted = {
         'title': article.title,
-        'preview': article.brief,
+        'preview': article.raw_text,
         'url': article.url,
         'source': article.source,
         'date': article.date.strftime('%m/%d/%Y, %H:%M'),
@@ -127,12 +147,12 @@ def get_topics():
   response = defaultdict(list)
   mapped_sources = []
   if len(req_sources) > 0:
-    sources = firebase.get_default_sources()
+    # sources = firebase.get_default_sources()
     mapped_keys = list(map(lambda source: sources[source]["key"], req_sources[0].split(',')))
     for key in mapped_keys:
       mapped_sources.append(topics_by_key[key])
 
-  custom_feeds = firebase.get_custom_feeds()
+  # custom_feeds = firebase.get_custom_feeds()
   if len(user_sources) > 0:
     for key in user_sources[0].split(','):
       config = custom_feeds[key]
@@ -151,7 +171,7 @@ def get_topics():
       for article in topic.articles:
         formatted = {
           'title': article.title,
-          'preview': article.brief,
+          'preview': article.raw_text,
           'url': article.url,
           'source': article.source if article.source else source.description,
           'date': article.date
@@ -165,8 +185,8 @@ def get_topics():
   return jsonify(response)
 
 # list of available news sources
-@app.route('/articles', methods=(['GET']))
-def get_articles():
+@app.route('/articles_dead', methods=(['GET']))
+def get_articles_dead():
   print(request.args)
   filters = request.args.to_dict()
   print(request.args.get('source'))
@@ -176,7 +196,7 @@ def get_articles():
 # list of available news sources
 @app.route('/sources', methods=(['GET']))
 def get_sources():
-  sources = firebase.get_default_sources()
+  # sources = firebase.get_default_sources()
   res = []
   for key in sources.keys():
     source = {}
@@ -204,3 +224,19 @@ def get_user_profile():
   profile = firebase.get_user_profile(user_id)
   ret = { 'ok': True, 'profile': profile }
   return jsonify(ret)
+
+@app.route('/articles/<post_id>', methods=(['GET']))
+def get_article(post_id):
+  row = Article.select().where(Article.id == post_id).dicts()
+  if len(row) > 0:
+    return jsonify(row[0])
+  else:
+    return {}
+
+@app.route('/articles', methods=(['GET']))
+def get_articles(*kwargs):
+  rows = Article.select().order_by(Article.date.desc()).limit(50).dicts()
+  articles = []
+  for row in rows.iterator():
+    articles.append(row)
+  return jsonify({'articles': articles})

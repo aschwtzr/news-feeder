@@ -1,5 +1,5 @@
 <template>
-  <div style="overflow-y: scroll;">
+  <div v-if="topics.lenth > 0" style="overflow-y: scroll;">
     <div v-for="topic in topics[0].topics" :key="topic.keywords[0]">
       <div>{{topic.title}}</div>
       <div>{{topic.keywords}}</div>
@@ -66,7 +66,7 @@ export default {
     },
   },
   mounted() {
-    this.getTopics();
+    // this.getTopics();
   },
 };
 </script>

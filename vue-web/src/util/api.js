@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://localhost:5000';
+const baseURL = 'http://127.0.0.1:5000';
 const memeAxios = axios.create({
   baseURL: 'https://api.imgflip.com',
   responseType: 'json',
@@ -10,6 +10,10 @@ const baseAxios = axios.create({
   responseType: 'json',
   mode: 'cors',
 });
+
+export const getArticles = () => {
+  return baseAxios.get('/articles');
+};
 
 export const getFeedSources = () => {
   return baseAxios.get('/sources');

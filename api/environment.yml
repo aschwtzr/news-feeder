@@ -27,7 +27,6 @@ dependencies:
   - tensorboard-plugin-wit
   - tensorflow-deps
   - pip:
-
     - tensorflow-estimator
     - tensorflow-macos
     - tensorflow-metal

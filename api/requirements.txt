@@ -1,3 +1,16 @@
+beautifulsoup4 = "*"
+lxml = "*"
+flask = "*"
+html5lib = "*"
+yagmail = "*"
+flask-cors = "*"
+uwsgi = "*"
+pattern = "*"
+google-cloud-firestore = "*"
+nltk = "*"
+sklearn = "*"
+psycopg2 = "*"
+
 aiofiles==0.4.0
 aiologger==0.6.0
 certifi==2020.12.5
@@ -18,4 +31,3 @@ ruamel.yaml==0.16.13
 ruamel.yaml.clib==0.2.2
 tqdm==4.58.0
 urllib3==1.26.3
-gensim==3.8.3

@@ -14,10 +14,10 @@ deduplication_algo = 'seqm'
 windowSize = 1
 numOfKeywords = 6
 
-ten_custom_kw = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_thresold, dedupFunc=deduplication_algo, windowsSize=windowSize, top=10, features=None)
-six_custom_kw = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_thresold, dedupFunc=deduplication_algo, windowsSize=windowSize, top=6, features=None)
+big_custom_kw = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_thresold, dedupFunc=deduplication_algo, windowsSize=windowSize, top=6, features=None)
+small_custom_kw = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_thresold, dedupFunc=deduplication_algo, windowsSize=windowSize, top=4, features=None)
 
-def keywords_from_text_title (text, title):
+def keywords_from_text_title (text, title, debug=False):
   # strategy: 
   # 1. attempt to extract keywords from raw_text
   # 2. attempt to extract keywords from raw_text and title
@@ -27,7 +27,8 @@ def keywords_from_text_title (text, title):
     output = keywords_from_string(f"{title} {text}")
   if len(output) < 2:
     output = word_ranker(f"{title} {text}")
-  print(output)
+  if debug == True:
+    print(output)
   return list(map(lambda kw: kw[0], output))
   
 
@@ -41,8 +42,8 @@ def keywords_from_string (input):
   keywords_from_text = []
   # sanitized = sanitize_string(input)
   try:
-    print('first try')
-    keywords_from_text = ten_custom_kw.extract_keywords(input)
+    # print('first try')
+    keywords_from_text = big_custom_kw.extract_keywords(input)
     if len(keywords_from_text) >= 5:
       return keywords_from_text
   except IndexError as e:
@@ -50,8 +51,8 @@ def keywords_from_string (input):
   except RuntimeError as e:
     logging.warning(f"ERROR: {repr(e)} STRING: {input}")
   try:
-    print('second try')
-    keywords_from_text = six_custom_kw.extract_keywords(input)
+    # print('second try')
+    keywords_from_text = small_custom_kw.extract_keywords(input)
     if len(keywords_from_text) >= 4:
       return keywords_from_text
   except:
@@ -66,8 +67,8 @@ def word_ranker (incoming):
     incoming = clean_and_reduce_string_list(incoming)
   mapped = {}
   sanitized = sanitize_string(incoming)
-  minus_pub = remove_publication_after_pipe(sanitized)
-  parsed = minus_pub.lower().split(' ')
+  minus_stopwords = filter_stopwords_from_keywords(sanitized)
+  parsed = minus_stopwords.lower().split(' ')
   for key in parsed:
     if key in mapped.keys():
       mapped[key] += 1
@@ -80,7 +81,7 @@ def word_ranker (incoming):
 # KEYWORD UTILS FOR CLEANING STRINGS
 
 # remove junk content from article body text
-def remove_known_junk(string, keep_keywords):
+def remove_known_junk(string, keep_keywords=False):
   # print("BEFORE\n")
   # print(string)
   string = re.sub("Take a look at the beta version of dw.com. We're not done yet! Your opinion can help us make it better.", '', string)
@@ -100,6 +101,8 @@ def remove_known_junk(string, keep_keywords):
   string = re.sub(r'^ADVERTISEMENT ', '', string)
   string = re.sub(r'ADVERTISEMENT$', '', string)
   string = re.sub(r'Edited by: ((\w* )*)\n', '', string)
+  string = re.sub(r'Last modified on (\w*) (\d*) (\w*) (\d*) (\d*).(\d*) (\w*)', '', string)
+  string = re.sub(r'By (.*), CNN  Updated (.*) (\d*), (\d*)  ', '', string)
   string = re.sub(r'\n(.*)contributed to this report. The most important news stories of the day, curated by Post editors and delivered every morning. By signing up you agree to our Terms of Use and Privacy Policy', '', string)
   # string = re.sub(r'(.*)Mobile version\n', '', string)
   string = re.sub(r'(( \| )|( \- )).*', '', string)
