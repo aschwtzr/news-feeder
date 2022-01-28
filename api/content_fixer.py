@@ -34,7 +34,7 @@ def fix_most_recent(hours_ago=12):
     while (x := next(i, None)) is not None and x < 10:
       mapped_topics_list[x].woof()
 
-fix_most_recent(18)
+# fix_most_recent(18)
 
 # res = get_summary()
 

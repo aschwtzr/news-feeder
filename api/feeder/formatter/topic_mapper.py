@@ -26,8 +26,11 @@ def map_articles(rows):
 
 def update_article_keywords(article, debug=False):
   cleaned = keyword_extractor.remove_known_junk(article.raw_text, True)
+  article.raw_text = cleaned
   keywords = keyword_extractor.keywords_from_text_title(cleaned, article.title)
   article.keywords = keywords
+  if article.nlp_kw is None: 
+    update_article_summary(article, debug)
   if debug == True:
     # print("AFTER\n")
     # print(cleaned)
@@ -51,7 +54,7 @@ def clean_article_data(article, kw=False, summ=False, debug=False):
     print(article.raw_text)
   if kw is True:
     update_article_keywords(article, debug)
-  if summ is True and article.summary is None:
+  if summ is True:
     update_article_summary(article, debug)
   article.save()
   return article
@@ -154,7 +157,7 @@ def map_topic(topic, dataframe):
     if article.summary is not None:
       topic_summary += article.summary
   by_brief = sorted(articles, key=lambda x: x.date, reverse=True)
-  if len(articles) > 1: 
+  if len(articles) > 2: 
     reduced = " ".join(list(map(lambda x: x.summary if x.summary is not None else '', articles[:5])))
     summary = small_summarize_nlp(reduced)
     if len(summary) > 120:
@@ -313,9 +316,10 @@ def small_summarize_nlp(text, debug=False):
 
 def get_summary(hours_ago=18):
   hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
-  articles = Article.select().where(Article.date > hours_ago_date_time)
-
-  processed = list(map(lambda article: clean_article_data(article, False, False, False), articles))
+  articles = Article.select().where((Article.date > hours_ago_date_time) & (Article.summary.is_null(False)))
+  print(f"ARTICLES IS THIS MANY {len(articles)}")
+  processed = list(map(lambda article: clean_article_data(article, True, False, True), articles))
+  # processed = articles
 
   mapped_kw = keyword_frequency_map(processed)
   # print(mapped_kw)

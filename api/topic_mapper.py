@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import os
 import yagmail
 
@@ -6,6 +6,7 @@ import pandas as pd
 
 import feeder.formatter.topic_mapper as topic_mapper
 from feeder.util.api import summarize_text
+from content_fixer import fix_most_recent
 
 
 def build_email_body (topics, counts, dev_mode = False):
@@ -64,7 +65,22 @@ def build_email_body (topics, counts, dev_mode = False):
   contents.append('</body>')
   return contents
 
-res = topic_mapper.get_summary()
+
+start = datetime.now()
+st_timestamp = start.strftime('%m/%d/%Y, %H:%M')
+hours_ago = 24
+
+print(f"""
+*****************************************  
+*****************************************  
+  START SENDING AT {st_timestamp}
+  GOING BACK {hours_ago} HOURS
+*****************************************  
+*****************************************  
+""")
+
+fix_most_recent(hours_ago)
+res = topic_mapper.get_summary(hours_ago)
 # body = build_email_body(res['topics'], res['counts'])
 dev_body = build_email_body(res['topics'], res['counts'], True)
 
@@ -98,7 +114,7 @@ users_dev = [
   }
 ]
 
-now = datetime.datetime.now()
+now = datetime.now()
 timestamp = now.strftime('%m/%d/%Y, %H:%M')
 
 print(f"""

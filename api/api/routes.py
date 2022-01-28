@@ -235,7 +235,7 @@ def get_article(post_id):
 
 @app.route('/articles', methods=(['GET']))
 def get_articles(*kwargs):
-  rows = Article.select().order_by(Article.date.desc()).limit(50).dicts()
+  rows = Article.select().order_by(Article.date.desc()).limit(150).dicts()
   articles = []
   for row in rows.iterator():
     articles.append(row)

@@ -16,6 +16,7 @@
                 <th>KW</th>
                 <th>NLP KW</th>
                 <th>Summary</th>
+                <th>Raw Text</th>
               </tr>
             </thead>
               <tbody>
@@ -27,6 +28,7 @@
                   <td>{{article.keywords}}</td>
                   <td>{{article.nlp_kw}}</td>
                   <td>{{article.summary}}</td>
+                  <td>{{article.raw_text}}</td>
                 </tr>
             </tbody>
           </table>
