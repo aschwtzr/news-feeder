@@ -17,12 +17,14 @@ dependencies:
   - pattern
   - google-cloud-firestore
   - nltk
-  - sqlalchemy
+#  - sqlalchemy
   - psycopg2
   - peewee
   - pip
+# - pytorch
   - transformers
   - tensorboard
+  - tensorflow
   - tensorboard-data-server
   - tensorboard-plugin-wit
   - tensorflow-deps

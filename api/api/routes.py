@@ -14,8 +14,6 @@ from feeder.util.db import fetch_articles
 # from feeder.test import runrun
 from playhouse.flask_utils import get_object_or_404, object_list
 
-import datetime
-
 # default_sources = { 'guardian': guardian, 'bbc': bbc, 'dw': dw  }
 sources = []
 

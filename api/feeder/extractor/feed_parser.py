@@ -1,5 +1,6 @@
 # extract provided feed into topics with supplied formatter
 from bs4 import BeautifulSoup
+from feeder.util.api import get_data_from_uri
 from feeder.formatter import article_formatter
 
 def parse_feed_data (source, data, limit, supplied_formatter=None):
@@ -15,6 +16,23 @@ def parse_feed_data (source, data, limit, supplied_formatter=None):
   except TypeError as error:
     print(f"Unable to parse feed for {source}", error)
   return topics
+
+def extract_url(google_url):
+  print(f'fetching {google_url}')
+  data = get_data_from_uri(google_url)
+  if data['ok'] == True:
+    soup = BeautifulSoup(data['data'], 'html.parser')
+  else:
+    print('error pulling feed ', data['error'])
+    
+  try:
+    print('searching for content in soup')
+    message = soup.find(property="og:url").attrs['content']
+    return message
+  except:
+    # print(soup)
+    # print(google_url)
+    return 'error'
 
   ###
   # sample xml

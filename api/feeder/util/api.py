@@ -18,6 +18,41 @@ def get_data_from_uri (uri):
       'error': error
       }
 
+def get_content_from_uri (uri):
+  try:
+    res = requests.get(uri, timeout=60)
+    return {
+      'ok': True, 
+      'data': res.content
+      }
+  except requests.exceptions.RequestException as error:
+    print(error)
+    return {
+      'ok': False,
+      'error': error
+      }
+
+
+def get_timeline_for_user (screen_name):
+  headers = {f"Authorization": "Bearer {auth_token}"}
+  uri = f"https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name={screen_name}"
+  try: 
+    res = requests.get(uri, headers=headers, timeout=90)
+    # print(res.content)
+    # print(res.text)
+    parsed = json.loads(res.text)
+    # print(parsed)
+    return {
+      'ok': True, 
+      'data': parsed
+      }
+  except requests.exceptions.RequestException as error:
+    print(error)
+    return {
+      'ok': False,
+      'error': error
+      }
+
 def summarize_text (text, length):
   key = os.environ.get('SUMMRY_KEY')
   request_uri = f"https://api.smmry.com?SM_API_KEY={key}&SM_KEYWORD_COUNT=0&SM_LENGTH={length}"
@@ -66,17 +101,3 @@ def get_summary (uri):
       'credit_balance': int(parsed['sm_api_credit_balance'])
     }
   return result_hash
-
-def get_content_from_uri (uri):
-  try:
-    res = requests.get(uri, timeout=60)
-    return {
-      'ok': True, 
-      'data': res.content
-      }
-  except requests.exceptions.RequestException as error:
-    print(error)
-    return {
-      'ok': False,
-      'error': error
-      }
