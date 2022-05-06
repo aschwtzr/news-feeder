@@ -1,0 +1,33 @@
+beautifulsoup4 = "*"
+lxml = "*"
+flask = "*"
+html5lib = "*"
+yagmail = "*"
+flask-cors = "*"
+uwsgi = "*"
+pattern = "*"
+google-cloud-firestore = "*"
+nltk = "*"
+sklearn = "*"
+psycopg2 = "*"
+
+aiofiles==0.4.0
+aiologger==0.6.0
+certifi==2020.12.5
+chardet==4.0.0
+click==7.1.2
+dict-toolbox==2
+idna==2.10
+joblib==1.0.1
+msgpack==1.0.2
+nltk==3.5
+pop==16.3
+pop-config==6.11
+pycosat==0.6.3
+PyYAML==5.4.1
+regex==2020.11.13
+requests==2.25.1
+ruamel.yaml==0.16.13
+ruamel.yaml.clib==0.2.2
+tqdm==4.58.0
+urllib3==1.26.3
