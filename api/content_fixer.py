@@ -55,7 +55,7 @@ def filter(filters):
   return {'or': ored_expr, 'and': anded_expr }
 
 # fix_most_recent(12)
-extract_missing_features(nlp_kw=True, summary=True, hours_ago=72)
+extract_missing_features(nlp_kw=True, summary=True, hours_ago=24)
 
 # res = get_summary()
 

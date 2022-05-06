@@ -328,7 +328,7 @@ def get_summary(hours_ago=18):
   hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
   articles = Article.select().where((Article.date > hours_ago_date_time) & (Article.summary.is_null(False)))
   print(f"ARTICLES IS THIS MANY {len(articles)}")
-  processed = list(map(lambda article: clean_article_data(article, True, False, True), articles))
+  processed = list(map(lambda article: clean_article_data(article, False, False, True), articles))
   # processed = articles
 
   mapped_kw = keyword_frequency_map(processed)
