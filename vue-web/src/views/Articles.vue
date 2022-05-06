@@ -16,7 +16,7 @@
                 <th>KW</th>
                 <th>NLP KW</th>
                 <th>Summary</th>
-                <th>Raw Text</th>
+               <th>Raw Text</th>
               </tr>
             </thead>
               <tbody>
@@ -28,7 +28,7 @@
                   <td>{{article.keywords}}</td>
                   <td>{{article.nlp_kw}}</td>
                   <td>{{article.summary}}</td>
-                  <td>{{article.raw_text}}</td>
+                  <td>{{ articleSubstring(article.raw_text) }}</td>
                 </tr>
             </tbody>
           </table>
@@ -52,6 +52,10 @@ export default {
     ...mapActions({
       getArticles: 'feeds/getArticles',
     }),
+    articleSubstring(string) {
+      const articleLength = string.length;
+      return `${string.substring(0, articleLength > 300 ? 300 : articleLength)}${articleLength > 300 ? '...' : ''}`;
+    },
   },
   computed: {
     ...mapState('feeds', {

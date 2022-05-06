@@ -1,4 +1,5 @@
 # vue-web
+Note: you may have to install sass using `brew install sass/sass/sass`
 
 ## Project setup
 ```

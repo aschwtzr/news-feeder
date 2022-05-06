@@ -55,5 +55,5 @@ export default {
     }
   }
   @import "~bulma";
-  // @import "~buefy/src/scss/buefy";
 </style>
+<!--  // @import "~buefy/src/scss/buefy";-->
