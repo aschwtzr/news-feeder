@@ -12,10 +12,14 @@ class Article(BaseModel):
   date = DateTimeTZField()
   url = TextField()
   title = TextField()
+  # sanitized body of the article
   raw_text = TextField(column_name='content')
+  # keywords from v1 pipeline extraction
   keywords = ArrayField(default=[])
   id = IntegerField()
+  # nlp api summary
   summary = TextField(column_name='smr_summary')
+  # nlp api keywords
   nlp_kw = ArrayField(column_name='smr_keywords')
   
   def get_smmry(self):

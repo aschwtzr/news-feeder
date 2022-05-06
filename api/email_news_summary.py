@@ -20,7 +20,7 @@ def build_email_body (topics, counts, dev_mode = False):
     if len(topic.articles) > 2:
       contents.append(f'<strong style="font-size: 15px;">{topic.headline}</strong>')
       if topic.keywords is not None:
-        contents.append(f"<br><div style=''>NLP KW: {topic.keywords}</div>")
+        contents.append(f"<br><div style=''>KW: {topic.keywords}</div>")
       if topic.nlp_kw is not None:
         contents.append(f"<br><div style=''>NLP KW: {topic.nlp_kw}</div>")
       if topic.summary is not None:
@@ -68,7 +68,7 @@ def build_email_body (topics, counts, dev_mode = False):
 
 start = datetime.now()
 st_timestamp = start.strftime('%m/%d/%Y, %H:%M')
-hours_ago = 24
+hours_ago = 16
 
 print(f"""
 *****************************************  
@@ -79,7 +79,7 @@ print(f"""
 *****************************************  
 """)
 
-fix_most_recent(hours_ago)
+# fix_most_recent(hours_ago)
 res = topic_mapper.get_summary(hours_ago)
 # body = build_email_body(res['topics'], res['counts'])
 dev_body = build_email_body(res['topics'], res['counts'], True)

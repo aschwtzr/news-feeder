@@ -2,7 +2,7 @@
 
 from feeder.models.article import Article
 from feeder.models.topic import Topic
-from feeder.formatter import keyword_extractor
+from feeder.formatter.keyword_extractor_v1 import remove_known_junk, keywords_from_text_title, keywords_from_string, keywords_from_title_list, remove_publication_after_pipe
 from feeder.util.time_tools import timestamp_string
 from feeder.util.api import get_content_from_uri
 from bs4 import BeautifulSoup
@@ -14,7 +14,7 @@ def get_full_text(url):
     soup = BeautifulSoup(content['data'], 'lxml')
     # soup = BeautifulSoup(content, 'html.parser')
     text = ' '.join(map(lambda p: p.get_text(), soup.find_all('p')))
-    text = keyword_extractor.remove_known_junk(text, False)
+    text = remove_known_junk(text, False)
     return {'ok': True, 'text': text}
   else:
     print('### NO TEXT')
@@ -29,9 +29,9 @@ def topics_from_google_item (item):
   if len(list_items) < 2:
     article = article_from_google_item(item_soup, timestamp)
     if len(article.raw_text) > 1:
-      keywords = keyword_extractor.keywords_from_text_title(article.raw_text, article.title)
+      keywords = keywords_from_text_title(article.raw_text, article.title)
     else:
-      keywords = keyword_extractor.keywords_from_string(article.title)
+      keywords = keywords_from_string(article.title)
     if len(keywords) < 1:
       keywords = article.title.split(' ')
     return Topic([article], keywords)
@@ -46,7 +46,7 @@ def topics_from_google_item (item):
         
       articles.append(article)
     headlines = list(map(lambda article: article.title, articles))
-    keywords = keyword_extractor.keywords_from_title_list(headlines)
+    keywords = keywords_from_title_list(headlines)
     for article in articles:
       article_kw = set(article.keywords)
       topic_kw = set(keywords)
@@ -57,7 +57,7 @@ def topics_from_google_item (item):
 def article_from_google_item (article, timestamp):
   a = article.find('a')
   title = a.get_text()
-  clean_title = keyword_extractor.remove_publication_after_pipe(title)
+  clean_title = remove_publication_after_pipe(title)
   source = article.find('font').get_text()
   raw_text = get_full_text(a['href'])
   if raw_text['ok'] == True:
@@ -80,7 +80,7 @@ def guardian (article):
     raw_text = raw_text['text']
   else:
     raw_text = parse_guardian(article.description.get_text()) if article.description else article.title.string + '...'
-  keywords = keyword_extractor.keywords_from_text_title(raw_text, url_title['title'])
+  keywords = keywords_from_text_title(raw_text, url_title['title'])
   article = Article(source='The Guardian', url=url_title['url'], title=url_title['title'], raw_text=raw_text, date=timestamp, keywords=keywords)
   topic = Topic([article], keywords)
 
@@ -120,7 +120,7 @@ def default (article, source):
     raw_text = article.description.get_text() if article.description else article.title.string + '...'
   photoless = re.sub('Photos: ', '', raw_text)
   head, sep, tail = photoless.partition('.<div')
-  keywords = keyword_extractor.keywords_from_text_title(head, url_title['title'])
+  keywords = keywords_from_text_title(head, url_title['title'])
   article = Article(source=source, url=url_title['url'], title=url_title['title'], raw_text=head, date=timestamp, keywords=keywords)
   topic = Topic([article], keywords)
 

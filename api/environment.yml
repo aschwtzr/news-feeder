@@ -14,7 +14,7 @@ dependencies:
   - numpy==1.19.5
   - flask-cors
   - uwsgi
-  - pattern
+  # - pattern
   - google-cloud-firestore
   - nltk
 #  - sqlalchemy

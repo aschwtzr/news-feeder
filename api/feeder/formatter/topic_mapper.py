@@ -6,28 +6,26 @@ import nltk
 import pandas as pd
 import json
 from datetime import datetime, timedelta
-from transformers import pipeline
 
 # feeder imports
-from feeder.formatter import keyword_extractor
+from feeder.formatter.keyword_extractor_v1 import keywords_from_text_title, remove_known_junk, keywords_from_string
 import feeder.util.db as db
 from feeder.util.api import summarize_text
 from feeder.models.article import Article
 from feeder.models.topic import Topic
 
+
+# TODO: migrate
+# from feeder.formatter.keyword_extractor_v1 import keywords_from_text_title, remove_known_junk, keywords_from_string
+from transformers import pipeline
+
 # ner_pipe = pipeline("ner")
 summarizer = pipeline("summarization")
 
-def map_articles(rows):
-  articles = []
-  for row in rows:
-    articles.append(Article(source=row[0], url=row[1], title=row[2], raw_text=row[9], date=row[4], keywords=row[5], id=row[7]))
-  return articles
-
 def update_article_keywords(article, debug=False):
-  cleaned = keyword_extractor.remove_known_junk(article.raw_text, True)
+  cleaned = remove_known_junk(article.raw_text, True)
   article.raw_text = cleaned
-  keywords = keyword_extractor.keywords_from_text_title(cleaned, article.title)
+  keywords = keywords_from_text_title(cleaned, article.title)
   article.keywords = keywords
   if article.nlp_kw is None: 
     update_article_summary(article, debug)
@@ -45,7 +43,7 @@ def update_article_summary(article, debug):
     print(f"unable to transform ID: {article.id}, trying NLTK")
     summary = summarize(article.raw_text, 12)
   article.summary = summary
-  article.nlp_kw = keyword_extractor.keywords_from_text_title(article.summary, article.title)
+  article.nlp_kw = keywords_from_text_title(article.summary, article.title)
 
 def clean_article_data(article, kw=False, summ=False, debug=False):
   print(f"ARTICLE_ID: {article.id}")
@@ -58,6 +56,105 @@ def clean_article_data(article, kw=False, summ=False, debug=False):
     update_article_summary(article, debug)
   article.save()
   return article
+
+def summarize_nlp(text, debug=False):
+  if debug is True:
+    print("\n")
+    print(f"SUMMARIZE NLP INPUT: {len(text)}")
+    print(text[:300])
+  long_text = len(text) > 5000
+  sentences = 30
+  while len(text) > 4500:
+    text = summarize(text, sentences)
+    sentences -= 5
+    if debug is True:
+      print(f"\nTRIMMED: {len(text)}")
+
+  if debug is True:
+    print(f"LEGGO: {len(text)}")
+  if long_text is True:
+    print(text[:300])
+  
+  if len(text) < 200:
+    return text
+  elif len(text) < 400:
+    max_length = 100
+    min_length = 20
+  elif len(text) < 600:
+    max_length = 130
+    min_length = 30
+  elif len(text) < 900:
+    max_length = 150
+    min_length = 50
+  elif len(text) < 1400:
+    max_length = 220
+    min_length = 150
+  elif len(text) < 2200:
+    max_length = 180
+    min_length = 80
+  else:
+    max_length = 220
+    min_length = 100
+
+  summary = summarizer(text, max_length=max_length, min_length=min_length, do_sample=False)
+  if debug is True:
+    print(f"\SUMMARY: {len(summary[0]['summary_text'])}")
+    print(summary[0]['summary_text'])
+  return summary[0]['summary_text']
+
+def small_summarize_nlp(text, debug=False):
+  # if debug is True:
+  #   print("\n")
+  #   print(f"SUMMARIZE NLP INPUT: {len(text)}")
+  #   print(text[:300])
+  # long_text = len(text) > 5000
+  # sentences = 30
+  # while len(text) > 4500:
+  #   text = summarize(text, sentences)
+  #   sentences -= 5
+  #   if debug is True:
+  #     print(f"\nTRIMMED: {len(text)}")
+
+  if debug is True:
+    print(f"LEGGO: {len(text)}")
+
+  if len(text) < 100:
+    max_length = 10
+    min_length = 5  
+  if len(text) < 130:
+    max_length = 30
+    min_length = 10
+  elif len(text) < 200:
+    max_length = 60
+    min_length = 30
+  elif len(text) < 400:
+    max_length = 80
+    min_length = 40
+  elif len(text) < 600:
+    max_length = 100
+    min_length = 50
+  elif len(text) < 900:
+    max_length = 120
+    min_length = 60
+  else:
+    max_length = 140
+    min_length = 80
+  
+  summary = summarizer(text, max_length=max_length, min_length=min_length, do_sample=False)
+  if debug is True:
+    print(f"\SUMMARY: {len(summary[0]['summary_text'])}")
+    print(summary[0]['summary_text'])
+  return summary[0]['summary_text']
+
+
+
+# TOPIC MAPPER 
+
+def map_articles(rows):
+  articles = []
+  for row in rows:
+    articles.append(Article(source=row[0], url=row[1], title=row[2], raw_text=row[9], date=row[4], keywords=row[5], id=row[7]))
+  return articles
 
 def keyword_frequency_map(articles):
   kw_map = defaultdict(list)
@@ -161,7 +258,7 @@ def map_topic(topic, dataframe):
     reduced = " ".join(list(map(lambda x: x.summary if x.summary is not None else '', articles[:5])))
     summary = small_summarize_nlp(reduced)
     if len(summary) > 120:
-      nlp_kw = keyword_extractor.keywords_from_string(summary)
+      nlp_kw = keywords_from_string(summary)
       headline = summarize(summary, 1)
     else:
       nlp_kw = None
@@ -225,94 +322,7 @@ def summarize(article_text, sentences):
   print(summary)
   return summary
 
-def summarize_nlp(text, debug=False):
-  if debug is True:
-    print("\n")
-    print(f"SUMMARIZE NLP INPUT: {len(text)}")
-    print(text[:300])
-  long_text = len(text) > 5000
-  sentences = 30
-  while len(text) > 4500:
-    text = summarize(text, sentences)
-    sentences -= 5
-    if debug is True:
-      print(f"\nTRIMMED: {len(text)}")
-
-  if debug is True:
-    print(f"LEGGO: {len(text)}")
-  if long_text is True:
-    print(text[:300])
-  
-  if len(text) < 200:
-    return text
-  elif len(text) < 400:
-    max_length = 100
-    min_length = 20
-  elif len(text) < 600:
-    max_length = 130
-    min_length = 30
-  elif len(text) < 900:
-    max_length = 150
-    min_length = 50
-  elif len(text) < 1400:
-    max_length = 220
-    min_length = 150
-  elif len(text) < 2200:
-    max_length = 180
-    min_length = 80
-  else:
-    max_length = 220
-    min_length = 100
-
-  summary = summarizer(text, max_length=max_length, min_length=min_length, do_sample=False)
-  if debug is True:
-    print(f"\SUMMARY: {len(summary[0]['summary_text'])}")
-    print(summary[0]['summary_text'])
-  return summary[0]['summary_text']
-
-def small_summarize_nlp(text, debug=False):
-  # if debug is True:
-  #   print("\n")
-  #   print(f"SUMMARIZE NLP INPUT: {len(text)}")
-  #   print(text[:300])
-  # long_text = len(text) > 5000
-  # sentences = 30
-  # while len(text) > 4500:
-  #   text = summarize(text, sentences)
-  #   sentences -= 5
-  #   if debug is True:
-  #     print(f"\nTRIMMED: {len(text)}")
-
-  if debug is True:
-    print(f"LEGGO: {len(text)}")
-
-  if len(text) < 100:
-    max_length = 10
-    min_length = 5  
-  if len(text) < 130:
-    max_length = 30
-    min_length = 10
-  elif len(text) < 200:
-    max_length = 60
-    min_length = 30
-  elif len(text) < 400:
-    max_length = 80
-    min_length = 40
-  elif len(text) < 600:
-    max_length = 100
-    min_length = 50
-  elif len(text) < 900:
-    max_length = 120
-    min_length = 60
-  else:
-    max_length = 140
-    min_length = 80
-  
-  summary = summarizer(text, max_length=max_length, min_length=min_length, do_sample=False)
-  if debug is True:
-    print(f"\SUMMARY: {len(summary[0]['summary_text'])}")
-    print(summary[0]['summary_text'])
-  return summary[0]['summary_text']
+# might be a v1 candidate
 
 def get_summary(hours_ago=18):
   hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
