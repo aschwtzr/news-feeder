@@ -30,9 +30,10 @@ def keywords_from_text_title (text, title, debug=False):
   if debug == True:
     print(output)
   return list(map(lambda kw: kw[0], output))
-  
 
 # get keywords from list of titles when body is not enough
+# TODO: remove and use single underlying keywords extractor
+# 
 def keywords_from_title_list (string_list):
   reduced = " ".join(list(map(lambda headline: remove_publication_after_pipe(headline), string_list)))
   kw = keywords_from_string(reduced)

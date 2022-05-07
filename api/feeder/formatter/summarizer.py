@@ -1,43 +1,13 @@
-from feeder.formatter.keyword_extractor_v1 import keywords_from_text_title, remove_known_junk, keywords_from_string
-from transformers import pipeline
+from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk, keywords_from_string
+from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
 
 # ner_pipe = pipeline("ner")
 summarizer = pipeline("summarization")
-
-def update_article_keywords(article, debug=False):
-  cleaned = remove_known_junk(article.raw_text, True)
-  article.raw_text = cleaned
-  keywords = keywords_from_text_title(cleaned, article.title)
-  article.keywords = keywords
-  if article.nlp_kw is None: 
-    update_article_summary(article, debug)
-  if debug == True:
-    # print("AFTER\n")
-    # print(cleaned)
-    print("\nKEYWORDS\n")
-    print(keywords)
-  return article
-
-def update_article_summary(article, debug):
-  try:
-    summary = summarize_nlp(article.raw_text, debug)
-  except IndexError as e:
-    print(f"unable to transform ID: {article.id}, trying NLTK")
-    summary = summarize(article.raw_text, 12)
-  article.summary = summary
-  article.nlp_kw = keywords_from_text_title(article.summary, article.title)
-
-def clean_article_data(article, kw=False, summ=False, debug=False):
-  print(f"ARTICLE_ID: {article.id}")
-  if debug == True:
-    print("BEFORE\n")
-    print(article.raw_text)
-  if kw is True:
-    update_article_keywords(article, debug)
-  if summ is True:
-    update_article_summary(article, debug)
-  article.save()
-  return article
+featurizer = pipeline("feature-extraction")
+tokenizer = AutoTokenizer.from_pretrained("dslim/bert-base-NER")
+model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
+pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="max")
+# text2textizer = pipeline("text2text-generation")
 
 def summarize_nlp(text, debug=False):
   if debug is True:
@@ -47,7 +17,7 @@ def summarize_nlp(text, debug=False):
   long_text = len(text) > 5000
   sentences = 30
   while len(text) > 4500:
-    text = summarize(text, sentences)
+    text = summarizer(text, sentences)
     sentences -= 5
     if debug is True:
       print(f"\nTRIMMED: {len(text)}")

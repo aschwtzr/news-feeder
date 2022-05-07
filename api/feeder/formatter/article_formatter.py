@@ -2,7 +2,7 @@
 
 from feeder.models.article import Article
 from feeder.models.topic import Topic
-from feeder.formatter.keyword_extractor_v1 import remove_known_junk, keywords_from_text_title, keywords_from_string, keywords_from_title_list, remove_publication_after_pipe
+from feeder.formatter.keyword_extractor import remove_known_junk, keywords_from_text_title, keywords_from_string, keywords_from_title_list, remove_publication_after_pipe
 from feeder.util.time_tools import timestamp_string
 from feeder.util.api import get_content_from_uri
 from bs4 import BeautifulSoup

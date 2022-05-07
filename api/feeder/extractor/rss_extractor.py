@@ -34,7 +34,7 @@ def fetch_new_articles(sources):
         # works in theory
         article.save()
 
-# TODO: takes a source param or config
+# TODO: should take a source param or config
 def get_feeds():
   sources = Source.select()
   fetch_new_articles(sources)

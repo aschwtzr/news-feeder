@@ -3,8 +3,6 @@ from feeder.models.article import Article
 from datetime import datetime, timedelta
 import pandas as pd
 import json
-from feeder.models.article import Article
-from datetime import datetime, timedelta
 from functools import reduce
 import operator
 
@@ -55,7 +53,7 @@ def filter(filters):
   return {'or': ored_expr, 'and': anded_expr }
 
 # fix_most_recent(12)
-extract_missing_features(nlp_kw=True, summary=True, hours_ago=24)
+extract_missing_features(nlp_kw=True, summary=True, hours_ago=48)
 
 # res = get_summary()
 
