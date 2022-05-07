@@ -154,10 +154,13 @@ def map_topic(topic, dataframe):
     if article.summary is not None:
       topic_summary += article.summary
   by_brief = sorted(articles, key=lambda x: x.date, reverse=True)
-  if len(articles) > 2: 
+  if len(articles) > 3:
     reduced = " ".join(list(map(lambda x: x.summary if x.summary is not None else '', articles[:5])))
-    summary = small_summarize_nlp(reduced)
-    if len(summary) > 120:
+    try:
+      summary = small_summarize_nlp(reduced)
+    except: 
+      print('too many tokens for summarizer')
+    if summary is not None and len(summary) > 120:
       nlp_kw = keywords_from_string(summary)
       headline = summarize(summary, 1)
     else:
