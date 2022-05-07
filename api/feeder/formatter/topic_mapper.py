@@ -1,52 +1,14 @@
 # general imports
 from collections import Counter, defaultdict
-import pandas as pd
 import json
-from datetime import datetime, timedelta
 
 # feeder imports
-from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk, keywords_from_string
+from feeder.formatter.keyword_extractor import keywords_from_string
 from feeder.formatter.summarizer import summarize_nlp, small_summarize_nlp, summarize_nltk
 import feeder.util.db as db
 from feeder.util.api import summarize_text
 from feeder.models.article import Article
 from feeder.models.topic import Topic
-
-def update_v1_keywords(article, debug=False):
-  cleaned = remove_known_junk(article.raw_text, True)
-  article.raw_text = cleaned
-  keywords = keywords_from_text_title(cleaned, article.title)
-  article.keywords = keywords
-  if debug == True:
-    # print("AFTER\n")
-    # print(cleaned)
-    print("\nKEYWORDS\n")
-    print(keywords)
-  return article
-
-def update_article_summary(article, debug):
-  # TODO: split into nlp_kw and nlp summary
-  try:
-    summary = summarize_nlp(article.raw_text, debug)
-  except IndexError as e:
-    print(f"unable to transform ID: {article.id}, trying NLTK")
-    summary = summarize_nltk(article.raw_text, 12)
-  article.summary = summary
-  article.nlp_kw = keywords_from_text_title(article.summary, article.title)
-
-def clean_article_data(article, kw=False, summ=False, debug=False):
-  print(f"ARTICLE_ID: {article.id}")
-  if debug == True:
-    print("RAW_TEXT - BEFORE\n")
-    print(article.raw_text)
-  if kw is True:
-    update_v1_keywords(article, debug)
-  if summ is True:
-    update_article_summary(article, debug)
-  article.save()
-  return article
-
-# TOPIC MAPPER 
 
 def map_articles(rows):
   articles = []
@@ -184,38 +146,6 @@ def map_topic_test(topic, dataframe):
   topic = Topic(by_brief, topic['keywords'])
   topic.woof()
   return topic
-
-# might be a v1 candidate
-
-def get_summary(hours_ago=18):
-  hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
-  articles = Article.select().where((Article.date > hours_ago_date_time) & (Article.summary.is_null(False)))
-  print(f"ARTICLES IS THIS MANY {len(articles)}")
-  processed = list(map(lambda article: clean_article_data(article, False, False, True), articles))
-  # processed = articles
-
-  mapped_kw = keyword_frequency_map(processed)
-  # print(mapped_kw)
-
-  relationship_map = map_article_relationships(processed, mapped_kw)
-  # print(json.dumps(relationship_map, sort_keys=True, indent=2))
-
-  df = pd.DataFrame(data = list(map(lambda x: [x.source, x.url, x.title, x.date, x.id, x.keywords, x.raw_text, x.summary, x.nlp_kw], processed)), columns = ['source', 'url', 'title', 'date', 'id', 'keywords', 'content', 'summary', 'nlp_kw'])
-
-  topic_map = make_topics_map(processed, relationship_map, df)
-  print_topic_map(topic_map, df)
-  mapped_topics = map(lambda tuple: map_topic(tuple[1], df), topic_map.items())
-  mapped_topics_list = sorted(list(mapped_topics), key=lambda topic: (len(topic.articles), topic.date), reverse=True)   
-      
-  counts = {
-    'articles': len(processed),
-    'topics': len(mapped_topics_list),
-  }
-  return {
-    'counts': counts,
-    'topics': mapped_topics_list,
-    'mapped_kw': mapped_kw
-  }
 
 # res = get_summary()
 

@@ -4,9 +4,9 @@ import yagmail
 
 import pandas as pd
 
-import feeder.formatter.topic_mapper as topic_mapper
+from feeder.reader.reader import get_summary
 from feeder.util.api import summarize_text
-from content_fixer import extract_missing_features
+from feeder.formatter.content_fixer import extract_missing_features
 
 
 def build_email_body (topics, counts, dev_mode = False):
@@ -80,7 +80,7 @@ print(f"""
 """)
 
 extract_missing_features(hours_ago=hours_ago,nlp_kw=True,summary=True,debug=True)
-res = topic_mapper.get_summary(hours_ago)
+res = get_summary(hours_ago)
 # body = build_email_body(res['topics'], res['counts'])
 dev_body = build_email_body(res['topics'], res['counts'], True)
 

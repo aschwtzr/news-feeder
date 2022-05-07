@@ -1,4 +1,6 @@
-from feeder.formatter.topic_mapper import clean_article_data, keyword_frequency_map, map_article_relationships, make_topics_map, print_topic_map, map_topic
+from feeder.formatter.topic_mapper import keyword_frequency_map, map_article_relationships, make_topics_map, print_topic_map, map_topic
+from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk
+from feeder.formatter.summarizer import summarize_nlp, small_summarize_nlp, summarize_nltk
 from feeder.models.article import Article
 from datetime import datetime, timedelta
 import pandas as pd
@@ -6,19 +8,13 @@ import json
 from functools import reduce
 import operator
 
-# db_rows = fetch_articles(18, 15)
-# db_rows = fetch_article(61203)
-# db_rows = fetch_article(61160)
-# db_rows = fetch_article(61154)
-# articles = map_articles(db_rows)
-
 def fix_most_recent(hours_ago=12, nlp_kw= False, summary= False, keywords= False, raw_text= False, debug=True):
     hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
     articles = Article.select().where(Article.date > hours_ago_date_time)
     process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug)
 
 
-def extract_missing_features(hours_ago=48, nlp_kw= False, summary= False, keywords= False, raw_text= False, debug=True):
+def extract_missing_features(hours_ago=48, nlp_kw=False, summary= False, keywords= False, raw_text= False, debug=True):
   hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
   articles = Article.select().where((Article.date > hours_ago_date_time) & (Article.nlp_kw.is_null(nlp_kw)) & (Article.summary.is_null(summary)) & (Article.keywords.is_null(keywords)) & (Article.raw_text.is_null(raw_text)))
   process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug)
@@ -52,11 +48,36 @@ def filter(filters):
   ored_expr = reduce(operator.or_, expression_list)
   return {'or': ored_expr, 'and': anded_expr }
 
-# fix_most_recent(12)
-extract_missing_features(nlp_kw=True, summary=True, hours_ago=48)
+def update_v1_keywords(article, debug=False):
+  cleaned = remove_known_junk(article.raw_text, True)
+  article.raw_text = cleaned
+  keywords = keywords_from_text_title(cleaned, article.title)
+  article.keywords = keywords
+  if debug == True:
+    # print("AFTER\n")
+    # print(cleaned)
+    print("\nKEYWORDS\n")
+    print(keywords)
+  return article
 
-# res = get_summary()
+def update_article_summary(article, debug):
+  # TODO: split into nlp_kw and nlp summary
+  try:
+    summary = summarize_nlp(article.raw_text, debug)
+  except IndexError as e:
+    print(f"unable to transform ID: {article.id}, trying NLTK")
+    summary = summarize_nltk(article.raw_text, 12)
+  article.summary = summary
+  article.nlp_kw = keywords_from_text_title(article.summary, article.title)
 
-
-# article = Article.select().where(Article.id == 61749).execute()[0]
-# clean_article_data(article, False, True, True)
+def clean_article_data(article, kw=False, summ=False, debug=False):
+  print(f"ARTICLE_ID: {article.id}")
+  if debug == True:
+    print("RAW_TEXT - BEFORE\n")
+    print(article.raw_text)
+  if kw is True:
+    update_v1_keywords(article, debug)
+  if summ is True:
+    update_article_summary(article, debug)
+  article.save()
+  return article
