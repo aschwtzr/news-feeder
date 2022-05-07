@@ -159,8 +159,11 @@ def map_topic(topic, dataframe):
     try:
       summary = small_summarize_nlp(reduced)
     except: 
+      print(reduced)
+      for article in articles:
+        print(f"Article Id: {article.id}")
       print('too many tokens for summarizer')
-    if summary is not None and len(summary) > 120:
+    if len(summary) > 120:
       nlp_kw = keywords_from_string(summary)
       headline = summarize(summary, 1)
     else:
