@@ -2,7 +2,7 @@
   <div>
     <news-feed-tabs v-if="user" style="background-color: #F7F7FF; z-index: 10;"/>
     <section class="section">
-      <router-view style=""/>
+      <router-view style="" class="column"/>
     </section>
   </div>
 </template>

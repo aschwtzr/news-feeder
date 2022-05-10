@@ -1,30 +1,42 @@
 <template>
   <div class="card article-card__container">
     <header class="card-header" @click="expanded = !expanded" style="cursor: pointer;">
-      <p class="card-header-title" >
-        {{`${title} ${showSourceInHeader ? ` - ${source}` : ''}`}}
-      </p>
+      <div class="card-header-title" style="display: block!important;">
+        <div class="columns">
+          <div class="column is-1">{{id}}</div>
+          <div class="column is-2">{{formattedDate}}</div>
+          <div class="column is-2">{{source}}</div>
+          <div class="column">{{title}}</div>
+        </div>
+      </div>
       <div class="card-header-icon" aria-label="more options" >
         <span class="icon is-small">
           <i :class="`fas fa-angle-${expanded ? 'down' : 'right'}`"/>
         </span>
       </div>
     </header>
-    <div v-if="summary || content" class="card-content is-loading">
-        <div
-          v-if="!expanded"
-          class="overflowing-text"
-          style="cursor: pointer;"
-          @click="expanded = !expanded">
-          {{ summary || content }}
-        </div>
+    <div class="card-content is-loading">
+        <!-- v-if="!expanded" -->
+      <div
+        class="overflowing-text"
+        style="cursor: pointer;"
+        @click="expanded = !expanded">
+        {{ summary }}
+      </div>
       <div class="article-card__summary" v-show="expanded">
-        <em style="padding-bottom: 1rem;">
-          <time datetime="2016-1-1">{{formattedDate}}</time>
-        </em>
-        <div class="topic__keyword-container smells">
+        <div class="article__keyword-container">
+          NLTK:
           <div
             v-for="(keyword, index) in keywords"
+            :key="`${keyword}-${index}-${id}`"
+            >
+            <button class="button is-white">{{`${keyword} `}}</button>
+          </div>
+        </div>
+        <div class="article__keyword-container">
+          NLP:
+          <div
+            v-for="(keyword, index) in nlp_kw"
             :key="`${keyword}-${index}-${id}`"
             >
             <button class="button is-white">{{`${keyword} `}}</button>
@@ -43,7 +55,7 @@
           :class="button.class()"
           @click="button.callback">
           <span
-            v-if="(loading || summary) && button.title === 'Summarize'"
+            v-if="loading && button.title === 'Summarize'"
             class="icon is-small"
             @click="expanded = !expanded">
             <i
@@ -62,7 +74,7 @@ import moment from 'moment';
 import { mapMutations, mapActions, mapGetters } from 'vuex';
 
 export default {
-  props: ['title', 'url', 'content', 'date', 'summary', 'keywords', 'id', 'showSourceInHeader', 'source'],
+  props: ['title', 'url', 'content', 'date', 'summary', 'keywords', 'nlp_kw', 'id', 'showSourceInHeader', 'source'],
   components: {
   },
   data() {
@@ -79,7 +91,7 @@ export default {
       {
         title: 'Summarize',
         class: this.footerSummarizeClass,
-        callback: this.addToSummarizeFeed,
+        callback: this.summarizeArticle,
       },
       {
         title: 'View',
@@ -92,7 +104,7 @@ export default {
     formattedDate() {
       let formatted = '';
       if (this.date) {
-        formatted = moment(this.date).format('MMMM Do YYYY, HH:mm:ss');
+        formatted = moment(this.date).format('MMMM Do YYYY, HH:mm');
       } else {
         formatted = '';
       }
@@ -115,7 +127,7 @@ export default {
     toggleSaved() {
       this.saved = !this.saved;
     },
-    addToSummarizeFeed() {
+    summarizeArticle() {
     },
     savedButtonClass() {
       return this.articleInSummarizerFeed(this.url) ? 'article-card__confirmed' : '';
@@ -141,11 +153,12 @@ export default {
 <style scoped>
   .overflowing-text {
     margin: 0rem;
-    height: 2.4rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    /* height: 2.4rem; */
+    /* overflow: hidden; */
+    overflow: wrap;
+    /* text-overflow: ellipsis; */
     text-align: start;
-    white-space: nowrap;
+    /* white-space: nowrap; */
   }
 
   .article-card__footer-item {
@@ -184,6 +197,12 @@ export default {
 
   .loading-spinner {
     animation:  1.5s linear infinite rotate;
+  }
+
+  .article__keyword-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 
   @keyframes rotate {

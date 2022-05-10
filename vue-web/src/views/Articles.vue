@@ -1,41 +1,24 @@
 <template>
-  <!-- <div class=""> -->
-    <div class="columns">
-      <div class="column">
-        <div class="table-container">
-          <table class="table tableFixHead
-            is-bordered is-striped is-narrow
-            is-hoverable is-fullwidth"
-            >
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Title</th>
-                <th>Source</th>
-                <th>KW</th>
-                <th>NLP KW</th>
-                <th>Summary</th>
-               <th>Raw Text</th>
-              </tr>
-            </thead>
-              <tbody>
-                <tr v-for="article in articles" :key="article.id">
-                  <td>{{article.id}}</td>
-                  <td>{{article.date}}</td>
-                  <td>{{article.title}}</td>
-                  <td>{{article.source}}</td>
-                  <td>{{article.keywords}}</td>
-                  <td>{{article.nlp_kw}}</td>
-                  <td>{{article.summary}}</td>
-                  <td>{{ articleSubstring(article.raw_text) }}</td>
-                </tr>
-            </tbody>
-          </table>
+  <div class="columns">
+    <div class="column">
+      <div class="" style="height: 94vh; overflow-y: scroll;">
+        <div v-for="article in articles" :key="article.id" style="width: 97.5vw;">
+          <article-card
+            :showSourceInHeader="true"
+            :source="article.source"
+            :title="article.title"
+            :url="article.url"
+            :content="article.raw_text"
+            :date="article.date"
+            :id="article.id"
+            :keywords="article.keywords"
+            :nlp_kw="article.nlp_kw"
+            :summary="article.summary"
+            />
         </div>
       </div>
     </div>
-  <!-- </div> -->
+  </div>
 </template>
 
 <script>
@@ -43,10 +26,14 @@ import {
   mapActions,
   mapState,
 } from 'vuex';
+import ArticleCard from '@/components/article/ArticleCard.vue';
 
 export default {
   data() {
     return {};
+  },
+  components: {
+    ArticleCard,
   },
   methods: {
     ...mapActions({

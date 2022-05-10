@@ -5,7 +5,8 @@ from flask import jsonify
 from feeder.models.source import Source
 from feeder.models.article import Article
 from collections import defaultdict
-from feeder.formatter.topic_mapper import get_summary, summarize
+from feeder.formatter.summarizer import summarize_nltk
+from feeder.reader.reader import get_summary
 from markupsafe import escape
 # import pandas as pd
 # from feeder.util import firebase
@@ -71,47 +72,20 @@ def get_headlines():
   response["ok"] = True
   return jsonify(response)
 
-@app.route('/topics_new', methods=(['GET']))
+@app.route('/summaries', methods=(['GET']))
 def get_topics_new():
-  req_limit = (18 if request.args.get('hours_ago') is None else int(request.args.get('hours_ago')))
+  req_limit = (16 if request.args.get('hours_ago') is None else int(request.args.get('hours_ago')))
   res = get_summary(req_limit)
   results = []
   for topic in res['topics']:
     topic_dict = {
       'keywords': topic.keywords,
+      'nlp_keywords': topic.nlp_kw,
       'date': topic.date.strftime('%m/%d/%Y, %H:%M'),
       'articles': [],
     }
-    if len(topic.articles) > 1:
-      topic_dict['title'] = summarize('. '.join(list(map(lambda x: x.title, topic.articles))), 1)
-      long_string = ''
-      for article in topic.articles:
-        formatted = {
-          'title': article.title,
-          'preview': article.raw_text,
-          'url': article.url,
-          'source': article.source,
-          'date': article.date.strftime('%m/%d/%Y, %H:%M'),
-          'keywords': article.keywords,
-          'id': int(article.id)
-        }
-        topic_dict['articles'].append(formatted)
-        long_string += article.raw_text
-      if len(topic.articles) > 10:
-        sentences = 10
-      elif len(topic.articles) > 6:
-        sentences = 8
-      elif len(topic.articles) > 3:
-        sentences = 6
-      else:
-        sentences = 4
-      long_string.rstrip()
-      topic_dict['topic_summ'] = summarize(long_string, sentences)
-    else:
-      article = topic.articles[0]
-      topic_dict['title'] = article.title
-      topic_dict['topic_summ'] = article.raw_text
-      topic_dict['keywords'] = article.keywords
+    topic_dict['title'] = topic.headline
+    for article in topic.articles:
       formatted = {
         'title': article.title,
         'preview': article.raw_text,
@@ -119,9 +93,12 @@ def get_topics_new():
         'source': article.source,
         'date': article.date.strftime('%m/%d/%Y, %H:%M'),
         'keywords': article.keywords,
+        'nlp_kw': article.nlp_kw,
         'id': int(article.id)
       }
       topic_dict['articles'].append(formatted)
+
+    topic_dict['topic_summ'] = topic.summary
     results.append(topic_dict)
   source = {
     'description': f"News at {time_tools.timestamp_string()}",
@@ -131,7 +108,8 @@ def get_topics_new():
     'ok': True,
     'results': [source],
     'keywords': res['mapped_kw'],
-    'counts': res['counts']
+    'counts': res['counts'],
+    'topics': results
   }
   return jsonify(response)
 

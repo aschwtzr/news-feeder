@@ -120,12 +120,13 @@ def map_topic(topic, dataframe):
       nlp_kw = keywords_from_string(summary)
       headline = summarize_nltk(summary, 1)
     else:
-      nlp_kw = None
-      headline = None
+      nlp_kw = keywords_from_string(reduced)
+      headline = summarize_nltk(reduced, 1)
   else:
-    nlp_kw = None
-    headline = None
-    summary = None
+    reduced = " ".join(list(map(lambda x: x.summary if x.summary is not None else '', articles)))
+    nlp_kw = keywords_from_string(reduced) if len(articles) > 2 else articles[0].nlp_kw
+    headline = summarize_nltk(reduced, 1) if len(articles) > 2 else articles[0].title
+    summary = summarize_nltk(reduced, 3) if len(articles) > 2 else articles[0].summary
   return Topic(by_brief, topic['keywords'], headline, summary, nlp_kw)
 
 def map_topic_test(topic, dataframe):

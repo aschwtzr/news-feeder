@@ -85,7 +85,7 @@ const feeds = {
         options.push(userSourceString);
       }
       getTopics(options).then((res) => {
-        commit('setTopics', res.data.results);
+        commit('setTopics', res.data.topics);
         commit('setKeywords', { ...res.data.keywords });
         commit('setCounts', { ...res.data.counts, keywords: res.data.keywords.length });
         commit('setMappedKeywords', { ...res.data.keywords });

@@ -26,5 +26,5 @@ def create_app(test_config=None):
   with app.app_context():
     from . import routes
     
-  CORS(app)
+  CORS(app, resources={r"/*": {"origins": "*"}})
   return app
