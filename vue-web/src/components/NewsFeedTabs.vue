@@ -31,14 +31,19 @@ export default {
         icon: 'newspaper',
       },
       {
+        description: 'Articles',
+        routeName: 'articles',
+        icon: 'rss',
+      },
+      {
+        description: 'Pipelines',
+        routeName: 'pipelines',
+        icon: 'code',
+      },
+      {
         description: 'Settings',
         routeName: 'settings',
         icon: 'cog',
-      },
-      {
-        description: 'Articles',
-        routeName: 'articles',
-        icon: 'newspaper',
       },
       // {
       //   description: 'Feed',

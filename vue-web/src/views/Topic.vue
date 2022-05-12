@@ -75,6 +75,7 @@ import { mapMutations, mapActions, mapState } from 'vuex';
 import Card from '../components/Card.vue';
 
 export default {
+  name: 'Topic',
   props: [],
   components: {
     Card,

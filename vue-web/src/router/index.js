@@ -20,8 +20,8 @@ const routes = [
   },
   {
     path: '/',
-    name: 'summaries',
-    component: () => import(/* webpackChunkName: "entry" */ '../views/Summaries.vue'),
+    name: 'home',
+    component: () => import(/* webpackChunkName: "entry" */ '../views/Pipelines.vue'),
   },
   {
     path: '/topic',
@@ -42,6 +42,11 @@ const routes = [
     path: '/articles',
     name: 'articles',
     component: () => import(/* webpackChunkName: "admin" */ '../views/Articles.vue'),
+  },
+  {
+    path: '/pipelines',
+    name: 'pipelines',
+    component: () => import(/* webpackChunkName: "admin" */ '../views/Pipelines.vue'),
   },
 ];
 

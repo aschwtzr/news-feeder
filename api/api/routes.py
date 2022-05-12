@@ -7,6 +7,7 @@ from feeder.models.article import Article
 from collections import defaultdict
 from feeder.formatter.summarizer import summarize_nltk
 from feeder.reader.reader import get_summary
+from feeder.extractor.rss_extractor import get_feeds
 from markupsafe import escape
 # import pandas as pd
 # from feeder.util import firebase
@@ -173,14 +174,31 @@ def get_articles_dead():
 # list of available news sources
 @app.route('/sources', methods=(['GET']))
 def get_sources():
-  # sources = firebase.get_default_sources()
+  query = Source.select()
+  source_ids = request.args.get('sourceIds')
   res = []
-  for key in sources.keys():
-    source = {}
-    source.update(sources[key])
-    source.update({"id": key})
-    res.append(source)
+  if source_ids is not None:
+    query = query.where(Source.id.in_(source_ids))
+  for source in query:
+    res.append({
+      'id': source.id,
+      'description': source.description,
+      'key': source.key,
+      'category': source.category,
+      'default_limit': source.default_limit,
+      'url': source.url,
+      'active': source.active
+    })
   ret = { 'ok': True, 'sources': res }
+  return jsonify(ret)
+
+@app.route('/rss_data', methods=(['GET']))
+def rss_data():
+  source_ids = request.args.get('ids')
+  # print(source_ids)
+  raw_data = get_feeds(source_ids)
+  print(raw_data)
+  ret = { 'ok': True, 'raw_data': raw_data }
   return jsonify(ret)
 
 @app.route('/custom-feeds', methods=(['GET']))

@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import settings from './settings';
 import feeds from './feeds';
+import pipelines from './pipelines';
 import topic from './topic';
 /* eslint-disable import/prefer-default-export */
 Vue.use(Vuex);
@@ -11,6 +12,7 @@ export default new Vuex.Store({
     settings,
     feeds,
     topic,
+    pipelines,
   },
   state: {
   },

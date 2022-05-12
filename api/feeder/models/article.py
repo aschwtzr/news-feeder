@@ -29,6 +29,19 @@ class Article(BaseModel):
   def get_keywords(self):
     self.summary = (self.summary if self.summary is None else self.raw_text)
 
+  def to_dict(self):
+    return {
+        'source': self.source,
+        'date': self.date,
+        'url': self.url,
+        'title': self.title,
+        'raw_text': self.raw_text,
+        'keywords': self.keywords,
+        'id': self.id,
+        'summary': self.summary,
+        'nlp_kw': self.nlp_kw
+    }
+
   def woof(self):
     print(f"{self.source} --  {self.title}")
     # print(f"url: {self.url[:50]}...")

@@ -17,6 +17,20 @@ class Topic:
   def set_keywords(self, keywords):
     self.keywords = keywords
 
+  def to_dict(self):
+    if self.articles is not None: 
+      articles = list(map(lambda art: art.to_dict(), self.articles)),
+    else:
+      articles = []
+    return {
+        'date': self.date,
+        'headline': self.headline,
+        'keywords': self.keywords,
+        'articles': articles,
+        'summary': self.summary,
+        'nlp_kw': self.nlp_kw
+    }
+
   def woof(self):
     print(f"{self.headline}")
     print(f"{len(self.articles)} articles")
