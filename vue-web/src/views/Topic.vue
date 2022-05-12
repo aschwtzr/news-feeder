@@ -17,6 +17,16 @@
         {{kw}}
       </div>
     </div>
+    <div class="columns is-multiline" style="width: 90vw;">
+      <div
+        v-for="kw in nlp_kw"
+        :key="`${kw}`"
+        class="column is-narrow"
+        style="padding: 0rem 0.75rem;"
+        >
+        {{kw}}
+      </div>
+    </div>
     <!-- <div>{{articles.length}}
         {{articles.map(art => art.source).join(', ')}}</div> -->
     <!-- <br> -->
@@ -33,9 +43,13 @@
           :keywords="article.keywords"
           :id="article.id"
           :nlp_kw="article.nlp_kw"
-          :content="article.raw_text"
+          :preview="article.summary"
           :topic_kw="keywords"
-        />
+        >
+          <div>
+            {{article.raw_text}}
+          </div>
+        </card>
         <!-- :preview="article.preview" -->
         <!-- <div class="columns is-multiline">
           <div class="column is-full">{{article.source}} - {{article.title}}</div>

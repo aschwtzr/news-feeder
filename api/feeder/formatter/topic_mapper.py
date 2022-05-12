@@ -19,6 +19,7 @@ def map_articles(rows):
 def keyword_frequency_map(articles):
   kw_map = defaultdict(list)
   for article in articles:
+    keywords = article.keywords + article.nlp_kw
     for keyword in article.keywords:
       kw_map[keyword].append(article.id)
   return dict(sorted(kw_map.items(), key=lambda item: len(item[1]), reverse=True))

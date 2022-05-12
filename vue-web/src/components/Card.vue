@@ -1,5 +1,5 @@
 <template>
-  <div class="card article-card__container">
+  <div class="card__container">
     <header class="card-header" @click="expanded = !expanded" style="cursor: pointer;">
       <div class="card-header-title" style="display: block!important;">
         <div class="columns">
@@ -22,35 +22,35 @@
         @click="expanded = !expanded">
         {{ preview }}
       </div>
+      <div class="article__keyword-container" v-if="keywords.length">
+        NLTK: <br>
+        <span
+          v-for="(keyword, index) in keywords"
+          :key="`${keyword}-${index}-${id}`"
+          :class="`tag ${keywordClass(keyword)}`"
+          >
+          {{keyword}}
+        </span>
+      </div>
+      <div class="article__keyword-container" v-if="nlp_kw">
+        NLP: <br>
+        <span
+          v-for="(keyword, index) in nlp_kw"
+          :key="`${keyword}-${index}-${id}`"
+          :class="`tag ${keywordClass(keyword)}`"
+          >
+          {{keyword}}
+        </span>
+      </div>
       <div class="article-card__summary" v-show="expanded">
-        <div class="article__keyword-container" v-if="keywords.length">
-          NLTK: <br>
-          <span
-            v-for="(keyword, index) in keywords"
-            :key="`${keyword}-${index}-${id}`"
-            :class="`tag ${keywordClass(keyword)}`"
-            >
-            {{keyword}}
-          </span>
-        </div>
-        <div class="article__keyword-container" v-if="nlp_kw">
-          NLP: <br>
-          <span
-            v-for="(keyword, index) in nlp_kw"
-            :key="`${keyword}-${index}-${id}`"
-            :class="`tag ${keywordClass(keyword)}`"
-            >
-            {{keyword}}
-          </span>
-        </div>
         <div>
-          <!-- <slot name="content"/> -->
-          {{content}}
+          <slot></slot>
+          <!-- {{content}} -->
         </div>
       </div>
     </div>
       <footer class="card-footer" style="background-color: #F7F7FF; border: 1px solid #dbdbdb;">
-        <button
+        <a
           v-for="button in buttons"
           :key="button.title"
           class="card-footer-item"
@@ -66,7 +66,7 @@
           <div v-else>
             {{button.title}}
           </div>
-        </button>
+        </a>
       </footer>
   </div>
 </template>
@@ -122,4 +122,70 @@ export default {
 </script>
 
 <style scoped>
+  .card__container {
+    margin-bottom: 1.5rem;
+    border: .75px solid rgb(121, 87, 213, .5);
+  }
+  .overflowing-text {
+    margin: 0rem;
+    /* height: 2.4rem; */
+    /* overflow: hidden; */
+    overflow: wrap;
+    /* text-overflow: ellipsis; */
+    text-align: start;
+    /* white-space: nowrap; */
+  }
+
+  /* .article-card__footer-item {
+    cursor: pointer;
+  }
+
+  .article-card__container {
+    margin-bottom: 1.5rem;
+    border: .75px solid rgb(121, 87, 213, .5);
+  }
+
+  .article-card__summary {
+    text-align: initial;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .article-card__confirmed {
+    background-color:rgba(99, 180, 209, 0.5);
+  }
+
+  .article-card__unavailable {
+    opacity: 40%;
+    cursor: default;
+  }
+
+  .article-card__unavailable:hover {
+    opacity: 40%;
+    cursor: default;
+    background-color:rgb(255, 255, 255)!important;
+  }
+
+  .card-footer-item:hover {
+    background-color:rgba(121, 87, 213, 0.5);
+  }
+
+  .loading-spinner {
+    animation:  1.5s linear infinite rotate;
+  }
+
+  .article__keyword-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg)
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  } */
 </style>

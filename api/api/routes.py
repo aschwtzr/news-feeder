@@ -88,7 +88,8 @@ def get_topics_new():
     for article in topic.articles:
       formatted = {
         'title': article.title,
-        'preview': article.raw_text,
+        'summary': article.summary,
+        'raw_text': article.raw_text,
         'url': article.url,
         'source': article.source,
         'date': article.date.strftime('%m/%d/%Y, %H:%M'),
