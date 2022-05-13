@@ -1,5 +1,5 @@
 # A utility for debugging source and keyword extraction 
-from feeder.common.source import google, guardian, bbc, reuters, dw
+from feeder.models.source import google, guardian, bbc, reuters, dw
 from collections import defaultdict
 
 topics = defaultdict(list)

@@ -1,7 +1,6 @@
 import os
 from flask import Flask
 from flask_cors import CORS
-# from .. import feeder
 
 def create_app(test_config=None):
   # create and configure the app
@@ -27,5 +26,5 @@ def create_app(test_config=None):
   with app.app_context():
     from . import routes
     
-  CORS(app)
+  CORS(app, resources={r"/*": {"origins": "*"}})
   return app

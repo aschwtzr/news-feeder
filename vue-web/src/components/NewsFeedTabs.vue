@@ -24,23 +24,32 @@ export default {
   name: 'NewsFeedTabs',
   data() {
     return {
-      current: '',
+      current: 'summaries',
       tabOptions: [{
-        description: 'Feed',
-        routeName: 'feed',
-        icon: 'rss',
-      },
-      // will need to add these back in once the mvp is up
-      {
         description: 'Summaries',
         routeName: 'summaries',
         icon: 'newspaper',
+      },
+      {
+        description: 'Articles',
+        routeName: 'articles',
+        icon: 'rss',
+      },
+      {
+        description: 'Pipelines',
+        routeName: 'pipelines',
+        icon: 'code',
       },
       {
         description: 'Settings',
         routeName: 'settings',
         icon: 'cog',
       },
+      // {
+      //   description: 'Feed',
+      //   routeName: 'feed',
+      //   icon: 'rss',
+      // },
       // {
       //   description: 'Admin',
       //   routeName: 'admin',

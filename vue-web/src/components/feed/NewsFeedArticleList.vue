@@ -3,34 +3,23 @@
     <div
       v-for="(source, index) in briefings"
       :key="`${source.description}-${index}`"
-      class="topic-source-wrapper">
+      class="feed-topic-source-wrapper">
       <strong v-if="groupedBySource"> {{source.description}} </strong>
-      <div v-for="topic in source.topics" :key="topic.keywords.join('')" >
-        <div :style="groupedBySource ? '': 'font-weight: strong'">
-          keywords: {{topic.keywords.join(', ')}}
-        </div>
-        <div v-for="(article, index) in topic.articles" :key="`${source}-${index}`">
-          <strong v-if="!groupedBySource"> {{article.source}} </strong>
-          <article-card
-            :title="article.title"
-            :url="article.url"
-            :content="article.preview"
-            :date="article.date"
-            :summary="article.summary || false"
-            />
-        </div>
+      <div v-for="topic in source.topics" :key="topic.title">
+        <Topic :topic="topic" :groupedBySource="groupedBySource"/>
+        <br>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import ArticleCard from '@/components/article/ArticleCard.vue';
+import Topic from '@/components/feed/Topic.vue';
 
 export default {
   name: 'NewsFeedArticleList',
   components: {
-    ArticleCard,
+    Topic,
   },
   props: {
     groupedBySource: {
@@ -50,7 +39,7 @@ export default {
 </script>
 
 <style>
-  .topic-source-wrapper {
+  .feed-topic-source-wrapper {
     margin-bottom: 3rem;
   }
 </style>

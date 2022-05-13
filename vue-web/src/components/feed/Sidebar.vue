@@ -13,7 +13,7 @@
     </p>
     <ul class="menu-list">
       <li v-for="keyword in keywords" :key="keyword">
-        <a @click="toggleSort(keyword)">{{keyword}}</a>
+        <button class="button is-white" @click="toggleSort(keyword)">{{keyword}}</button>
       </li>
     </ul>
   </aside>
@@ -26,7 +26,7 @@ export default {
   data() {
     return {
       viewIndex: 0,
-      views: ['feed', 'keywords'],
+      views: ['keywords', 'sources'],
     };
   },
   methods: {

@@ -4,10 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
 
 [packages]
 beautifulsoup4 = "*"
-gensim = "*"
 lxml = "*"
 flask = "*"
 html5lib = "*"
@@ -16,6 +16,10 @@ flask-cors = "*"
 uwsgi = "*"
 pattern = "*"
 google-cloud-firestore = "*"
+nltk = "*"
+sklearn = "*"
+psycopg2 = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"

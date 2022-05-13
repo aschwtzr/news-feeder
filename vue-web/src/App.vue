@@ -1,15 +1,16 @@
 <template>
-  <section id="app" >
+  <div>
     <news-feed-tabs v-if="user" style="background-color: #F7F7FF; z-index: 10;"/>
-    <router-view style="padding-top: 2.75rem; height: 100vh" />
-  </section>
+    <section class="section">
+      <router-view style="" class="column"/>
+    </section>
+  </div>
 </template>
 
 <script>
 // import firebase from 'firebase';
 import { mapState, mapActions } from 'vuex';
 import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
-// import { getUserProfile } from './util/firebase';
 
 export default {
   name: 'App',
@@ -27,18 +28,17 @@ export default {
     }),
   },
   mounted() {
-    this.getAvailableSources();
+    // this.getAvailableSources();
   },
 };
 </script>
 
 <style lang="scss">
-
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
+    // text-align: center;
     color: #2c3e50;
   }
 
@@ -55,5 +55,5 @@ export default {
     }
   }
   @import "~bulma";
-  @import "~buefy/src/scss/buefy";
 </style>
+<!--  // @import "~buefy/src/scss/buefy";-->

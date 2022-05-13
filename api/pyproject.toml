@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "news-feeder-keywords"
+version = "0.1.0"
+description = "NLP project for news-feeder app"
+authors = ["Albert Schweitzer"]
+
+[tool.poetry.dependencies]
+python = "3.9.10"
+transformers = "^4.18.0"
+torch = "^1.11.0"
+torchvision = "^0.12.0"
+torchaudio = "^0.11.0"
+beautifulsoup4 = "^4.11.1"
+yagmail = "^0.15.277"
+Flask = "^2.1.2"
+psycopg2-binary = "^2.9.3"
+yake = "^0.4.8"
+pandas = "^1.4.2"
+peewee = "^3.14.10"
+numpy = "^1.22.3"
+Flask-Cors = "^3.0.10"
+nltk = "^3.7"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -105,7 +105,7 @@
               type="email"
               v-model="alternateEmailInput"
               v-on:keyup.enter="setEmail"
-              placeholder="alias@tafka.io"
+              placeholder="alias@newssumm.io"
               >
           </div>
             <div class="control" @click="setEmail">

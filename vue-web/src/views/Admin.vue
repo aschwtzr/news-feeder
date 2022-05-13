@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { getSources } from '../util/firebase';
+// import { getSources } from '../util/firebase';
 
 export default {
   data() {
@@ -21,9 +21,6 @@ export default {
     };
   },
   methods: {
-    updateSources() {
-      getSources();
-    },
   },
   mounted() {
     const array = new Uint32Array(3);
