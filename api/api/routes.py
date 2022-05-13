@@ -195,8 +195,9 @@ def get_sources():
 @app.route('/rss_data', methods=(['GET']))
 def rss_data():
   source_ids = request.args.get('ids')
-  # print(source_ids)
-  raw_data = get_feeds(source_ids)
+  limit = request.args.get('limit')
+  print(limit)
+  raw_data = get_feeds(source_ids, json_only=True, limit=limit)
   print(raw_data)
   ret = { 'ok': True, 'raw_data': raw_data }
   return jsonify(ret)

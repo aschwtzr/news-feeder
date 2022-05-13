@@ -27,9 +27,13 @@ export const getTopics = () => {
   return baseAxios.get('/summaries');
 };
 
-export const getRSSData = (articleIds) => {
-  console.log(articleIds);
-  return baseAxios.get(`/rss_data?${articleIds.length > 0 ? `ids=${articleIds}` : ''}`);
+export const getRSSData = (sourceIds, limit) => {
+  const baseUrl = '/rss_data?';
+  const sourceFilter = `${sourceIds.length > 0 ? `ids=${sourceIds}` : ''}`;
+  const mid = `${sourceFilter.length > 0 ? '&' : ''}`;
+  /* eslint-disable no-extra-boolean-cast */
+  const limitFilter = `${!!limit ? `limit=${limit}` : ''}`;
+  return baseAxios.get(`${baseUrl}${sourceFilter}${mid}${limitFilter}`);
 };
 
 export const getSummaryForURL = (url) => {
