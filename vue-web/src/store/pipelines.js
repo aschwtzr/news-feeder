@@ -7,7 +7,8 @@ const pipelines = {
   namespaced: true,
   state: {
     sources: [],
-    feed_data: {},
+    rawData: [],
+    feedData: {},
   },
   mutations: {
     setSources(state, sources) {

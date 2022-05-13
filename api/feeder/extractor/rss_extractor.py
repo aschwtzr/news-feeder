@@ -7,24 +7,6 @@ from feeder.extractor.feed_parser import extract_url
 from playhouse.shortcuts import model_to_dict
 import json
 
-def fetch_new_articles(sources, json_only = False):
-  now = datetime.now()
-  timestamp = now.strftime('%m/%d/%Y, %H:%M:%S')
-  feed_data = []
-  
-  print(f"""
-  *****************************************  
-  *****************************************  
-    FETCHING NEWS AT {timestamp}
-  *****************************************  
-  *****************************************  
-  """)
-  for source in sources:
-    print(f"fetching {source.description}")
-    source_topics = fetch_articles_for_feed(source)
-    feed_data.append(source_topics)
-  return feed_data
-
 def fetch_articles_for_feed(source, json_only = False):
   # print(f"again {source.description}")
   topics = source.map_topic_stream(2)
@@ -63,6 +45,22 @@ def get_feeds(feed_ids = None, json_only = False):
     query = query.where(Source.id.in_(feed_ids.split(',')))
   # for source in query:
   #   print(f"Fetching articles for {source.description}")
-  feeds = fetch_new_articles(query, json_only)
-  return feeds
+  print_timestamp()
 
+  feed_data = []
+  for source in query:
+    print(f"fetching {source.description}")
+    source_topics = fetch_articles_for_feed(source, json_only)
+    feed_data.append(source_topics)
+  return feed_data
+
+def print_timestamp():
+  now = datetime.now()
+  timestamp = now.strftime('%m/%d/%Y, %H:%M:%S')
+  print(f"""
+  *****************************************  
+  *****************************************  
+    FETCHING NEWS AT {timestamp}
+  *****************************************  
+  *****************************************  
+  """)
