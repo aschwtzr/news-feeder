@@ -68,7 +68,7 @@ def build_email_body (topics, counts, dev_mode = False):
 
 start = datetime.now()
 st_timestamp = start.strftime('%m/%d/%Y, %H:%M')
-hours_ago = 48
+hours_ago = 16
 
 print(f"""
 *****************************************  
@@ -79,7 +79,7 @@ print(f"""
 *****************************************  
 """)
 
-extract_missing_features(hours_ago=hours_ago,debug=True)
+extract_missing_features(hours_ago=hours_ago, debug=False)
 res = get_summary(hours_ago)
 # body = build_email_body(res['topics'], res['counts'])
 dev_body = build_email_body(res['topics'], res['counts'], True)
