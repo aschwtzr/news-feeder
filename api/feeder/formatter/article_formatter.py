@@ -34,21 +34,22 @@ def get_full_text(url):
   # print(soup.prettify())
   if soup['ok'] == True:
     paragraphs = get_soup_paragraphs(soup['soup'])
-    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), paragraphs))
-    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "accesstobeta__text"), paragraphs))
-    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "cookie__text"), paragraphs))
-    text = '\n\n'.join(map(lambda p: p.get_text(), filtered))
-    print("### BEFORE")
-    print(text)
-    print("###")
-    print("### REMOVE JUNK")
-    text = remove_known_junk(text, False)
-    print(text)
-    print("###")
+    text = clean_soup_text(paragraphs)
     return {'ok': True, 'text': text}
   else:
     print('### NO TEXT')
     return {'ok': False, 'text': soup['content']}
+
+def clean_soup_text(string_arrays):
+  text = '\n\n'.join(map(lambda p: p.get_text(), string_arrays))
+  print("### BEFORE")
+  print(text)
+  print("###")
+  print("### REMOVE JUNK")
+  text = remove_known_junk(text, False)
+  print(text)
+  print("###")
+  return text
 
 def filter_in_class(classes_array, filter_class):
   if classes_array is None:
@@ -123,6 +124,8 @@ def guardian (article):
 
 def parse_guardian (content):
   soup = BeautifulSoup(content, "html.parser")
+  # filtered = list(filter(lambda p: filter_in_class(p.get('class'), "accesstobeta__text"), paragraphs))
+  # filtered = list(filter(lambda p: filter_in_class(p.get('class'), "cookie__text"), paragraphs))
   content_p_tags = soup.find_all('p')
   text = ''
   for index, p in enumerate(content_p_tags):
@@ -133,16 +136,39 @@ def parse_guardian (content):
   return text
 
 def dw (article):
-  topic = default(article[0], 'Deutsche Welle')
+  defaults = default(article[0], 'Deutsche Welle')
+  if defaults['ok'] == True:
+    paragraphs = defaults['paragraphs']
+    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "Deutsche Welle"), paragraphs))
+    raw_text = clean_soup_text(filtered)
+    topic = kw_art_top(raw_text, defaults['url'], defaults['title'], 'BBC', defaults['timestamp'])
+    return topic
+  else:
+    return defaults
   return topic
 
 def az_central (article):
-  topic = default(article[0], 'AZ Central')
+  defaults = default(article[0], 'AZ Central')
+  if defaults['ok'] == True:
+    paragraphs = defaults['paragraphs']
+    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), paragraphs))
+    raw_text = clean_soup_text(filtered)
+    topic = kw_art_top(raw_text, defaults['url'], defaults['title'], 'AZ Central', defaults['timestamp'])
+    return topic
+  else:
+    return defaults
   return topic
 
 def bbc (article):
-  topic = default(article[0], 'BBC')
-  return topic
+  defaults = default(article[0], 'BBC')
+  if defaults['ok'] == True:
+    paragraphs = defaults['paragraphs']
+    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), paragraphs))
+    raw_text = clean_soup_text(filtered)
+    topic = kw_art_top(raw_text, defaults['url'], defaults['title'], 'BBC', defaults['timestamp'])
+    return topic
+  else:
+    return defaults
 
 def kw_art_top (raw_text, url, title, source, timestamp):
   keywords = keywords_from_text_title(raw_text, title)
@@ -150,16 +176,9 @@ def kw_art_top (raw_text, url, title, source, timestamp):
   return Topic([article], keywords)
 
 def default (article, source):
-  url_title = common_fields(article)
-  if article.pubDate is not None:
-   timestamp = article.pubDate.string
-  elif article.date is not None:
-    timestamp = article.date.string
-  else:
-    timestamp = timestamp_string()
-  # return get_soup(url_title['url'])
-  raw_text = raw_text_from_uri(url_title['url'])
-  return kw_art_top(raw_text, url_title['url'], url_title['title'], source, timestamp)
+  url_title_ts = common_fields(article)
+  return url_title_ts
+  # raw_text = raw_text_from_uri(url_title['url'])
 
 def raw_text_from_uri(uri):
   raw_text = get_full_text(uri)
@@ -177,7 +196,24 @@ def raw_text_from_uri(uri):
   return head
 
 def common_fields(article_soup):
-  return {
-    'url': article_soup.link.string,
-    'title': article_soup.title.string
-  }
+  if article_soup.pubDate is not None:
+   timestamp = article_soup.pubDate.string
+  elif article_soup.date is not None:
+    timestamp = article_soup.date.string
+  else:
+    timestamp = timestamp_string()
+  url = article_soup.link.string
+  soup = get_soup(url)
+  if soup['ok'] == True:
+    paragraphs = get_soup_paragraphs(soup['soup'])
+    return {
+      'ok': True,
+      'url': url,
+      'title': article_soup.title.string,
+      'timestamp': timestamp,
+      'paragraphs': paragraphs
+    }
+  else:
+    print('### NO TEXT')
+    return {'ok': False, 'text': soup['content']}
+  # paragraphs = get_soup_paragraphs(soup)
