@@ -42,7 +42,6 @@ def fetch_articles_for_feed(source, json_only = False, limit = None):
 
 # TODO: should be able to merge this with the fetch_new_articles
 def get_feeds(feed_ids = None, json_only = False, limit = None):
-  print(limit)
   query = Source.select()
   if feed_ids is not None:
     query = query.where(Source.id.in_(feed_ids.split(',')))
@@ -53,8 +52,7 @@ def get_feeds(feed_ids = None, json_only = False, limit = None):
   feed_data = []
   for source in query:
     print(f"fetching {source.description}")
-    print(f"### LIMIT {limit}")
-    source_topics = fetch_articles_for_feed(source, json_only, 2)
+    source_topics = fetch_articles_for_feed(source, json_only, limit)
     source_dict = {
       'description': source.description,
       'id': source.id,

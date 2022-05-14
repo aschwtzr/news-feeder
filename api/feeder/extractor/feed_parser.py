@@ -5,16 +5,16 @@ from feeder.formatter import article_formatter
 
 def parse_feed_data (source, data, limit, supplied_formatter=None):
   topics = []
-  try:
-    soup = BeautifulSoup(data, 'xml')
-    items = soup.findAll('item')
-    for index, topic in enumerate(items):
-      topic = supplied_formatter(topic)
-      topics.append(topic)
-      if index >= limit - 1:
-        break
-  except TypeError as error:
-    print(f"Unable to parse feed for {source}", error)
+  # try:
+  soup = BeautifulSoup(data, 'xml')
+  items = soup.findAll('item')
+  for index, topic in enumerate(items):
+    topic = supplied_formatter(topic)
+    topics.append(topic)
+    if index >= limit - 1:
+      break
+  # except TypeError as error:
+  #   print(f"Unable to parse feed for {source}", error)
   return topics
 
 def extract_url(google_url):

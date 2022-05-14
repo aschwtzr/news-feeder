@@ -24,7 +24,7 @@ export default {
   name: 'NewsFeedTabs',
   data() {
     return {
-      current: 'summaries',
+      current: 'pipelines',
       tabOptions: [{
         description: 'Summaries',
         routeName: 'summaries',

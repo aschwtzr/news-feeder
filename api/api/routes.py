@@ -8,6 +8,7 @@ from collections import defaultdict
 from feeder.formatter.summarizer import summarize_nltk
 from feeder.reader.reader import get_summary
 from feeder.extractor.rss_extractor import get_feeds
+from feeder.formatter.article_formatter import raw_text_from_uri
 from markupsafe import escape
 # import pandas as pd
 # from feeder.util import firebase
@@ -196,9 +197,9 @@ def get_sources():
 def rss_data():
   source_ids = request.args.get('ids')
   limit = request.args.get('limit')
-  print(limit)
+  if limit is not None:
+    limit = int(limit)
   raw_data = get_feeds(source_ids, json_only=True, limit=limit)
-  print(raw_data)
   ret = { 'ok': True, 'raw_data': raw_data }
   return jsonify(ret)
 
@@ -236,3 +237,26 @@ def get_articles(*kwargs):
   for row in rows.iterator():
     articles.append(row)
   return jsonify({'articles': articles})
+
+@app.route('/articles/extract', methods=(['POST']))
+def extract_article_data(*kwargs):
+  ext_content = request.json.get('content')
+  ext_keywords = request.json.get('keywords')
+  art_id = request.json.get('id')
+  if ext_content is True:
+    url = request.json.get('url')
+    source_id = request.json.get('source_id')
+    raw = raw_text_from_uri(url)
+    res = {
+      'operation': 'raw_text_from_uri',
+      'input': url,
+      'output': raw
+    }
+    return jsonify(res)
+
+
+  # row = Article.select().where(Article.id == post_id).dicts()
+  # if len(row) > 0:
+  #   return jsonify(row[0])
+  # else:
+  #   return {}

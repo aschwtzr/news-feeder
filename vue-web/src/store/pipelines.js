@@ -37,20 +37,19 @@ const pipelines = {
     getRSSData({ commit }, payload) {
       return new Promise((resolve, reject) => {
         getRSSData(payload.sourceIds, payload.limit).then((results) => {
-          /* eslint-disable no-param-reassign */
-          console.log(results.data.raw_data);
-          // const sources = results.data.sources.reduce((acc, curr) => {
-          //   acc[curr.id] = curr;
-          //   return acc;
-          // }, {});
-          // console.log(sources);
-          // /* eslint-enable no-param-reassign */
           commit('setFeedData', results.data.raw_data);
-          resolve(results);
+          resolve(results.data.raw_data);
         }).catch(error => reject(error));
       });
     },
   },
+  // extractContent({ commit }, payload) {
+  //   return new Promise((resolve, reject) => {
+  //     extractContent(payload.url).then((results) => {
+  //       resolve(results.data.raw_data);
+  //     }).catch(error => reject(error));
+  //   })
+  // },
 };
 
 export default pipelines;

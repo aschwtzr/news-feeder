@@ -27,7 +27,7 @@ class Source(BaseModel):
       return []
     return data['data']
 
-  def map_topic_stream(self, limit=99):
+  def map_topic_stream(self, limit=20):
     # map over rss feed into articles clustered as topics (to accommodate google news)
     data = self.get_raw_data()
     topic_stream = feed_parser.parse_feed_data(self.key, data, limit, self.description_parser)

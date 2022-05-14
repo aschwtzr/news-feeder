@@ -27,6 +27,10 @@ export const getTopics = () => {
   return baseAxios.get('/summaries');
 };
 
+export const extractContent = (data) => {
+  return baseAxios.post('/articles/extract', data);
+};
+
 export const getRSSData = (sourceIds, limit) => {
   const baseUrl = '/rss_data?';
   const sourceFilter = `${sourceIds.length > 0 ? `ids=${sourceIds}` : ''}`;
