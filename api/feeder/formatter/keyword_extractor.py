@@ -29,7 +29,8 @@ def keywords_from_text_title (text, title, debug=False):
     output = word_ranker(f"{title} {text}")
   if debug == True:
     print(output)
-  return list(map(lambda kw: kw[0], output))
+  keywords = list(map(lambda kw: kw[0], output))
+  return keywords
 
 # get keywords from list of titles when body is not enough
 # TODO: remove and use single underlying keywords extractor

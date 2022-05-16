@@ -21,6 +21,8 @@ class Article(BaseModel):
   summary = TextField(column_name='smr_summary')
   # nlp api keywords
   nlp_kw = ArrayField(column_name='smr_keywords')
+  named_entities = ArrayField()
+  paragraphs = ArrayField()
   
   def get_smmry(self):
     text = get_summary(self.url)

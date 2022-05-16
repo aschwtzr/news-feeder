@@ -5,6 +5,7 @@ from playhouse.shortcuts import model_to_dict
 import json
 from bs4 import BeautifulSoup
 from feeder.util.api import get_data_from_uri
+from feeder.formatter.article_formatter import kw_art_top
 
 def extract_url(google_url):
   print(f'fetching {google_url}')
@@ -32,34 +33,38 @@ def fetch_articles_for_feed(source, json_only = False, limit = None):
   # TODO: return articles instead of topics
   # print(f"again {source.description}")
   if limit is not None:
-    topics = source.map_topic_stream(limit)
+    topics, articles, events = source.map_topic_stream(limit)
   else:
-    topics = source.map_topic_stream()
+    topics, articles, events = source.map_topic_stream()
   topics_arr = []
+  articles_arr = []
   # print(topics)
   for topic in topics:
+    # filter out youtube
     remaining_articles = []
-    for article in topic.articles:
+    for article in topic['articles']:
       # print(article.title)
       # skip google news articles we can't parse
       if source.key == 'google-world':
-        url = extract_url(article.url)
+        url = extract_url(article['url'])
         if url == 'error' or search('https://www.youtube.com', url):
           continue
       else:
-        url = article.url
+        url = article['url']
       remaining_articles.append(article)
-      exists = Article.select().where(Article.source==article.source, Article.url==article.url)
-      if len(exists.execute()) > 0:
-        continue
-      # works in theory
+      articles_arr.append(article)
       if json_only is False:
+        # works in theory
+        exists = Article.select().where(Article.source==article['source'], Article.url==article['url'])
+        if len(exists.execute()) > 0:
+          continue
+        topic, keywords, article = kw_art_top(article['raw_text'], article['url'], article['title'], article['source'], article['date'])
         article.save()
-    topic.articles = remaining_articles
+    topic['articles'] = remaining_articles
     # print(topic)
     # topic.woof()
-    topics_arr.append(topic.to_dict())
-  return topics_arr
+    topics_arr.append(topic)
+  return topics_arr, articles_arr, events
 
   ###
   # sample xml

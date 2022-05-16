@@ -34,15 +34,27 @@ class Source(BaseModel):
     current = 0
     # TODO: return articles instead of topics
     topics = []
+    articles = []
+    top_events = []
     while current < limit:
-      topics.append(self.description_parser(soup_items[current]))
-      current += 1
-    return topics
+      topic, articles, events = self.description_parser(soup_items[current])
+      # print('CHECKCHECKCHECK')
+      # print(topic)
+      # print(articles)
+      # print(events)
+      if len(articles) < 1:
+        top_events.append(events)
+      else:  
+        articles.extend(articles)
+        topics.append(topic)
+        # topics.append(self.description_parser(soup_items[current]))
+        current += 1
+    return topics, articles, top_events
     # topic_stream = parse_feed_data(self.key, data, limit, self.description_parser)
 
-    return topic_stream
+    # return topic_stream
   
-  def description_parser(self, *args):
+  def description_parser(self, soup_item):
     article_formatter_hash = {
       'bbc-world': bbc,
       'dw-world': dw,
@@ -50,7 +62,7 @@ class Source(BaseModel):
       'azc-local': az_central,
       'google-news': topics_from_google_item
     }
-    return article_formatter_hash[self.text_parser_key](args)
+    return article_formatter_hash[self.text_parser_key](soup_item)
 
 # TODO: can create new Google source
 # def custom_google_source (query, description):

@@ -11,21 +11,21 @@ import re
 # TODO: each method could return a pipeline event with: {method, input, output, events: [event, event]}
 # These could pipeline_event objects that can either be saved to the DB, logged, printed or returned to the FE for debugging
 def get_soup_paragraphs(soup):
-  print('souping')
+  # print('souping')
   # print(content)
   # soup = BeautifulSoup(content, 'html.parser')
   paragraphs = soup.find_all('p')
-  print(paragraphs)
+  # print(paragraphs)
   return paragraphs
 
 def get_soup(url):
   content = get_content_from_uri(url)
   if content['ok'] == True:
-    print('content ok')
+    # print('content ok')
     soup = BeautifulSoup(content['data'], 'lxml')
     return {'ok': True, 'soup': soup}
   else:
-    print('content not ok')
+    # print('content not ok')
     print('### NO TEXT')
     return {'ok': False, 'content': content}
 
@@ -41,15 +41,16 @@ def get_full_text(url):
     return {'ok': False, 'text': soup['content']}
 
 def clean_soup_text(string_arrays):
-  text = '\n\n'.join(map(lambda p: p.get_text(), string_arrays))
-  print("### BEFORE")
-  print(text)
-  print("###")
-  print("### REMOVE JUNK")
-  text = remove_known_junk(text, False)
-  print(text)
-  print("###")
-  return text
+  # print("### BEFORE")
+  # print('\n\n'.join(map(lambda p: p.get_text(), string_arrays)))
+  mapped = list(map(lambda p: remove_known_junk(p.get_text(), False), string_arrays))
+  # print("###")
+  # print("### REMOVE JUNK")
+  text = '\n\n'.join(mapped)
+  # text = remove_known_junk(text, False)
+  # print(text)
+  # print("###")
+  return text, mapped
 
 def filter_in_class(classes_array, filter_class):
   if classes_array is None:
@@ -136,56 +137,72 @@ def parse_guardian (content):
   return text
 
 def dw (article):
-  defaults = default(article[0], 'Deutsche Welle')
+  events = []
+  defaults = common_fields(article)
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
     filtered = list(filter(lambda p: filter_in_class(p.get('class'), "accesstobeta__text"), paragraphs))
     filtered = list(filter(lambda p: filter_in_class(p.get('class'), "cookie__text"), paragraphs))
     filtered = list(filter(lambda p: filter_in_class(p.get('id'), "copyright"), paragraphs))
-    raw_text = clean_soup_text(filtered)
-    topic = kw_art_top(raw_text, defaults['url'], defaults['title'], 'Deutsche Welle', defaults['timestamp'])
-    return topic
+    article = article_from_soup_paragraphs(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events)
+    topic = {'articles': [article], 'keywords': []}
+    return topic, [article], events
   else:
-    return defaults
-  return topic
+    events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
+    return None, [], events
 
 def az_central (article):
-  defaults = default(article[0], 'AZ Central')
+  events = []
+  defaults = common_fields(article)
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
-    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), paragraphs))
-    raw_text = clean_soup_text(filtered)
-    topic = kw_art_top(raw_text, defaults['url'], defaults['title'], 'AZ Central', defaults['timestamp'])
-    return topic
+    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "gnt_ar_b_a"), paragraphs))
+    print(filtered)
+    article = article_from_soup_paragraphs(paragraphs, defaults['title'], defaults['url'], defaults['timestamp'], events)
+    topic = {'articles': [article], 'keywords': []}
+    return topic, [article], events
   else:
-    return defaults
-  return topic
+    events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
+    return None, [], events
 
 def bbc (article):
-  defaults = default(article[0], 'BBC')
-  print(article[0])
+  events = []
+  defaults = common_fields(article)
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
     filtered = list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), paragraphs))
-    raw_text = clean_soup_text(filtered)
-    topic = kw_art_top(raw_text, defaults['url'], defaults['title'], 'BBC', defaults['timestamp'])
-    return topic
+    # events.append({'input': paragraphs, 'output': filtered, 'operation': 'article_formatter.bbc'})
+    article = article_from_soup_paragraphs(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events)
+    topic = {'articles': [article], 'keywords': []}
+    return topic, [article], events
   else:
-    return defaults
+    events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
+    return None, [], events
+
+def article_from_soup_paragraphs(soup_ps, title, url, timestamp, events):
+  raw_text, raw_paras = clean_soup_text(soup_ps)
+  # events.append({'input': filtered, 'output': raw_text, 'operation': 'clean_soup_text'})
+  keywords = keywords_from_text_title(raw_text, title)
+  events.append({'input': f"{raw_text} -- {title}", 'output': keywords, 'operation': 'keywords_from_text_title'})
+  return {
+    'source': 'BBC', 
+    'url': url, 
+    'title': title, 
+    'raw_text': raw_text, 
+    'date': timestamp, 
+    'keywords': keywords, 
+    'paragraphs': raw_paras,
+    'events': events
+  }
 
 def kw_art_top (raw_text, url, title, source, timestamp):
   keywords = keywords_from_text_title(raw_text, title)
   article = Article(source=source, url=url, title=title, raw_text=raw_text, date=timestamp, keywords=keywords)
-  return Topic([article], keywords)
-
-def default (article, source):
-  url_title_ts = common_fields(article)
-  return url_title_ts
-  # raw_text = raw_text_from_uri(url_title['url'])
+  return Topic([article], keywords), keywords, article
 
 def raw_text_from_uri(uri, feed_parser):
   soup = get_soup(uri)
-  print(soup)
+  # print(soup)
   paragraphs = get_soup_paragraphs(soup['soup'])
   raw_text = clean_soup_text(paragraphs)
   # raw_text = get_full_text(uri)
@@ -215,7 +232,7 @@ def common_fields(article_soup):
       'url': url,
       'title': article_soup.title.string,
       'timestamp': timestamp,
-      'paragraphs': paragraphs
+      'paragraphs': paragraphs,
     }
   else:
     print('### NO TEXT')

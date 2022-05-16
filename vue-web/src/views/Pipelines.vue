@@ -72,7 +72,7 @@
                           >
                           {{topic.articles[0].length > 1 ? `Keywords: ${topic.keywords}` : ''}}
                           <div
-                            v-for="article in topic.articles[0]"
+                            v-for="article in topic.articles"
                             :key="`${article.url.substring(article.url.length - 1, 30)}_${feed.id}`"
                             >
                             <article-card

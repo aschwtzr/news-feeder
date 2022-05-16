@@ -13,11 +13,13 @@ def get_feeds(feed_ids = None, json_only = False, limit = None):
   feed_data = []
   for source in query:
     print(f"fetching {source.description}")
-    source_topics = fetch_articles_for_feed(source, json_only, limit)
+    topics, articles, events = fetch_articles_for_feed(source, json_only, limit)
     source_dict = {
       'description': source.description,
       'id': source.id,
-      'topics':  source_topics
+      'topics':  topics,
+      'articles': articles,
+      'events': events
     }
     feed_data.append(source_dict)
   return feed_data
