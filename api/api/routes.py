@@ -248,7 +248,7 @@ def extract_article_data(*kwargs):
     source_id = request.json.get('source_id')
     source = Source.select().where(Source.id == source_id)[0]
     # raw = source.description_parser(url)
-    raw = raw_text_from_uri(url, source.description_parser)
+    raw, mapped = raw_text_from_uri(url, source.body_parser)
     # print(source.description_parser)
     res = {
       'operation': 'raw_text_from_uri',

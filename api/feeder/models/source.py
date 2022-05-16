@@ -1,4 +1,4 @@
-from feeder.formatter.article_formatter import dw, bbc, guardian,az_central, topics_from_google_item
+from feeder.formatter.article_formatter import dw, bbc, guardian,az_central, topics_from_google_item, filter_bbc, filter_dw, filter_az_central
 from feeder.extractor.rss_extractor import extract_soup_items
 from feeder.util.api import get_data_from_uri
 from feeder.util.orm import BaseModel
@@ -37,29 +37,32 @@ class Source(BaseModel):
     articles = []
     top_events = []
     while current < limit:
-      topic, articles, events = self.description_parser(soup_items[current])
-      # print('CHECKCHECKCHECK')
-      # print(topic)
-      # print(articles)
-      # print(events)
+      topic, articles, events = self.feed_parser(soup_items[current])
       if len(articles) < 1:
         top_events.append(events)
       else:  
         articles.extend(articles)
         topics.append(topic)
-        # topics.append(self.description_parser(soup_items[current]))
         current += 1
     return topics, articles, top_events
-    # topic_stream = parse_feed_data(self.key, data, limit, self.description_parser)
-
-    # return topic_stream
   
-  def description_parser(self, soup_item):
+  def feed_parser(self, soup_item):
     article_formatter_hash = {
       'bbc-world': bbc,
       'dw-world': dw,
       'guardian-world': guardian,
       'azc-local': az_central,
+      'google-news': topics_from_google_item
+    }
+    return article_formatter_hash[self.text_parser_key](soup_item)
+
+  # TODO: move these class strings to the DB, can live on source
+  def body_parser(self, soup_item):
+    article_formatter_hash = {
+      'bbc-world': filter_bbc,
+      'dw-world': filter_dw,
+      'guardian-world': guardian,
+      'azc-local': filter_az_central,
       'google-news': topics_from_google_item
     }
     return article_formatter_hash[self.text_parser_key](soup_item)

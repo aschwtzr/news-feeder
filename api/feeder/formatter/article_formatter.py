@@ -11,21 +11,15 @@ import re
 # TODO: each method could return a pipeline event with: {method, input, output, events: [event, event]}
 # These could pipeline_event objects that can either be saved to the DB, logged, printed or returned to the FE for debugging
 def get_soup_paragraphs(soup):
-  # print('souping')
-  # print(content)
-  # soup = BeautifulSoup(content, 'html.parser')
   paragraphs = soup.find_all('p')
-  # print(paragraphs)
   return paragraphs
 
 def get_soup(url):
   content = get_content_from_uri(url)
   if content['ok'] == True:
-    # print('content ok')
     soup = BeautifulSoup(content['data'], 'lxml')
     return {'ok': True, 'soup': soup}
   else:
-    # print('content not ok')
     print('### NO TEXT')
     return {'ok': False, 'content': content}
 
@@ -41,15 +35,8 @@ def get_full_text(url):
     return {'ok': False, 'text': soup['content']}
 
 def clean_soup_text(string_arrays):
-  # print("### BEFORE")
-  # print('\n\n'.join(map(lambda p: p.get_text(), string_arrays)))
   mapped = list(map(lambda p: remove_known_junk(p.get_text(), False), string_arrays))
-  # print("###")
-  # print("### REMOVE JUNK")
   text = '\n\n'.join(mapped)
-  # text = remove_known_junk(text, False)
-  # print(text)
-  # print("###")
   return text, mapped
 
 def filter_in_class(classes_array, filter_class):
@@ -141,43 +128,51 @@ def dw (article):
   defaults = common_fields(article)
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
-    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "accesstobeta__text"), paragraphs))
-    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "cookie__text"), paragraphs))
-    filtered = list(filter(lambda p: filter_in_class(p.get('id'), "copyright"), paragraphs))
-    article = article_from_soup_paragraphs(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events)
-    topic = {'articles': [article], 'keywords': []}
-    return topic, [article], events
+    filtered = filter_dw(paragraphs)
+    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events)
   else:
     events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
     return None, [], events
+
+def filter_dw(paragraphs):
+  filtered = list(filter(lambda p: filter_in_class(p.get('class'), "accesstobeta__text"), paragraphs))
+  filtered = list(filter(lambda p: filter_in_class(p.get('class'), "cookie__text"), filtered))
+  return list(filter(lambda p: filter_in_class(p.get('id'), "copyright"), filtered))
 
 def az_central (article):
   events = []
   defaults = common_fields(article)
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
-    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "gnt_ar_b_a"), paragraphs))
-    print(filtered)
-    article = article_from_soup_paragraphs(paragraphs, defaults['title'], defaults['url'], defaults['timestamp'], events)
-    topic = {'articles': [article], 'keywords': []}
-    return topic, [article], events
+    filtered = filter_az_central(paragraphs)
+    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events)
   else:
     events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
     return None, [], events
 
-def bbc (article):
+def filter_az_central(paragraphs):
+  return paragraphs
+
+def bbc(article):
   events = []
   defaults = common_fields(article)
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
-    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), paragraphs))
+    filtered = filter_bbc(paragraphs)
     # events.append({'input': paragraphs, 'output': filtered, 'operation': 'article_formatter.bbc'})
-    article = article_from_soup_paragraphs(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events)
-    topic = {'articles': [article], 'keywords': []}
-    return topic, [article], events
+    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events)
   else:
     events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
     return None, [], events
+
+def kw_art_top_json(soup, title, url, timestamp, events):
+    article = article_from_soup_paragraphs(soup, title, url, timestamp, events)
+    topic = {'articles': [article], 'keywords': []}
+    return topic, [article], events
+
+def filter_bbc(paragraphs):
+  filtered = list(filter(lambda p: filter_in_class(p.get('class'), "Contributor"), paragraphs))
+  return list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), filtered))
 
 def article_from_soup_paragraphs(soup_ps, title, url, timestamp, events):
   raw_text, raw_paras = clean_soup_text(soup_ps)
@@ -200,21 +195,16 @@ def kw_art_top (raw_text, url, title, source, timestamp):
   article = Article(source=source, url=url, title=title, raw_text=raw_text, date=timestamp, keywords=keywords)
   return Topic([article], keywords), keywords, article
 
-def raw_text_from_uri(uri, feed_parser):
+def raw_text_from_uri(uri, body_parser):
   soup = get_soup(uri)
   # print(soup)
   paragraphs = get_soup_paragraphs(soup['soup'])
-  raw_text = clean_soup_text(paragraphs)
+  filtered = body_parser(paragraphs)
+  raw_text, mapped = clean_soup_text(filtered)
   # raw_text = get_full_text(uri)
-  # print(raw_text)
-  raw_text = raw_text
   photoless = re.sub('Photos: ', '', raw_text)
-  # print(photoless)
   head, sep, tail = photoless.partition('.<div')
-  # print(head)
-  # print(sep)
-  # print(tail)
-  return head
+  return head, mapped
 
 def common_fields(article_soup):
   if article_soup.pubDate is not None:

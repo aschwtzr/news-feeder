@@ -83,6 +83,8 @@
                               :title="article.title"
                               :keywords="article.keywords"
                               :raw_text="article.raw_text"
+                              :paragraphs="article.paragraphs"
+                              :events="article.events"
                             />
                           </div>
                         </div>
