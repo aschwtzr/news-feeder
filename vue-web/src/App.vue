@@ -1,9 +1,10 @@
 <template>
   <div>
     <news-feed-tabs v-if="user" style="background-color: #F7F7FF; z-index: 10;"/>
-    <section class="section">
-      <router-view style="" class="column"/>
-    </section>
+    <div style="height: 100vh;  overflow-y: auto;">
+      <!-- padding-top: 42px; -->
+      <router-view style="" class="section"/>
+    </div>
   </div>
 </template>
 

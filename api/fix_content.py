@@ -10,7 +10,7 @@ from feeder.models import article
 
 # fix_most_recent(12)
 # print(48*3)
-extract_missing_features(hours_ago=144)
+extract_missing_features(hours_ago=8, debug=False)
 
 # res = get_summary()
 

@@ -14,10 +14,8 @@ const pipelines = {
     setSources(state, sources) {
       state.sources = sources;
     },
-    setFeedData(state, payload) {
-      console.log(state.feed_data);
-      console.log(payload);
-      // state.sources = sources;
+    setFeedData(state, data) {
+      state.rawData = data;
     },
   },
   getters: {},
@@ -36,23 +34,22 @@ const pipelines = {
         }).catch(error => reject(error));
       });
     },
-    getRSSData({ commit }, sourceIds) {
+    getRSSData({ commit }, payload) {
       return new Promise((resolve, reject) => {
-        getRSSData(sourceIds).then((results) => {
-          /* eslint-disable no-param-reassign */
-          console.log(results);
-          // const sources = results.data.sources.reduce((acc, curr) => {
-          //   acc[curr.id] = curr;
-          //   return acc;
-          // }, {});
-          // console.log(sources);
-          // /* eslint-enable no-param-reassign */
-          commit('setFeedData', results);
-          resolve(results);
+        getRSSData(payload.sourceIds, payload.limit).then((results) => {
+          commit('setFeedData', results.data.raw_data);
+          resolve(results.data.raw_data);
         }).catch(error => reject(error));
       });
     },
   },
+  // extractContent({ commit }, payload) {
+  //   return new Promise((resolve, reject) => {
+  //     extractContent(payload.url).then((results) => {
+  //       resolve(results.data.raw_data);
+  //     }).catch(error => reject(error));
+  //   })
+  // },
 };
 
 export default pipelines;

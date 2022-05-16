@@ -1,8 +1,8 @@
 <template>
-  <div class="columns">
-    <div class="column">
-      <div class="" style="height: 94vh; overflow-y: scroll;">
-        <div v-for="article in articles" :key="article.id" style="width: 97.5vw;">
+  <div class="">
+    <!-- <div class="column"> -->
+      <!-- <div class=""> -->
+        <div v-for="article in articles" :key="article.id">
           <article-card
             :showSourceInHeader="true"
             :source="article.source"
@@ -16,8 +16,8 @@
             :summary="article.summary"
             />
         </div>
-      </div>
-    </div>
+      <!-- </div> -->
+    <!-- </div> -->
   </div>
 </template>
 

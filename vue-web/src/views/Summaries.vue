@@ -3,7 +3,7 @@
     <div class="box">
       <button class="button" @click="getTopics">Refresh Summaries</button>
     </div>
-    <div v-if="topics.length > 0" style="overflow-y: auto; height: 94vh;">
+    <div v-if="topics.length > 0">
       <div v-for="(topic, idx) in topics" :key="`${topic.keywords[0]}-${idx}`">
         <card
           :headers="[

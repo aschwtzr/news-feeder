@@ -7,9 +7,12 @@ from feeder.extractor.feed_parser import extract_url
 from playhouse.shortcuts import model_to_dict
 import json
 
-def fetch_articles_for_feed(source, json_only = False):
+def fetch_articles_for_feed(source, json_only = False, limit = None):
   # print(f"again {source.description}")
-  topics = source.map_topic_stream(2)
+  if limit is not None:
+    topics = source.map_topic_stream(limit)
+  else:
+    topics = source.map_topic_stream()
   topics_arr = []
   # print(topics)
   for topic in topics:
@@ -38,8 +41,7 @@ def fetch_articles_for_feed(source, json_only = False):
 
 
 # TODO: should be able to merge this with the fetch_new_articles
-def get_feeds(feed_ids = None, json_only = False):
-  # print(feed_ids)
+def get_feeds(feed_ids = None, json_only = False, limit = None):
   query = Source.select()
   if feed_ids is not None:
     query = query.where(Source.id.in_(feed_ids.split(',')))
@@ -50,8 +52,13 @@ def get_feeds(feed_ids = None, json_only = False):
   feed_data = []
   for source in query:
     print(f"fetching {source.description}")
-    source_topics = fetch_articles_for_feed(source, json_only)
-    feed_data.append(source_topics)
+    source_topics = fetch_articles_for_feed(source, json_only, limit)
+    source_dict = {
+      'description': source.description,
+      'id': source.id,
+      'topics':  source_topics
+    }
+    feed_data.append(source_dict)
   return feed_data
 
 def print_timestamp():
