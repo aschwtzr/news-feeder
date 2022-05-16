@@ -7,7 +7,7 @@ from feeder.models.article import Article
 from collections import defaultdict
 from feeder.formatter.summarizer import summarize_nltk
 from feeder.reader.reader import get_summary
-from feeder.extractor.rss_extractor import get_feeds
+from feeder.util.source_extractor import get_feeds
 from feeder.formatter.article_formatter import raw_text_from_uri
 from markupsafe import escape
 # import pandas as pd
