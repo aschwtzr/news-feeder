@@ -246,7 +246,10 @@ def extract_article_data(*kwargs):
   if ext_content is True:
     url = request.json.get('url')
     source_id = request.json.get('source_id')
-    raw = raw_text_from_uri(url)
+    source = Source.select().where(Source.id == source_id)[0]
+    # raw = source.description_parser(url)
+    raw = raw_text_from_uri(url, source.description_parser)
+    # print(source.description_parser)
     res = {
       'operation': 'raw_text_from_uri',
       'input': url,

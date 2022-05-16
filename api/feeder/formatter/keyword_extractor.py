@@ -101,6 +101,7 @@ def remove_known_junk(string, keep_keywords=False):
   string = re.sub(r'Legal notice(.*)\n', '', string)
   string = re.sub(r'Contact(.*)\n(.*)Mobile version\n', '', string)
   string = re.sub(r'^ADVERTISEMENT ', '', string)
+  string = re.sub(r'sdi/wmr (\w*)', '', string)
   string = re.sub(r'\xa0 ', '', string)
   string = re.sub(r'ADVERTISEMENT$', '', string)
   string = re.sub(r'Edited by: ((\w* )*)\n', '', string)

@@ -59,7 +59,7 @@ import { extractContent } from '../../util/api';
 
 export default {
   name: 'PipelinesArticleCard',
-  props: ['url', 'id', 'date', 'source', 'title', 'keywords', 'raw_text'],
+  props: ['url', 'id', 'date', 'source', 'title', 'keywords', 'raw_text', 'sourceId'],
   components: {
     Card,
   },
@@ -76,6 +76,7 @@ export default {
       /* eslint-disable func-names */
       /* eslint-disable prefer-arrow-callback */
       await extractContent({
+        source_id: this.sourceId,
         url: this.url,
         content: true,
       }).then(function (res) {

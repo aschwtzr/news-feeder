@@ -139,9 +139,11 @@ def dw (article):
   defaults = default(article[0], 'Deutsche Welle')
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
-    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "Deutsche Welle"), paragraphs))
+    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "accesstobeta__text"), paragraphs))
+    filtered = list(filter(lambda p: filter_in_class(p.get('class'), "cookie__text"), paragraphs))
+    filtered = list(filter(lambda p: filter_in_class(p.get('id'), "copyright"), paragraphs))
     raw_text = clean_soup_text(filtered)
-    topic = kw_art_top(raw_text, defaults['url'], defaults['title'], 'BBC', defaults['timestamp'])
+    topic = kw_art_top(raw_text, defaults['url'], defaults['title'], 'Deutsche Welle', defaults['timestamp'])
     return topic
   else:
     return defaults
@@ -161,6 +163,7 @@ def az_central (article):
 
 def bbc (article):
   defaults = default(article[0], 'BBC')
+  print(article[0])
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
     filtered = list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), paragraphs))
@@ -180,13 +183,14 @@ def default (article, source):
   return url_title_ts
   # raw_text = raw_text_from_uri(url_title['url'])
 
-def raw_text_from_uri(uri):
-  raw_text = get_full_text(uri)
+def raw_text_from_uri(uri, feed_parser):
+  soup = get_soup(uri)
+  print(soup)
+  paragraphs = get_soup_paragraphs(soup['soup'])
+  raw_text = clean_soup_text(paragraphs)
+  # raw_text = get_full_text(uri)
   # print(raw_text)
-  if raw_text['ok'] == True:
-    raw_text = raw_text['text']
-  else:
-    raw_text = article.description.get_text() if article.description else article.title.string + '...'
+  raw_text = raw_text
   photoless = re.sub('Photos: ', '', raw_text)
   # print(photoless)
   head, sep, tail = photoless.partition('.<div')
@@ -217,3 +221,5 @@ def common_fields(article_soup):
     print('### NO TEXT')
     return {'ok': False, 'text': soup['content']}
   # paragraphs = get_soup_paragraphs(soup)
+
+# def filtered(source):
