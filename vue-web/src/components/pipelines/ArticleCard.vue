@@ -103,7 +103,8 @@ export default {
         url: this.url,
         content: true,
       }).then(function (res) {
-        this.pipelineEvents.push(res.data);
+        this.pipelineEvents = [...this.pipelineEvents, ...res.data];
+        // this.pipelineEvents.push(res.data);
       }.bind(this));
     },
     async extractSummary() {
@@ -114,7 +115,8 @@ export default {
         rawText: this.raw_text,
         summary: true,
       }).then(function (res) {
-        this.pipelineEvents.push(res.data);
+        this.pipelineEvents = [...this.pipelineEvents, ...res.data];
+        // this.pipelineEvents.push(res.data);
       }.bind(this));
     },
     async extractKeywords() {
@@ -122,10 +124,11 @@ export default {
       /* eslint-disable prefer-arrow-callback */
       await extractContent({
         paragraphs: this.paragraphs,
-        rawText: this.raw_text,
+        title: this.title,
         keywords: true,
       }).then(function (res) {
-        this.pipelineEvents.push(res.data);
+        this.pipelineEvents = [...this.pipelineEvents, ...res.data];
+        // this.pipelineEvents.push(res.data);
       }.bind(this));
     },
   },

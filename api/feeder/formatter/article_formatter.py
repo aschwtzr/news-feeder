@@ -69,11 +69,23 @@ def article_from_google_item (article, timestamp):
   events.append({'input': title, 'output': clean_title, 'operation': 'remove_publication_after_pipe'})
   source = article.find('font').get_text()
   res = get_full_text(a['href'])
+  filtered = filter_google_news(res['paragraphs'])
   if res['ok'] == True:
     raw_text = res['text']
   else:
     raw_text = ''
-  return article_from_soup_paragraphs(res['paragraphs'], clean_title, a['href'], timestamp, events, source)
+  return article_from_soup_paragraphs(filtered, clean_title, a['href'], timestamp, events, source)
+
+def filter_google_news(paragraphs):
+  filtered = list(filter(lambda p: p.get('id') != "footer-ads", paragraphs))
+  filtered = list(filter(lambda p: p.get('id') !=  "footer-products-title", filtered))
+  filtered = list(filter(lambda p: p.get('id') !=  "footer-more", filtered))
+  filtered = list(filter(lambda p: p.get('id') !=  "footer-tools-&-features", filtered))
+  filtered = list(filter(lambda p: p.get('id') !=  "footer-customer-service", filtered))
+  filtered = list(filter(lambda p: p.get('id') !=  "footer-wsj-membership", filtered))
+  filtered = list(filter(lambda p: p.get('id') !=  "primary-image-caption", filtered))
+  filtered = list(filter(lambda p: p.get('class') !=  "site-footer", filtered))
+  return filtered
 
 def yahoo (content):
   soup = BeautifulSoup(content, "html.parser")
@@ -165,10 +177,12 @@ def kw_art_top (raw_text, url, title, source, timestamp):
 
 def raw_text_from_uri(uri, body_parser):
   soup = get_soup(uri)
-  # print(soup)
   paragraphs = get_soup_paragraphs(soup['soup'])
+  # print(paragraphs)
+  # print(body_parser)
   filtered = body_parser(paragraphs)
   raw_text, mapped = clean_soup_text(filtered)
+  # print(mapped)
   # raw_text = get_full_text(uri)
   photoless = re.sub('Photos: ', '', raw_text)
   head, sep, tail = photoless.partition('.<div')

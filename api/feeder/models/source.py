@@ -1,4 +1,4 @@
-from feeder.formatter.article_formatter import dw, bbc, guardian,az_central, topics_from_google_item, filter_bbc, filter_dw, filter_none
+from feeder.formatter.article_formatter import dw, bbc, guardian,az_central, topics_from_google_item, filter_bbc, filter_dw, filter_none, filter_google_news
 from feeder.extractor.rss_extractor import extract_soup_items
 from feeder.util.api import get_data_from_uri
 from feeder.util.orm import BaseModel
@@ -63,7 +63,7 @@ class Source(BaseModel):
       'dw-world': filter_dw,
       'guardian-world': filter_none,
       'azc-local': filter_none,
-      'google-news': topics_from_google_item
+      'google-news': filter_google_news
     }
     return article_formatter_hash[self.text_parser_key](soup_item)
 

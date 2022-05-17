@@ -249,15 +249,17 @@ def extract_article_data(*kwargs):
     paragraphs = request.json.get('paragraphs')
     title = request.json.get('title')
     end = len(paragraphs) / 2 if len(paragraphs) >= 10 else len(paragraphs) / 3
-    print(end)
+    # print(f"PARAGRAPHS: {len(paragraphs)}")
+    # print(f"END P INDEX: {int(end)}")
     top_third = paragraphs[0:int(end)]
     text = '. '.join(paragraphs)
-    kw = keywords_from_text_title(text, title)
-    res = {
+    kw, events = keywords_from_text_title(text, title)
+    events.append({
       'operation': 'keywords_from_text_title',
       'input': f"TITLE: {title}\n\n TEXT: {text}",
       'output': kw
-    }
+    })
+    res = events
   # if ext_summary is True:
   #   paragraphs = request.json.get('paragraphs')
   if ext_content is True:
@@ -267,11 +269,11 @@ def extract_article_data(*kwargs):
     # raw = source.description_parser(url)
     raw, mapped = raw_text_from_uri(url, source.body_parser)
     # print(source.description_parser)
-    res = {
+    res = [{
       'operation': 'raw_text_from_uri',
       'input': url,
       'output': raw
-    }
+    }]
   return jsonify(res)
 
 
