@@ -48,7 +48,7 @@ def summarize_nlp(text, debug=False):
 
   summary = summarizer(text, max_length=max_length, min_length=min_length, do_sample=False)
   if debug is True:
-    print(f"\SUMMARY: {len(summary[0]['summary_text'])}")
+    print(f"\nSUMMARY: {len(summary[0]['summary_text'])}")
     print(summary[0]['summary_text'])
   return summary[0]['summary_text']
 

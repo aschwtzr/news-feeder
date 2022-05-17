@@ -34,17 +34,18 @@ class Source(BaseModel):
     current = 0
     # TODO: return articles instead of topics
     topics = []
-    articles = []
+    articles_arr = []
     top_events = []
-    while current < limit:
+    # print(f"SOUP ITEMS COUNT {len(soup_items)}")
+    while len(topics) < limit and current < len(soup_items):
       topic, articles, events = self.feed_parser(soup_items[current])
       if len(articles) < 1:
         top_events.append(events)
       else:  
-        articles.extend(articles)
+        articles_arr.extend(articles)
         topics.append(topic)
-        current += 1
-    return topics, articles, top_events
+      current += 1
+    return topics, articles_arr, top_events
   
   def feed_parser(self, soup_item):
     article_formatter_hash = {

@@ -52,14 +52,17 @@ def topics_from_google_item (item):
   # if item.find('strong') is not None == item is a link to google new
   filtered = [i for i in list_items if any(item.find('strong') for item in i.contents)]
   articles = list(map(lambda a: article_from_google_item(a, timestamp), filtered))
-  headlines = list(map(lambda article: article['title'], articles))
-  keywords = keywords_from_title_list(headlines)
-  for article in articles:
+  filtered_articles = list(filter(lambda a: len(a['keywords']) > 1, articles))
+  if len(filtered_articles) >= 4:
+    filtered_articles = filtered_articles[0:4]
+  headlines = list(map(lambda article: article['title'], filtered_articles))
+  keywords, events = keywords_from_title_list(headlines)
+  for article in filtered_articles:
     article_kw = set(article['keywords'])
     topic_kw = set(keywords)
     article['keywords'] += list(topic_kw - article_kw)
-  topic = {'articles': articles, 'keywords': []}
-  return topic, articles, events
+  topic = {'articles': filtered_articles, 'keywords': []}
+  return topic, filtered_articles, events
 
 def article_from_google_item (article, timestamp):
   events = []
@@ -157,7 +160,8 @@ def filter_bbc(paragraphs):
 def article_from_soup_paragraphs(soup_ps, title, url, timestamp, events, source):
   raw_text, raw_paras = clean_soup_text(soup_ps)
   # events.append({'input': filtered, 'output': raw_text, 'operation': 'clean_soup_text'})
-  keywords = keywords_from_text_title(raw_text, title)
+  keywords, kw_events = keywords_from_text_title(raw_text, title)
+  events.append(kw_events)
   events.append({'input': f"{raw_text} -- {title}", 'output': keywords, 'operation': 'keywords_from_text_title'})
   return {
     'source': source, 
@@ -170,9 +174,9 @@ def article_from_soup_paragraphs(soup_ps, title, url, timestamp, events, source)
     'events': events
   }
 
-def kw_art_top (raw_text, url, title, source, timestamp):
-  keywords = keywords_from_text_title(raw_text, title)
-  article = Article(source=source, url=url, title=title, raw_text=raw_text, date=timestamp, keywords=keywords)
+def kw_art_top (raw_text, url, title, source, timestamp, paragraphs):
+  keywords, events = keywords_from_text_title(raw_text, title)
+  article = Article(source=source, url=url, title=title, raw_text=raw_text, date=timestamp, keywords=keywords, paragraphs=paragraphs)
   return Topic([article], keywords), keywords, article
 
 def raw_text_from_uri(uri, body_parser):
@@ -209,6 +213,3 @@ def common_fields(article_soup):
   else:
     print('### NO TEXT')
     return {'ok': False, 'text': soup['content']}
-  # paragraphs = get_soup_paragraphs(soup)
-
-# def filtered(source):

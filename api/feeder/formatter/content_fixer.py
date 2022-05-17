@@ -21,10 +21,10 @@ def extract_missing_features(hours_ago=48, nlp_kw=False, summary= False, keyword
 
 def process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug):
   print(f"ARTICLES ARE THIS MANY: {len(articles)}\n")
-  processed = list(map(lambda article: clean_article_data(article, nlp_kw, summary, True), articles))
+  processed = list(map(lambda article: clean_article_data(article, nlp_kw, summary, debug), articles))
   if debug == True:
     mapped_kw = keyword_frequency_map(processed)
-    # print(mapped_kw)
+    print(mapped_kw)
 
     relationship_map = map_article_relationships(processed, mapped_kw)
     print(json.dumps(relationship_map, sort_keys=True, indent=2))
@@ -51,14 +51,14 @@ def filter(filters):
 def update_v1_keywords(article, debug=False):
   cleaned = remove_known_junk(article.raw_text, True)
   article.raw_text = cleaned
-  keywords = keywords_from_text_title(cleaned, article.title)
+  keywords, events = keywords_from_text_title(cleaned, article.title)
   article.keywords = keywords
   if debug == True:
-    # print("AFTER\n")
-    # print(cleaned)
+    print("AFTER\n")
+    print(cleaned)
     print("\nKEYWORDS\n")
     print(keywords)
-  return article
+  return article, events
 
 def update_article_summary(article, debug):
   # TODO: split into nlp_kw and nlp summary
@@ -68,16 +68,21 @@ def update_article_summary(article, debug):
     print(f"unable to transform ID: {article.id}, trying NLTK")
     summary = summarize_nltk(article.raw_text, 12)
   article.summary = summary
-  article.nlp_kw = keywords_from_text_title(article.summary, article.title)
+  article.nlp_kw, events = keywords_from_text_title(article.summary, article.title)
+  return article, events
+
 
 def clean_article_data(article, kw=False, summ=False, debug=False):
+  top_events = []
   print(f"ARTICLE_ID: {article.id}")
   if debug == True:
     print("RAW_TEXT - BEFORE\n")
     print(article.raw_text)
   if kw is True:
-    update_v1_keywords(article, debug)
+    article, events = update_v1_keywords(article, debug)
+    top_events.append(events)
   if summ is True:
-    update_article_summary(article, debug)
+    article, events = update_article_summary(article, debug)
+    top_events.append(events)
   article.save()
   return article

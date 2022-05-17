@@ -39,7 +39,7 @@ def keywords_from_text_title (text, title, debug=False):
 def keywords_from_title_list (string_list):
   reduced = " ".join(list(map(lambda headline: remove_publication_after_pipe(headline), string_list)))
   kw, events = keywords_from_string(reduced, [])
-  return list(map(lambda kw: kw[0], kw)) 
+  return list(map(lambda kw: kw[0], kw)), events
 
 def keywords_from_string (input, events = []):
   keywords_from_text = []
@@ -64,6 +64,7 @@ def keywords_from_string (input, events = []):
       return keywords_from_text, events
   except:
     logging.warning("All keyword extractions failed.")
+  return [], events
 
   if len(keywords_from_text) < 1:
     return [], events                       
