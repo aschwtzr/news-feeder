@@ -26,12 +26,12 @@
     {
       title: 'Extract Keywords',
       class: () => '',
-      callback: () => openArticle(url),
+      callback: extractKeywords,
     },
     {
       title: 'Extract Summary',
       class: () => '',
-      callback: () => openArticle(url),
+      callback: extractSummary,
     },
     {
       title: 'Extract Features',
@@ -102,6 +102,28 @@ export default {
         source_id: this.sourceId,
         url: this.url,
         content: true,
+      }).then(function (res) {
+        this.pipelineEvents.push(res.data);
+      }.bind(this));
+    },
+    async extractSummary() {
+      /* eslint-disable func-names */
+      /* eslint-disable prefer-arrow-callback */
+      await extractContent({
+        paragraphs: this.paragraphs,
+        rawText: this.raw_text,
+        summary: true,
+      }).then(function (res) {
+        this.pipelineEvents.push(res.data);
+      }.bind(this));
+    },
+    async extractKeywords() {
+      /* eslint-disable func-names */
+      /* eslint-disable prefer-arrow-callback */
+      await extractContent({
+        paragraphs: this.paragraphs,
+        rawText: this.raw_text,
+        keywords: true,
       }).then(function (res) {
         this.pipelineEvents.push(res.data);
       }.bind(this));

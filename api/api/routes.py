@@ -6,6 +6,7 @@ from feeder.models.source import Source
 from feeder.models.article import Article
 from collections import defaultdict
 from feeder.formatter.summarizer import summarize_nltk
+from feeder.formatter.keyword_extractor import keywords_from_text_title
 from feeder.reader.reader import get_summary
 from feeder.util.source_extractor import get_feeds
 from feeder.formatter.article_formatter import raw_text_from_uri
@@ -242,7 +243,23 @@ def get_articles(*kwargs):
 def extract_article_data(*kwargs):
   ext_content = request.json.get('content')
   ext_keywords = request.json.get('keywords')
+  ext_summary = request.json.get('summary')
   art_id = request.json.get('id')
+  if ext_keywords is True:
+    paragraphs = request.json.get('paragraphs')
+    title = request.json.get('title')
+    end = len(paragraphs) / 2 if len(paragraphs) >= 10 else len(paragraphs) / 3
+    print(end)
+    top_third = paragraphs[0:int(end)]
+    text = '. '.join(paragraphs)
+    kw = keywords_from_text_title(text, title)
+    res = {
+      'operation': 'keywords_from_text_title',
+      'input': f"TITLE: {title}\n\n TEXT: {text}",
+      'output': kw
+    }
+  # if ext_summary is True:
+  #   paragraphs = request.json.get('paragraphs')
   if ext_content is True:
     url = request.json.get('url')
     source_id = request.json.get('source_id')
@@ -255,7 +272,7 @@ def extract_article_data(*kwargs):
       'input': url,
       'output': raw
     }
-    return jsonify(res)
+  return jsonify(res)
 
 
   # row = Article.select().where(Article.id == post_id).dicts()

@@ -32,7 +32,7 @@ export default {
     return {
       show: false,
       showInput: false,
-      showOutput: false,
+      showOutput: true,
     };
   },
 };
