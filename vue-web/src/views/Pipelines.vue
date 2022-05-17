@@ -51,9 +51,10 @@
             </div>
           </div>
         </div>
-        <div v-if="Object.keys(rawData).length > 0" class="tile is-parent">
-          <div class="is-tile is-parent is-vertical"
-            style="width: fill-available"
+        <div class="tile is-12">
+          <div
+            class="tile is-parent is-vertical"
+            v-if="Object.keys(rawData).length > 0"
             >
             <div
               v-for="feed in rawData"

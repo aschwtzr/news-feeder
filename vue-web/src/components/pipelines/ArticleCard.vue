@@ -80,6 +80,7 @@ export default {
     'sourceId',
     'paragraphs',
     'events',
+    'preview',
   ],
   components: {
     Card,
