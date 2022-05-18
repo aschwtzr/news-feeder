@@ -5,24 +5,25 @@ from feeder.util.time_tools import print_timestamp, date_time_string
 
 while True:
   hours_ago_date_time = date_time_string(48)
-  article = (Article
-            .select()
-            .where((Article.date > hours_ago_date_time) & ((Article.keywords.is_null(True)) | (Article.paragraphs.is_null(True))))
-            .order_by(Article.date.desc())
-            .get())
-  if article is not None:
+  try:
+    article = (Article
+              .select()
+              .where((Article.date > hours_ago_date_time) & ((Article.keywords.is_null(True)) | (Article.paragraphs.is_null(True))))
+              .order_by(Article.date.desc())
+              .get())
     print_timestamp(f"FETCHED ARTICLE {article.id}")
     extract_missing_features([article],keywords=True, paragraphs=True, nlp_kw=True, summary=True, debug=False)
-  else:
-    article = (Article
-          .select()
-          .where((Article.date > hours_ago_date_time) & ((Article.keywords.is_null(True)) | (Article.paragraphs.is_null(True))))
-          .order_by(Article.date.desc())
-          .get())
-    if article is not None:
+    extract_missing_features([article],keywords=True, nlp_kw=True, summary=True, debug=False)
+  except:
+    try:
+      article = (Article
+            .select()
+            .where((Article.date > hours_ago_date_time) & ((Article.nlp_kw.is_null(True)) | (Article.summary.is_null(True))))
+            .order_by(Article.date.desc())
+            .get())
       print_timestamp(f"FETCHED ARTICLE {article.id}")
       extract_missing_features([article],keywords=True, nlp_kw=True, summary=True, debug=False)
-    else:
+    except:
       print_timestamp("All caught up, congrats!")
       time.sleep(5)
 
