@@ -6,7 +6,9 @@
       { content: source, size:'is-one' },
       { content: title, size:'' },
     ]"
+    :preview="preview"
     :keywords="keywords"
+    :nlp_kw="nlp_kw"
     :id="id"
     :buttons="[{
       title: 'Source',
@@ -76,6 +78,7 @@ export default {
     'source',
     'title',
     'keywords',
+    'nlp_kw',
     'raw_text',
     'sourceId',
     'paragraphs',

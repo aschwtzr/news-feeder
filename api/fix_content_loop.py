@@ -24,4 +24,6 @@ while True:
       extract_missing_features([article],keywords=True, nlp_kw=True, summary=True, debug=False)
     else:
       print_timestamp("All caught up, congrats!")
+      time.sleep(5)
+
   print_timestamp("FINISHED THE LOOP DEE LOOP")

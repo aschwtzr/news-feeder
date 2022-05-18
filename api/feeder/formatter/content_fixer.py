@@ -26,10 +26,10 @@ def extract_missing_features(articles, nlp_kw=False, summary=False, keywords= Fa
 
 def process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug):
   print(f"ARTICLES ARE THIS MANY: {len(articles)}\n")
-  if nlp_kw is True or summary is True:
-    articles = list(map(lambda article: extract_nlp_summ_kw(article, nlp_kw, summary, debug), articles))
   if paragraphs is True or keywords is True:
     articles = list(map(lambda article: extract_content_kw(article, keywords, paragraphs, debug), articles))
+  if nlp_kw is True or summary is True:
+    articles = list(map(lambda article: extract_nlp_summ_kw(article, nlp_kw, summary, debug), articles))
   
   # TODO: this below seems like just the topic map....
   if debug == True:
@@ -58,6 +58,7 @@ def extract_content_kw(article, kw=True, paragraphs=True, debug=False):
   article.raw_text = raw_text
   article.paragraphs = paragraphs
   article.save()
+  return article
 
 def find_source_id(url):
   if url.find('https://news.google.com/__i'):
@@ -93,11 +94,17 @@ def update_v1_keywords(article, debug=False):
 
 def update_article_summary(article, debug):
   # TODO: split into nlp_kw and nlp summary
+  if article.paragraphs is not None:
+    end = len(article.paragraphs) / 2 if len(article.paragraphs) >= 10 else len(article.paragraphs) / 3
+    top_third = article.paragraphs[0:int(end)]
+    text = '. '.join(top_third)
+  else:
+    text = article.raw_text
   try:
-    summary = summarize_nlp(article.raw_text, debug)
+    summary = summarize_nlp(text, debug)
   except IndexError as e:
     print(f"unable to transform ID: {article.id}, trying NLTK")
-    summary = summarize_nltk(article.raw_text, 12)
+    summary = summarize_nltk(text, 12)
   article.summary = summary
   nlp_kw, events = keywords_from_text_title(article.summary, article.title)
   article.nlp_kw = nlp_kw
