@@ -1,7 +1,8 @@
 
 from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk
-if True:
-  from feeder.formatter.summarizer import summarize_nlp, small_summarize_nlp, summarize_nltk
+is_not_pi3 = True
+if is_not_pi3:
+  from feeder.formatter.summarizer import summarize_nlp, summarize_nltk
 from feeder.formatter.article_formatter import raw_text_from_uri
 from feeder.models.article import Article
 from feeder.models.source import Source
@@ -61,10 +62,12 @@ def update_article_summary(article, debug):
   else:
     text = article.raw_text
   try:
-    summary = summarize_nlp(text, debug)
+    if is_not_pi3:
+      summary = summarize_nlp(text, debug)
   except IndexError as e:
     print(f"unable to transform ID: {article.id}, trying NLTK")
-    summary = summarize_nltk(text, 12)
+    if is_not_pi3:
+      summary = summarize_nltk(text, 12)
   article.summary = summary
   nlp_kw, events = keywords_from_text_title(article.summary, article.title)
   article.nlp_kw = nlp_kw
