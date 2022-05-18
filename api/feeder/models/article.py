@@ -24,6 +24,7 @@ class Article(BaseModel):
   nlp_kw = ArrayField(column_name='smr_keywords')
   named_entities = ArrayField()
   paragraphs = ArrayField()
+  skip_extract = BooleanField()
   
   def get_smmry(self):
     text = get_summary(self.url)

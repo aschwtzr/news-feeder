@@ -27,6 +27,7 @@ def get_summary(hours_ago=18):
       
   counts = {
     'articles': len(processed),
+    'reduction': len(mapped_topics_list) / len(processed),
     'topics': len(mapped_topics_list),
   }
   return {

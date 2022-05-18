@@ -77,7 +77,7 @@ def get_headlines():
 
 @app.route('/summaries', methods=(['GET']))
 def get_topics_new():
-  req_limit = (16 if request.args.get('hours_ago') is None else int(request.args.get('hours_ago')))
+  req_limit = (48 if request.args.get('hours_ago') is None else int(request.args.get('hours_ago')))
   res = get_summary(req_limit)
   results = []
   for topic in res['topics']:
