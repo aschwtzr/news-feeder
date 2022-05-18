@@ -2,6 +2,7 @@ from feeder.formatter.topic_mapper import keyword_frequency_map, map_article_rel
 from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk
 from feeder.formatter.summarizer import summarize_nlp, small_summarize_nlp, summarize_nltk
 from feeder.models.article import Article
+from feeder.util.time_tools import date_time_string
 from datetime import datetime, timedelta
 import pandas as pd
 import json
@@ -9,14 +10,17 @@ from functools import reduce
 import operator
 
 def fix_most_recent(hours_ago=12, nlp_kw= False, summary= False, keywords= False, raw_text= False, debug=True):
-  hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
+  hours_ago_date_time = date_time_string(hours_ago)
   articles = Article.select().where(Article.date > hours_ago_date_time)
   process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug)
 
+# Defaults to only fetching articles missing post feed extraction data
+def fetch_articles_missing(hours_ago=48, nlp_kw=True, summary=True, keywords=False, raw_text=False, paragraphs=False, debug=True):
+  hours_ago_date_time = date_time_string(hours_ago)
+  return Article.select().where((Article.date > hours_ago_date_time) & ((Article.nlp_kw.is_null(nlp_kw)) | (Article.summary.is_null(summary)) | (Article.keywords.is_null(keywords))) & (Article.raw_text.is_null(raw_text)))
+
 # params override filters that prevent needlessly reprocessing data
-def extract_missing_features(hours_ago=48, nlp_kw=False, summary= False, keywords= False, raw_text= False, debug=True):
-  hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
-  articles = Article.select().where((Article.date > hours_ago_date_time) & ((Article.nlp_kw.is_null(not nlp_kw)) | (Article.summary.is_null(not False)) | (Article.keywords.is_null(not False))) & (Article.raw_text.is_null(raw_text)))
+def extract_missing_features(articles, nlp_kw=False, summary=False, keywords= False, raw_text=False, paragraphs=False, debug=True):
   process_article_list(articles, True, True, keywords, raw_text, debug)
 
 def process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug):

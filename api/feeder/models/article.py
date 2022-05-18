@@ -12,6 +12,7 @@ class Article(BaseModel):
   date = DateTimeTZField()
   url = TextField()
   title = TextField()
+  feed_source_id = IntegerField()
   # sanitized body of the article
   raw_text = TextField(column_name='content')
   # keywords from v1 pipeline extraction

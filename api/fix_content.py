@@ -1,5 +1,5 @@
 from feeder.formatter.topic_mapper import map_articles
-from feeder.formatter.content_fixer import clean_article_data, fix_most_recent, extract_missing_features
+from feeder.formatter.content_fixer import clean_article_data, fix_most_recent, extract_missing_features, fetch_articles_missing
 from feeder.models import article
 
 # db_rows = fetch_articles(18, 15)
@@ -10,7 +10,8 @@ from feeder.models import article
 
 # fix_most_recent(12)
 # print(48*3)
-extract_missing_features(hours_ago=8, debug=False)
+articles = fetch_articles_missing(hours_ago=72, paragraphs=True)
+extract_missing_features(articles, debug=False)
 
 # res = get_summary()
 

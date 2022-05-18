@@ -79,7 +79,6 @@ print(f"""
 *****************************************  
 """)
 
-extract_missing_features(hours_ago=hours_ago, debug=False)
 res = get_summary(hours_ago)
 # body = build_email_body(res['topics'], res['counts'])
 dev_body = build_email_body(res['topics'], res['counts'], True)

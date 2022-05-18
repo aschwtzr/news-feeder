@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def timestamp_string():
     timestamp = datetime.now()
@@ -13,3 +13,6 @@ def print_timestamp(message):
   *****************************************  
   *****************************************  
   """)
+
+def date_time_string(hours_ago=36):
+  return datetime.now() - timedelta(hours = hours_ago)

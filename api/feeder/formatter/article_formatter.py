@@ -77,7 +77,7 @@ def article_from_google_item (article, timestamp):
     raw_text = res['text']
   else:
     raw_text = ''
-  return article_from_soup_paragraphs(filtered, clean_title, a['href'], timestamp, events, source)
+  return article_from_soup_paragraphs(filtered, clean_title, a['href'], timestamp, events, source, 1)
 
 def filter_google_news(paragraphs):
   filtered = list(filter(lambda p: p.get('id') != "footer-ads", paragraphs))
@@ -101,7 +101,7 @@ def guardian (article):
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
     filtered = filter_none(paragraphs)
-    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events, 'The Guardian')
+    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events, 'The Guardian', 3)
   else:
     events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
     return None, [], events
@@ -112,7 +112,7 @@ def dw (article):
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
     filtered = filter_dw(paragraphs)
-    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events, 'Deutsche World')
+    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events, 'Deutsche World', 4)
   else:
     events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
     return None, [], events
@@ -128,7 +128,7 @@ def az_central (article):
   if defaults['ok'] == True:
     paragraphs = defaults['paragraphs']
     filtered = filter_none(paragraphs)
-    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events, 'AZ Central')
+    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events, 'AZ Central', 5)
   else:
     events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
     return None, [], events
@@ -143,13 +143,13 @@ def bbc(article):
     paragraphs = defaults['paragraphs']
     filtered = filter_bbc(paragraphs)
     # events.append({'input': paragraphs, 'output': filtered, 'operation': 'article_formatter.bbc'})
-    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events, 'BBC')
+    return kw_art_top_json(filtered, defaults['title'], defaults['url'], defaults['timestamp'], events, 'BBC', 2)
   else:
     events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
     return None, [], events
 
-def kw_art_top_json(soup, title, url, timestamp, events, source):
-    article = article_from_soup_paragraphs(soup, title, url, timestamp, events, source)
+def kw_art_top_json(soup, title, url, timestamp, events, source, source_feed_id):
+    article = article_from_soup_paragraphs(soup, title, url, timestamp, events, source, source_feed_id)
     topic = {'articles': [article], 'keywords': []}
     return topic, [article], events
 
@@ -157,7 +157,7 @@ def filter_bbc(paragraphs):
   filtered = list(filter(lambda p: filter_in_class(p.get('class'), "Contributor"), paragraphs))
   return list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), filtered))
 
-def article_from_soup_paragraphs(soup_ps, title, url, timestamp, events, source):
+def article_from_soup_paragraphs(soup_ps, title, url, timestamp, events, source, source_feed_id):
   raw_text, raw_paras = clean_soup_text(soup_ps)
   # events.append({'input': filtered, 'output': raw_text, 'operation': 'clean_soup_text'})
   keywords, kw_events = keywords_from_text_title(raw_text, title)
@@ -171,12 +171,13 @@ def article_from_soup_paragraphs(soup_ps, title, url, timestamp, events, source)
     'date': timestamp, 
     'keywords': keywords, 
     'paragraphs': raw_paras,
-    'events': events
+    'events': events,
+    'source_feed_id': source_feed_id
   }
 
-def kw_art_top (raw_text, url, title, source, timestamp, paragraphs):
+def kw_art_top (raw_text, url, title, source, timestamp, paragraphs, source_feed_id):
   keywords, events = keywords_from_text_title(raw_text, title)
-  article = Article(source=source, url=url, title=title, raw_text=raw_text, date=timestamp, keywords=keywords, paragraphs=paragraphs)
+  article = Article(source=source, url=url, title=title, raw_text=raw_text, date=timestamp, keywords=keywords, paragraphs=paragraphs, source_feed_id=source_feed_id)
   return Topic([article], keywords), keywords, article
 
 def raw_text_from_uri(uri, body_parser):

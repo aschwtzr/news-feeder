@@ -51,7 +51,7 @@ def fetch_articles_for_feed(source, json_only = False, limit = None):
         exists = Article.select().where(Article.source==article['source'], Article.url==article['url'])
         if len(exists.execute()) > 0:
           continue
-        topic, keywords, article = kw_art_top(article['raw_text'], article['url'], article['title'], article['source'], article['date'], article['paragraphs'])
+        topic, keywords, article = kw_art_top(article['raw_text'], article['url'], article['title'], article['source'], article['date'], article['paragraphs'], source.id)
         article.save()
     topics_arr.append(topic)
   return topics_arr, articles_arr, events
