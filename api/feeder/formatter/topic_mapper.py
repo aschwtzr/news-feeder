@@ -19,8 +19,9 @@ def map_articles(rows):
 def keyword_frequency_map(articles):
   kw_map = defaultdict(list)
   for article in articles:
-    keywords = article.keywords + article.nlp_kw
-    for keyword in article.keywords:
+    # keywords = article.keywords + article.nlp_kw
+    keywords = article.nlp_kw if article.nlp_kw is not None else article.keywords
+    for keyword in keywords:
       kw_map[keyword].append(article.id)
   return dict(sorted(kw_map.items(), key=lambda item: len(item[1]), reverse=True))
 
@@ -28,7 +29,8 @@ def map_article_relationships(rows, mapped_kw):
   relationship_map = {}
   for article in rows:
     siblings = defaultdict(int)
-    for keyword in article.keywords:
+    keywords = article.nlp_kw if article.nlp_kw is not None else article.keywords
+    for keyword in keywords:
       for id in mapped_kw[keyword]:
         siblings[id] += 1
     relationship_map[article.id] = siblings
@@ -125,7 +127,7 @@ def map_topic(topic, dataframe):
       headline = summarize_nltk(reduced, 1)
   else:
     reduced = " ".join(list(map(lambda x: x.summary if x.summary is not None else '', articles)))
-    nlp_kw, events = keywords_from_string(reduced, []) if len(articles) > 2 else articles[0].nlp_kw, []
+    nlp_kw, events = keywords_from_string(reduced, []) if len(articles) > 2 else list(map(lambda kw_arr: kw_arr[0] ,articles[0].nlp_kw)), []
     headline = summarize_nltk(reduced, 1) if len(articles) > 2 else articles[0].title
     summary = summarize_nltk(reduced, 3) if len(articles) > 2 else articles[0].summary
   return Topic(by_brief, topic['keywords'], headline, summary, nlp_kw)

@@ -1,6 +1,6 @@
 import re
 import nltk
-from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk #, keywords_from_string
+from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk
 from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
 import heapq
 
