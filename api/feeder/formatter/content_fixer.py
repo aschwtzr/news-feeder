@@ -1,6 +1,7 @@
-from feeder.formatter.topic_mapper import keyword_frequency_map, map_article_relationships, make_topics_map, print_topic_map, map_topic
+
 from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk
-from feeder.formatter.summarizer import summarize_nlp, small_summarize_nlp, summarize_nltk
+if True:
+  from feeder.formatter.summarizer import summarize_nlp, small_summarize_nlp, summarize_nltk
 from feeder.formatter.article_formatter import raw_text_from_uri
 from feeder.models.article import Article
 from feeder.models.source import Source
@@ -30,47 +31,6 @@ def process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragrap
     articles = list(map(lambda article: extract_content_kw(article, keywords, paragraphs, debug), articles))
   if nlp_kw is True or summary is True:
     articles = list(map(lambda article: extract_nlp_summ_kw(article, nlp_kw, summary, debug), articles))
-  
-  # TODO: this below seems like just the topic map....
-  if debug == True:
-    mapped_kw = keyword_frequency_map(processed)
-    print(mapped_kw)
-
-    relationship_map = map_article_relationships(processed, mapped_kw)
-    print(json.dumps(relationship_map, sort_keys=True, indent=2))
-
-    df = pd.DataFrame(data = list(map(lambda x: [x.source, x.url, x.title, x.date, x.id, x.keywords, x.raw_text, x.summary, x.nlp_kw], processed)), columns = ['source', 'url', 'title', 'date', 'id', 'keywords', 'content', 'summary', 'nlp_kw'])
-
-    topic_map = make_topics_map(processed, relationship_map, df)
-    mapped_topics = map(lambda tuple: map_topic(tuple[1], df), topic_map.items())
-    mapped_topics_list = sorted(list(mapped_topics), key=lambda topic: (len(topic.articles), topic.date), reverse=True)  
-    print_topic_map(topic_map, df)
-
-    i = iter(range(len(mapped_topics_list)))
-    while (x := next(i, None)) is not None and x < 10:
-      mapped_topics_list[x].woof()
-
-def extract_content_kw(article, kw=True, paragraphs=True, debug=False):
-  if article.feed_source_id is None:
-    article.feed_source_id = find_source_id(article.url)
-  source = Source.select().where(Source.id == article.feed_source_id)[0]
-  raw_text, paragraphs = raw_text_from_uri(article.url, source.body_parser)
-  article.raw_text = raw_text
-  article.paragraphs = paragraphs
-  article.save()
-  return article
-
-def find_source_id(url):
-  if url.find('https://news.google.com/__i'):
-    return 1
-  if url.find('https://www.bbc.co'):
-    return 2
-  if url.find('https://www.theguardian.com'):
-    return 3
-  if url.find('https://www.dw.com'):
-    return 4
-  if url.find('http://rssfeeds.azcentral.com'):
-    return 5
 
 def filter(filters):
   # https://stackoverflow.com/questions/53640958/combining-optional-passed-query-filters-in-peewee
@@ -109,6 +69,25 @@ def update_article_summary(article, debug):
   nlp_kw, events = keywords_from_text_title(article.summary, article.title)
   article.nlp_kw = nlp_kw
   return article, events
+
+def extract_content_kw(article, body_parser, kw=True, paragraphs=True, debug=False):
+  raw_text, paragraphs = raw_text_from_uri(article.url, body_parser)
+  article.raw_text = raw_text
+  article.paragraphs = paragraphs
+  article.save()
+  return article
+
+def find_source_id(url):
+  if url.find('https://news.google.com/__i'):
+    return 1
+  if url.find('https://www.bbc.co'):
+    return 2
+  if url.find('https://www.theguardian.com'):
+    return 3
+  if url.find('https://www.dw.com'):
+    return 4
+  if url.find('http://rssfeeds.azcentral.com'):
+    return 5
 
 def extract_nlp_summ_kw(article, nlp_kw=True, summ=True, debug=False):
   top_events = []
