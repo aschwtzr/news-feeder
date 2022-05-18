@@ -1,7 +1,9 @@
 from feeder.formatter.topic_mapper import keyword_frequency_map, map_article_relationships, make_topics_map, print_topic_map, map_topic
 from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk
 from feeder.formatter.summarizer import summarize_nlp, small_summarize_nlp, summarize_nltk
+from feeder.formatter.article_formatter import raw_text_from_uri
 from feeder.models.article import Article
+from feeder.models.source import Source
 from feeder.util.time_tools import date_time_string
 from datetime import datetime, timedelta
 import pandas as pd
@@ -10,22 +12,26 @@ from functools import reduce
 import operator
 
 def fix_most_recent(hours_ago=12, nlp_kw= False, summary= False, keywords= False, raw_text= False, debug=True):
-  hours_ago_date_time = date_time_string(hours_ago)
-  articles = Article.select().where(Article.date > hours_ago_date_time)
-  process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug)
+  articles = fetch_articles_missing(hours_ago=hours_ago, keywords=True, raw_text=True, paragraphs=True, debug=debug)
+  process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug)
 
 # Defaults to only fetching articles missing post feed extraction data
 def fetch_articles_missing(hours_ago=48, nlp_kw=True, summary=True, keywords=False, raw_text=False, paragraphs=False, debug=True):
   hours_ago_date_time = date_time_string(hours_ago)
-  return Article.select().where((Article.date > hours_ago_date_time) & ((Article.nlp_kw.is_null(nlp_kw)) | (Article.summary.is_null(summary)) | (Article.keywords.is_null(keywords))) & (Article.raw_text.is_null(raw_text)))
+  return Article.select().where((Article.date > hours_ago_date_time) & ((Article.nlp_kw.is_null(nlp_kw)) | (Article.summary.is_null(summary)) | (Article.keywords.is_null(keywords)) | (Article.paragraphs.is_null(paragraphs))))
 
 # params override filters that prevent needlessly reprocessing data
 def extract_missing_features(articles, nlp_kw=False, summary=False, keywords= False, raw_text=False, paragraphs=False, debug=True):
-  process_article_list(articles, True, True, keywords, raw_text, debug)
+  process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug)
 
-def process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug):
+def process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug):
   print(f"ARTICLES ARE THIS MANY: {len(articles)}\n")
-  processed = list(map(lambda article: clean_article_data(article, nlp_kw, summary, debug), articles))
+  if nlp_kw is True or summary is True:
+    articles = list(map(lambda article: extract_nlp_summ_kw(article, nlp_kw, summary, debug), articles))
+  if paragraphs is True or keywords is True:
+    articles = list(map(lambda article: extract_content_kw(article, keywords, paragraphs, debug), articles))
+  
+  # TODO: this below seems like just the topic map....
   if debug == True:
     mapped_kw = keyword_frequency_map(processed)
     print(mapped_kw)
@@ -43,6 +49,27 @@ def process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug):
     i = iter(range(len(mapped_topics_list)))
     while (x := next(i, None)) is not None and x < 10:
       mapped_topics_list[x].woof()
+
+def extract_content_kw(article, kw=True, paragraphs=True, debug=False):
+  if article.feed_source_id is None:
+    article.feed_source_id = find_source_id(article.url)
+  source = Source.select().where(Source.id == article.feed_source_id)[0]
+  raw_text, paragraphs = raw_text_from_uri(article.url, source.body_parser)
+  article.raw_text = raw_text
+  article.paragraphs = paragraphs
+  article.save()
+
+def find_source_id(url):
+  if url.find('https://news.google.com/__i'):
+    return 1
+  if url.find('https://www.bbc.co'):
+    return 2
+  if url.find('https://www.theguardian.com'):
+    return 3
+  if url.find('https://www.dw.com'):
+    return 4
+  if url.find('http://rssfeeds.azcentral.com'):
+    return 5
 
 def filter(filters):
   # https://stackoverflow.com/questions/53640958/combining-optional-passed-query-filters-in-peewee
@@ -72,19 +99,19 @@ def update_article_summary(article, debug):
     print(f"unable to transform ID: {article.id}, trying NLTK")
     summary = summarize_nltk(article.raw_text, 12)
   article.summary = summary
-  article.nlp_kw, events = keywords_from_text_title(article.summary, article.title)
+  nlp_kw, events = keywords_from_text_title(article.summary, article.title)
+  article.nlp_kw = nlp_kw
   return article, events
 
-
-def clean_article_data(article, kw=False, summ=False, debug=False):
+def extract_nlp_summ_kw(article, nlp_kw=True, summ=True, debug=False):
   top_events = []
   print(f"ARTICLE_ID: {article.id}")
   if debug == True:
     print("RAW_TEXT - BEFORE\n")
     print(article.raw_text)
-  if kw is True:
-    article, events = update_v1_keywords(article, debug)
-    top_events.append(events)
+  # if nlp_kw is True:
+  #   article, events = update_v1_keywords(article, debug)
+  #   top_events.append(events)
   if summ is True:
     article, events = update_article_summary(article, debug)
     top_events.append(events)
