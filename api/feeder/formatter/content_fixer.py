@@ -3,7 +3,7 @@ from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_
 is_not_pi3 = True
 if is_not_pi3:
   from feeder.formatter.summarizer import summarize_nlp, summarize_nltk
-from feeder.formatter.article_formatter import raw_text_from_uri
+from feeder.formatter.article_formatter import raw_text_from_uri, filter_bbc, filter_dw, filter_none, filter_google_news
 from feeder.models.article import Article
 from feeder.models.source import Source
 from feeder.util.time_tools import date_time_string
@@ -73,7 +73,17 @@ def update_article_summary(article, debug):
   article.nlp_kw = nlp_kw
   return article, events
 
-def extract_content_kw(article, body_parser, kw=True, paragraphs=True, debug=False):
+def extract_content_kw(article, kw=True, paragraphs=True, debug=False):
+  article_formatter_hash = {
+    '2': filter_bbc,
+    '4': filter_dw,
+    '3': filter_none,
+    '5': filter_none,
+    '1': filter_google_news
+  }
+  # if body_parser is None:
+  parser_key = str(article.feed_feed_source_id) if article.feed_feed_source_id is None else '1'
+  body_parser = article_formatter_hash[parser_key]
   raw_text, paragraphs = raw_text_from_uri(article.url, body_parser)
   article.raw_text = raw_text
   article.paragraphs = paragraphs
