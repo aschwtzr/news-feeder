@@ -12,7 +12,7 @@ from feeder.util.time_tools import print_timestamp
 # fix_most_recent(12)
 # print(48*3)
 print_timestamp("START KEYWORD AND PARAGRAPGH EXTRACTION")
-articles = articles = fetch_articles_missing(hours_ago=2, keywords=True, paragraphs=True, debug=True)
+articles = articles = fetch_articles_missing(hours_ago=16, keywords=True, paragraphs=True, debug=True)
 extract_missing_features(articles,keywords=True, paragraphs=True, debug=False)
 print_timestamp("FINISH ARTICLE EXTRACTION, START ARTICLE FETCH 2")
 articles = articles = fetch_articles_missing(hours_ago=2, nlp_kw=True, summary=True, paragraphs=True, debug=True)

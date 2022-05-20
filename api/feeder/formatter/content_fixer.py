@@ -82,7 +82,7 @@ def extract_content_kw(article, kw=True, paragraphs=True, debug=False):
     '1': filter_google_news
   }
   # if body_parser is None:
-  parser_key = str(article.feed_feed_source_id) if article.feed_feed_source_id is None else '1'
+  parser_key = str(article.feed_source_id) if article.feed_source_id is not None else '1'
   body_parser = article_formatter_hash[parser_key]
   raw_text, paragraphs = raw_text_from_uri(article.url, body_parser)
   article.raw_text = raw_text
