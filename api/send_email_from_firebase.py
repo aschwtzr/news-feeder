@@ -1,3 +1,4 @@
+# earlier way of sending the email using firebase for the users and sources
 from feeder.emailer.emailer import run_digest
 from feeder.util import firebase
 from feeder.models.source import active_topics, topics_by_key, custom_google_source

@@ -1,6 +1,6 @@
 
 from feeder.models.source import active_topics, topics_by_key, custom_google_source, az_central, google
-from feeder.formatter.topic_mapper import fetch_articles, map_articles
+from feeder.reader.topic_mapper import fetch_articles, map_articles
 from feeder.extractor.rss_extractor import get_full_text
 # print_source_articles()
 

@@ -6,7 +6,7 @@ import pandas as pd
 
 from feeder.reader.reader import get_summary
 from feeder.util.api import summarize_text
-from feeder.formatter.content_fixer import extract_missing_features
+from feeder.util.content_fixer import extract_missing_features
 
 
 def build_email_body (topics, counts, dev_mode = False):

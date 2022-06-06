@@ -104,8 +104,8 @@ def find_source_id(url):
 
 def extract_nlp_summ_kw(article, nlp_kw=True, summ=True, debug=False):
   top_events = []
-  print(f"ARTICLE_ID: {article.id}")
   if debug == True:
+    print(f"ARTICLE_ID: {article.id}")
     print("RAW_TEXT - BEFORE\n")
     print(article.raw_text)
   # if nlp_kw is True:

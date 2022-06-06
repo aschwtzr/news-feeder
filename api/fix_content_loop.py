@@ -1,4 +1,4 @@
-from feeder.formatter.content_fixer import extract_nlp_summ_kw, fix_most_recent, extract_missing_features, fetch_articles_missing
+from feeder.util.content_fixer import extract_nlp_summ_kw, fix_most_recent, extract_missing_features, fetch_articles_missing
 from feeder.models.article import Article
 from feeder.util.time_tools import print_timestamp, date_time_string
 import time

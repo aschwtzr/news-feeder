@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from feeder.models.article import Article
-from feeder.formatter.content_fixer import extract_nlp_summ_kw
-from feeder.formatter.topic_mapper import map_article_relationships, keyword_frequency_map, map_topic, make_topics_map, print_topic_map
+from feeder.util.content_fixer import extract_nlp_summ_kw
+from feeder.reader.topic_mapper import map_article_relationships, keyword_frequency_map, map_topic, make_topics_map, print_topic_map
 import pandas as pd
 
 # make topic and summary map

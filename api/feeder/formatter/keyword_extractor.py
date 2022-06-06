@@ -77,6 +77,7 @@ def word_ranker (incoming, events=[]):
     events.append({'input': tmp, 'output': incoming, 'operation': 'clean_and_reduce_string_list'})
   mapped = {}
   sanitized = sanitize_string(incoming)
+  # print(events)
   events.append({'input':incoming, 'output': sanitized, 'operation': 'sanitize_string'})
 
   minus_stopwords = filter_stopwords_from_keywords(sanitized)

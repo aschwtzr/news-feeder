@@ -5,7 +5,6 @@ import json
 # feeder imports
 from feeder.formatter.keyword_extractor import keywords_from_string
 from feeder.formatter.summarizer import summarize_nlp, small_summarize_nlp, summarize_nltk
-import feeder.util.db as db
 from feeder.util.api import summarize_text
 from feeder.models.article import Article
 from feeder.models.topic import Topic
@@ -19,8 +18,8 @@ def map_articles(rows):
 def keyword_frequency_map(articles):
   kw_map = defaultdict(list)
   for article in articles:
-    # keywords = article.keywords + article.nlp_kw
-    keywords = article.nlp_kw if article.nlp_kw is not None else article.keywords
+    keywords = article.keywords + article.nlp_kw
+    # keywords = article.nlp_kw if article.nlp_kw is not None else article.keywords
     for keyword in keywords:
       kw_map[keyword].append(article.id)
   return dict(sorted(kw_map.items(), key=lambda item: len(item[1]), reverse=True))
@@ -79,17 +78,17 @@ def make_topics_map (processed, relationship_map, dataframe, debug=False):
 
 def print_topic_map(topic_map, dataframe):
   for k, values in topic_map.items():
-    print(values['keywords'])
-    print(len(values['articles']))
+    # print(values['keywords'])
+    # print(len(values['articles']))
     # print(values)
     titles = []
     for id in values['articles']:
       a = dataframe.loc[dataframe['id'] == id]
       titles.append(a.iloc[0]['title'])
-    for title in titles:
-      print(title)
-    print(' ')
-    print(' ')
+    # for title in titles:
+      # print(title)
+    # print(' ')
+    # print(' ')
 
 def map_topic(topic, dataframe):
   articles = []
@@ -116,20 +115,27 @@ def map_topic(topic, dataframe):
     if article.summary is not None:
       topic_summary += article.summary
   by_brief = sorted(articles, key=lambda x: x.date, reverse=True)
-  if len(articles) > 3:
+  if len(articles) > 2:
     reduced = " ".join(list(map(lambda x: x.summary if x.summary is not None else '', articles[:5])))
     summary = small_summarize_nlp(reduced)
     if len(summary) > 120:
+      print(summary)
       nlp_kw, events = keywords_from_string(summary)
       headline = summarize_nltk(summary, 1)
     else:
+      print(reduced)
       nlp_kw, events = keywords_from_string(reduced)
       headline = summarize_nltk(reduced, 1)
   else:
     reduced = " ".join(list(map(lambda x: x.summary if x.summary is not None else '', articles)))
-    nlp_kw, events = keywords_from_string(reduced, []) if len(articles) > 2 else list(map(lambda kw_arr: kw_arr[0] ,articles[0].nlp_kw)), []
+    print(reduced)
+    nlp_kw, events = keywords_from_string(reduced, []) if len(articles) > 2 else list(map(lambda kw_arr: list(map(lambda kw: kw[0], kw_arr)) , articles[0].nlp_kw)), []
     headline = summarize_nltk(reduced, 1) if len(articles) > 2 else articles[0].title
     summary = summarize_nltk(reduced, 3) if len(articles) > 2 else articles[0].summary
+  print(headline)
+  print(nlp_kw)
+  print(' ')
+  print(' ')
   return Topic(by_brief, topic['keywords'], headline, summary, nlp_kw)
 
 def map_topic_test(topic, dataframe):

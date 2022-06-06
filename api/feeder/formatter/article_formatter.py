@@ -72,11 +72,12 @@ def article_from_google_item (article, timestamp):
   events.append({'input': title, 'output': clean_title, 'operation': 'remove_publication_after_pipe'})
   source = article.find('font').get_text()
   res = get_full_text(a['href'])
-  filtered = filter_google_news(res['paragraphs'])
-  if res['ok'] == True:
+  if res['ok'] is True:
+    filtered = filter_google_news(res['paragraphs'])
     raw_text = res['text']
   else:
     raw_text = ''
+    filtered = []
   return article_from_soup_paragraphs(filtered, clean_title, a['href'], timestamp, events, source, 1)
 
 def filter_google_news(paragraphs):
@@ -148,11 +149,6 @@ def bbc(article):
     events.append({'input': defaults['text'], 'output': 'Failed to Extract defaults.', 'operation': 'common_fields'})
     return None, [], events
 
-def kw_art_top_json(soup, title, url, timestamp, events, source, source_feed_id):
-    article = article_from_soup_paragraphs(soup, title, url, timestamp, events, source, source_feed_id)
-    topic = {'articles': [article], 'keywords': []}
-    return topic, [article], events
-
 def filter_bbc(paragraphs):
   filtered = list(filter(lambda p: filter_in_class(p.get('class'), "Contributor"), paragraphs))
   return list(filter(lambda p: filter_in_class(p.get('class'), "PromoHeadline"), filtered))
@@ -175,7 +171,17 @@ def article_from_soup_paragraphs(soup_ps, title, url, timestamp, events, source,
     'source_feed_id': source_feed_id
   }
 
+def kw_art_top_json(soup, title, url, timestamp, events, source, source_feed_id):
+    """Extracts the keywords and constructs an Article and container Topic JSON
+    """
+    article = article_from_soup_paragraphs(soup, title, url, timestamp, events, source, source_feed_id)
+    topic = {'articles': [article], 'keywords': []}
+    return topic, [article], events
+
+# TODO: this could receive JSON from the method aboved
 def kw_art_top (raw_text, url, title, source, timestamp, paragraphs, source_feed_id):
+  """Extracts the keywords and constructs an Article and container Topic object
+  """
   keywords, events = keywords_from_text_title(raw_text, title)
   article = Article(source=source, url=url, title=title, raw_text=raw_text, date=timestamp, keywords=keywords, paragraphs=paragraphs, source_feed_id=source_feed_id)
   return Topic([article], keywords), keywords, article

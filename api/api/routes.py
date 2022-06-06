@@ -8,11 +8,10 @@ from collections import defaultdict
 from feeder.formatter.summarizer import summarize_nltk
 from feeder.formatter.keyword_extractor import keywords_from_text_title
 from feeder.reader.reader import get_summary
-from feeder.util.source_extractor import get_feeds
+from feeder.extractor.source_extractor import get_feeds
 from feeder.formatter.article_formatter import raw_text_from_uri
 from markupsafe import escape
 from feeder.util import time_tools
-from feeder.util.db import fetch_articles
 from playhouse.flask_utils import get_object_or_404, object_list
 
 @app.route('/')

@@ -33,3 +33,8 @@ api/Pipfile.lock
 vue-web/yarn.lock
 .idea
 api/.vscode/settings.json
+api/test.py
+api/deploy_flask.sh
+.env
+*.pyc
+*-checkpoint.py
