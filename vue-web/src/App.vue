@@ -2,14 +2,12 @@
   <div>
     <news-feed-tabs v-if="user" style="background-color: #F7F7FF; z-index: 10;"/>
     <div style="height: 100vh;  overflow-y: auto;">
-      <!-- padding-top: 42px; -->
       <router-view style="" class="section"/>
     </div>
   </div>
 </template>
 
 <script>
-// import firebase from 'firebase';
 import { mapState, mapActions } from 'vuex';
 import NewsFeedTabs from '@/components/NewsFeedTabs.vue';
 
@@ -29,7 +27,6 @@ export default {
     }),
   },
   mounted() {
-    // this.getAvailableSources();
   },
 };
 </script>
@@ -57,4 +54,3 @@ export default {
   }
   @import "~bulma";
 </style>
-<!--  // @import "~buefy/src/scss/buefy";-->

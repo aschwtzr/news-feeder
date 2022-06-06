@@ -19,10 +19,6 @@ export const getFeedSources = () => {
   return baseAxios.get('/sources');
 };
 
-export const getBriefings = () => {
-  return baseAxios.get('/briefings');
-};
-
 export const getTopics = () => {
   return baseAxios.get('/summaries');
 };
