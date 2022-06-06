@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from feeder.models.article import Article
-from feeder.formatter.content_fixer import clean_article_data
+from feeder.formatter.content_fixer import extract_nlp_summ_kw
 from feeder.formatter.topic_mapper import map_article_relationships, keyword_frequency_map, map_topic, make_topics_map, print_topic_map
 import pandas as pd
 
@@ -9,8 +9,8 @@ def get_summary(hours_ago=18):
   hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
   articles = Article.select().where((Article.date > hours_ago_date_time) & (Article.summary.is_null(False)))
   print(f"ARTICLES IS THIS MANY {len(articles)}")
-  processed = list(map(lambda article: clean_article_data(article, False, False, True), articles))
-  # processed = articles
+  processed = list(map(lambda article: extract_nlp_summ_kw(article, False, False, False), articles))
+  # processed = [article for article in articles.iterator()]
 
   mapped_kw = keyword_frequency_map(processed)
   # print(mapped_kw)
@@ -27,6 +27,7 @@ def get_summary(hours_ago=18):
       
   counts = {
     'articles': len(processed),
+    'reduction': len(mapped_topics_list) / len(processed),
     'topics': len(mapped_topics_list),
   }
   return {

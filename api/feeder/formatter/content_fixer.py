@@ -1,7 +1,12 @@
-from feeder.formatter.topic_mapper import keyword_frequency_map, map_article_relationships, make_topics_map, print_topic_map, map_topic
+
 from feeder.formatter.keyword_extractor import keywords_from_text_title, remove_known_junk
-from feeder.formatter.summarizer import summarize_nlp, small_summarize_nlp, summarize_nltk
+is_not_pi3 = True
+if is_not_pi3:
+  from feeder.formatter.summarizer import summarize_nlp, summarize_nltk
+from feeder.formatter.article_formatter import raw_text_from_uri, filter_bbc, filter_dw, filter_none, filter_google_news
 from feeder.models.article import Article
+from feeder.models.source import Source
+from feeder.util.time_tools import date_time_string
 from datetime import datetime, timedelta
 import pandas as pd
 import json
@@ -9,36 +14,24 @@ from functools import reduce
 import operator
 
 def fix_most_recent(hours_ago=12, nlp_kw= False, summary= False, keywords= False, raw_text= False, debug=True):
-  hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
-  articles = Article.select().where(Article.date > hours_ago_date_time)
-  process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug)
+  articles = fetch_articles_missing(hours_ago=hours_ago, keywords=True, raw_text=True, paragraphs=True, debug=debug)
+  process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug)
+
+# Defaults to only fetching articles missing post feed extraction data
+def fetch_articles_missing(hours_ago=48, nlp_kw=True, summary=True, keywords=False, raw_text=False, paragraphs=False, debug=True):
+  hours_ago_date_time = date_time_string(hours_ago)
+  return Article.select().where((Article.date > hours_ago_date_time) & ((Article.nlp_kw.is_null(nlp_kw)) | (Article.summary.is_null(summary)) | (Article.keywords.is_null(keywords)) | (Article.paragraphs.is_null(paragraphs))))
 
 # params override filters that prevent needlessly reprocessing data
-def extract_missing_features(hours_ago=48, nlp_kw=False, summary= False, keywords= False, raw_text= False, debug=True):
-  hours_ago_date_time = datetime.now() - timedelta(hours = hours_ago)
-  articles = Article.select().where((Article.date > hours_ago_date_time) & ((Article.nlp_kw.is_null(not nlp_kw)) | (Article.summary.is_null(not False)) | (Article.keywords.is_null(not False))) & (Article.raw_text.is_null(raw_text)))
-  process_article_list(articles, True, True, keywords, raw_text, debug)
+def extract_missing_features(articles, nlp_kw=False, summary=False, keywords= False, raw_text=False, paragraphs=False, debug=True):
+  process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug)
 
-def process_article_list(articles, nlp_kw, summary, keywords, raw_text, debug):
+def process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug):
   print(f"ARTICLES ARE THIS MANY: {len(articles)}\n")
-  processed = list(map(lambda article: clean_article_data(article, nlp_kw, summary, True), articles))
-  if debug == True:
-    mapped_kw = keyword_frequency_map(processed)
-    # print(mapped_kw)
-
-    relationship_map = map_article_relationships(processed, mapped_kw)
-    print(json.dumps(relationship_map, sort_keys=True, indent=2))
-
-    df = pd.DataFrame(data = list(map(lambda x: [x.source, x.url, x.title, x.date, x.id, x.keywords, x.raw_text, x.summary, x.nlp_kw], processed)), columns = ['source', 'url', 'title', 'date', 'id', 'keywords', 'content', 'summary', 'nlp_kw'])
-
-    topic_map = make_topics_map(processed, relationship_map, df)
-    mapped_topics = map(lambda tuple: map_topic(tuple[1], df), topic_map.items())
-    mapped_topics_list = sorted(list(mapped_topics), key=lambda topic: (len(topic.articles), topic.date), reverse=True)  
-    print_topic_map(topic_map, df)
-
-    i = iter(range(len(mapped_topics_list)))
-    while (x := next(i, None)) is not None and x < 10:
-      mapped_topics_list[x].woof()
+  if paragraphs is True or keywords is True:
+    articles = list(map(lambda article: extract_content_kw(article, keywords, paragraphs, debug), articles))
+  if nlp_kw is True or summary is True:
+    articles = list(map(lambda article: extract_nlp_summ_kw(article, nlp_kw, summary, debug), articles))
 
 def filter(filters):
   # https://stackoverflow.com/questions/53640958/combining-optional-passed-query-filters-in-peewee
@@ -51,33 +44,75 @@ def filter(filters):
 def update_v1_keywords(article, debug=False):
   cleaned = remove_known_junk(article.raw_text, True)
   article.raw_text = cleaned
-  keywords = keywords_from_text_title(cleaned, article.title)
+  keywords, events = keywords_from_text_title(cleaned, article.title)
   article.keywords = keywords
   if debug == True:
-    # print("AFTER\n")
-    # print(cleaned)
+    print("AFTER\n")
+    print(cleaned)
     print("\nKEYWORDS\n")
     print(keywords)
-  return article
+  return article, events
 
 def update_article_summary(article, debug):
   # TODO: split into nlp_kw and nlp summary
+  if article.paragraphs is not None:
+    end = len(article.paragraphs) / 2 if len(article.paragraphs) >= 10 else len(article.paragraphs) / 3
+    top_third = article.paragraphs[0:int(end)]
+    text = '. '.join(top_third)
+  else:
+    text = article.raw_text
   try:
-    summary = summarize_nlp(article.raw_text, debug)
+    if is_not_pi3:
+      summary = summarize_nlp(text, debug)
   except IndexError as e:
     print(f"unable to transform ID: {article.id}, trying NLTK")
-    summary = summarize_nltk(article.raw_text, 12)
+    if is_not_pi3:
+      summary = summarize_nltk(text, 12)
   article.summary = summary
-  article.nlp_kw = keywords_from_text_title(article.summary, article.title)
+  nlp_kw, events = keywords_from_text_title(article.summary, article.title)
+  article.nlp_kw = nlp_kw
+  return article, events
 
-def clean_article_data(article, kw=False, summ=False, debug=False):
+def extract_content_kw(article, kw=True, paragraphs=True, debug=False):
+  article_formatter_hash = {
+    '2': filter_bbc,
+    '4': filter_dw,
+    '3': filter_none,
+    '5': filter_none,
+    '1': filter_google_news
+  }
+  # if body_parser is None:
+  parser_key = str(article.feed_source_id) if article.feed_source_id is not None else '1'
+  body_parser = article_formatter_hash[parser_key]
+  raw_text, paragraphs = raw_text_from_uri(article.url, body_parser)
+  article.raw_text = raw_text
+  article.paragraphs = paragraphs
+  article.save()
+  return article
+
+def find_source_id(url):
+  if url.find('https://news.google.com/__i'):
+    return 1
+  if url.find('https://www.bbc.co'):
+    return 2
+  if url.find('https://www.theguardian.com'):
+    return 3
+  if url.find('https://www.dw.com'):
+    return 4
+  if url.find('http://rssfeeds.azcentral.com'):
+    return 5
+
+def extract_nlp_summ_kw(article, nlp_kw=True, summ=True, debug=False):
+  top_events = []
   print(f"ARTICLE_ID: {article.id}")
   if debug == True:
     print("RAW_TEXT - BEFORE\n")
     print(article.raw_text)
-  if kw is True:
-    update_v1_keywords(article, debug)
+  # if nlp_kw is True:
+  #   article, events = update_v1_keywords(article, debug)
+  #   top_events.append(events)
   if summ is True:
-    update_article_summary(article, debug)
+    article, events = update_article_summary(article, debug)
+    top_events.append(events)
   article.save()
   return article

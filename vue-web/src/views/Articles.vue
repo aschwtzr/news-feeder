@@ -4,16 +4,19 @@
       <!-- <div class=""> -->
         <div v-for="article in articles" :key="article.id">
           <article-card
-            :showSourceInHeader="true"
-            :source="article.source"
-            :title="article.title"
             :url="article.url"
-            :content="article.raw_text"
             :date="article.date"
-            :id="article.id"
+            :source="article.source"
+            :sourceId="article.source"
+            :title="article.title"
             :keywords="article.keywords"
+            :showSourceInHeader="true"
+            :raw_text="article.raw_text"
+            :paragraphs="article.paragraphs"
+            :id="article.id"
             :nlp_kw="article.nlp_kw"
-            :summary="article.summary"
+            :preview="article.summary"
+            :events="[]"
             />
         </div>
       <!-- </div> -->
@@ -26,7 +29,7 @@ import {
   mapActions,
   mapState,
 } from 'vuex';
-import ArticleCard from '@/components/article/ArticleCard.vue';
+import ArticleCard from '@/components/pipelines/ArticleCard.vue';
 
 export default {
   data() {

@@ -8,7 +8,7 @@ const memeAxios = axios.create({
 const baseAxios = axios.create({
   baseURL,
   responseType: 'json',
-  mode: 'cors',
+  mode: 'no-cors',
 });
 
 export const getArticles = () => {
@@ -17,10 +17,6 @@ export const getArticles = () => {
 
 export const getFeedSources = () => {
   return baseAxios.get('/sources');
-};
-
-export const getBriefings = () => {
-  return baseAxios.get('/briefings');
 };
 
 export const getTopics = () => {

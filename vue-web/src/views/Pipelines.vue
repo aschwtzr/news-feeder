@@ -51,9 +51,10 @@
             </div>
           </div>
         </div>
-        <div v-if="Object.keys(rawData).length > 0" class="tile is-parent">
-          <div class="is-tile is-parent is-vertical"
-            style="width: fill-available"
+        <div class="tile is-12">
+          <div
+            class="tile is-parent is-vertical"
+            v-if="Object.keys(rawData).length > 0"
             >
             <div
               v-for="feed in rawData"
@@ -72,7 +73,7 @@
                           >
                           {{topic.articles[0].length > 1 ? `Keywords: ${topic.keywords}` : ''}}
                           <div
-                            v-for="article in topic.articles[0]"
+                            v-for="article in topic.articles"
                             :key="`${article.url.substring(article.url.length - 1, 30)}_${feed.id}`"
                             >
                             <article-card
@@ -83,6 +84,8 @@
                               :title="article.title"
                               :keywords="article.keywords"
                               :raw_text="article.raw_text"
+                              :paragraphs="article.paragraphs"
+                              :events="article.events"
                             />
                           </div>
                         </div>

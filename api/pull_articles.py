@@ -1,3 +1,3 @@
-from feeder.extractor.rss_extractor import get_feeds
+from feeder.util.source_extractor import get_feeds
 
-get_feeds()
+get_feeds(limit=2)

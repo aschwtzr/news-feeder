@@ -18,57 +18,70 @@ big_custom_kw = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=d
 small_custom_kw = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_thresold, dedupFunc=deduplication_algo, windowsSize=windowSize, top=4, features=None)
 
 def keywords_from_text_title (text, title, debug=False):
+  events = []
   # strategy: 
   # 1. attempt to extract keywords from raw_text
   # 2. attempt to extract keywords from raw_text and title
   # 3. split a headline with split(' ')
-  output = keywords_from_string(text)
+  output, events = keywords_from_string(text, events)
   if len(output) < 2 and text is not None:
-    output = keywords_from_string(f"{title} {text}")
+    output, events = keywords_from_string(f"{title} {text}", events)
   if len(output) < 2:
-    output = word_ranker(f"{title} {text}")
+    output, events = word_ranker(f"{title} {text}", events)
   if debug == True:
     print(output)
-  return list(map(lambda kw: kw[0], output))
+  keywords = list(map(lambda kw: kw[0], output))
+  return keywords, events
 
 # get keywords from list of titles when body is not enough
 # TODO: remove and use single underlying keywords extractor
 # 
 def keywords_from_title_list (string_list):
   reduced = " ".join(list(map(lambda headline: remove_publication_after_pipe(headline), string_list)))
-  kw = keywords_from_string(reduced)
-  return list(map(lambda kw: kw[0], kw)) 
+  kw, events = keywords_from_string(reduced, [])
+  return list(map(lambda kw: kw[0], kw)), events
 
-def keywords_from_string (input):
+def keywords_from_string (input, events = []):
   keywords_from_text = []
   # sanitized = sanitize_string(input)
   try:
     # print('first try')
     keywords_from_text = big_custom_kw.extract_keywords(input)
+    events.append({'input': input, 'output': keywords_from_text, 'operation': 'big_custom_kw'})
     if len(keywords_from_text) >= 5:
-      return keywords_from_text
+      return keywords_from_text, events
   except IndexError as e:
     logging.warning(f"ERROR: {repr(e)} STRING: {input}")
+    events.append({'input': input, 'output': repr(e), 'operation': 'big_custom_kw'})
   except RuntimeError as e:
     logging.warning(f"ERROR: {repr(e)} STRING: {input}")
+    events.append({'input': input, 'output': repr(e), 'operation': 'big_custom_kw'})
   try:
     # print('second try')
-    keywords_from_text = small_custom_kw.extract_keywords(input)
+    keywords_from_text, events = small_custom_kw.extract_keywords(input)
+    events.append({'input': input, 'output': keywords_from_text, 'operation': 'small_custom_kw'})
     if len(keywords_from_text) >= 4:
-      return keywords_from_text
+      return keywords_from_text, events
   except:
     logging.warning("All keyword extractions failed.")
+  return [], events
 
   if len(keywords_from_text) < 1:
-    return []                       
-  return keywords_from_text
+    return [], events                       
+  # return keywords_from_text
 
-def word_ranker (incoming):
+def word_ranker (incoming, events=[]):
   if type(incoming) is list:
+    tmp = incoming
     incoming = clean_and_reduce_string_list(incoming)
+    events.append({'input': tmp, 'output': incoming, 'operation': 'clean_and_reduce_string_list'})
   mapped = {}
   sanitized = sanitize_string(incoming)
+  events.append({'input':incoming, 'output': sanitized, 'operation': 'sanitize_string'})
+
   minus_stopwords = filter_stopwords_from_keywords(sanitized)
+  events.append({'input': sanitized, 'output': minus_stopwords, 'operation': 'filter_stopwords_from_keywords'})
+  
   parsed = minus_stopwords.lower().split(' ')
   for key in parsed:
     if key in mapped.keys():
@@ -77,7 +90,8 @@ def word_ranker (incoming):
       mapped[key] = 1
   sorted_keywords = {k: v for k, v in sorted(mapped.items(), key=lambda item: item[1], reverse=True)}
   filtered = filter(lambda pair: pair[1] >= 2 and len(pair[0]) >= 3, sorted_keywords.items())
-  return list(map(lambda pair: pair, list(filtered)))
+  events.append({'input': sorted_keywords.items(), 'output': filtered, 'operation': 'filter_and_sort_kw'})
+  return list(map(lambda pair: pair, list(filtered))), events
 
 # KEYWORD UTILS FOR CLEANING STRINGS
 

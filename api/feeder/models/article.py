@@ -12,6 +12,7 @@ class Article(BaseModel):
   date = DateTimeTZField()
   url = TextField()
   title = TextField()
+  feed_source_id = IntegerField()
   # sanitized body of the article
   raw_text = TextField(column_name='content')
   # keywords from v1 pipeline extraction
@@ -21,6 +22,9 @@ class Article(BaseModel):
   summary = TextField(column_name='smr_summary')
   # nlp api keywords
   nlp_kw = ArrayField(column_name='smr_keywords')
+  named_entities = ArrayField()
+  paragraphs = ArrayField()
+  skip_extract = BooleanField()
   
   def get_smmry(self):
     text = get_summary(self.url)

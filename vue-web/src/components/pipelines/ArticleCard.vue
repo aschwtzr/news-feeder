@@ -6,7 +6,9 @@
       { content: source, size:'is-one' },
       { content: title, size:'' },
     ]"
+    :preview="preview"
     :keywords="keywords"
+    :nlp_kw="nlp_kw"
     :id="id"
     :buttons="[{
       title: 'Source',
@@ -26,12 +28,12 @@
     {
       title: 'Extract Keywords',
       class: () => '',
-      callback: () => openArticle(url),
+      callback: extractKeywords,
     },
     {
       title: 'Extract Summary',
       class: () => '',
-      callback: () => openArticle(url),
+      callback: extractSummary,
     },
     {
       title: 'Extract Features',
@@ -40,32 +42,57 @@
     }
     ]"
     >
-    <div>
-      {{raw_text}}
-    </div>
-    <br/>
-    <div v-for="(event, idx) in pipelineEvents" :key="`pe_event_${idx}_${id}`">
-      <div>{{event.operation}}</div>
-      <div>{{event.input}}</div>
-      <div>{{event.output}}</div>
+    <div @click="showParagraphs = !showParagraphs">
+      <button class="button">
+        {{ showParagraphs ? 'Hide' : 'Show' }} Content
+      </button>
+      <div v-show="showParagraphs">
+        <div v-for="(para, idx) in paragraphs" :key="`${id}-${para.substring(0, 10)}-${idx}`">
+          <div>{{para}}</div>
+          <br/>
+        </div>
       <br/>
+      </div>
+    </div>
+    <div v-for="(event, idx) in pipelineEvents" :key="`pe_event_${idx}_${id}`">
+      <pipeline-event
+        :operation="event.operation"
+        :input="event.input"
+        :output="event.output"
+      />
     </div>
   </card>
 </template>
 
 <script>
 import Card from '../Card.vue';
+import PipelineEvent from './PipelineEvent.vue';
 import { extractContent } from '../../util/api';
 
 export default {
   name: 'PipelinesArticleCard',
-  props: ['url', 'id', 'date', 'source', 'title', 'keywords', 'raw_text', 'sourceId'],
+  props: [
+    'url',
+    'id',
+    'date',
+    'source',
+    'title',
+    'keywords',
+    'nlp_kw',
+    'raw_text',
+    'sourceId',
+    'paragraphs',
+    'events',
+    'preview',
+  ],
   components: {
     Card,
+    PipelineEvent,
   },
   data() {
     return {
       pipelineEvents: [],
+      showParagraphs: false,
     };
   },
   methods: {
@@ -80,9 +107,37 @@ export default {
         url: this.url,
         content: true,
       }).then(function (res) {
-        this.pipelineEvents.push(res.data);
+        this.pipelineEvents = [...this.pipelineEvents, ...res.data];
+        // this.pipelineEvents.push(res.data);
       }.bind(this));
     },
+    async extractSummary() {
+      /* eslint-disable func-names */
+      /* eslint-disable prefer-arrow-callback */
+      await extractContent({
+        paragraphs: this.paragraphs,
+        rawText: this.raw_text,
+        summary: true,
+      }).then(function (res) {
+        this.pipelineEvents = [...this.pipelineEvents, ...res.data];
+        // this.pipelineEvents.push(res.data);
+      }.bind(this));
+    },
+    async extractKeywords() {
+      /* eslint-disable func-names */
+      /* eslint-disable prefer-arrow-callback */
+      await extractContent({
+        paragraphs: this.paragraphs,
+        title: this.title,
+        keywords: true,
+      }).then(function (res) {
+        this.pipelineEvents = [...this.pipelineEvents, ...res.data];
+        // this.pipelineEvents.push(res.data);
+      }.bind(this));
+    },
+  },
+  mounted() {
+    this.pipelineEvents = [...this.events];
   },
 };
 </script>
