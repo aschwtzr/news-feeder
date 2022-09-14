@@ -18,7 +18,7 @@ def map_articles(rows):
 def keyword_frequency_map(articles):
   kw_map = defaultdict(list)
   for article in articles:
-    keywords = article.keywords + article.nlp_kw
+    keywords = article.keywords + article.nlp_kw if article.nlp_kw is not None else article.keywords
     # keywords = article.nlp_kw if article.nlp_kw is not None else article.keywords
     for keyword in keywords:
       kw_map[keyword].append(article.id)
@@ -129,7 +129,7 @@ def map_topic(topic, dataframe):
   else:
     reduced = " ".join(list(map(lambda x: x.summary if x.summary is not None else '', articles)))
     print(reduced)
-    nlp_kw, events = keywords_from_string(reduced, []) if len(articles) > 2 else list(map(lambda kw_arr: list(map(lambda kw: kw[0], kw_arr)) , articles[0].nlp_kw)), []
+    nlp_kw, events = keywords_from_string(reduced, []) if len(articles) > 2 else keywords_from_string(articles[0].summary, [])
     headline = summarize_nltk(reduced, 1) if len(articles) > 2 else articles[0].title
     summary = summarize_nltk(reduced, 3) if len(articles) > 2 else articles[0].summary
   print(headline)

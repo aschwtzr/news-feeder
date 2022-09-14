@@ -17,13 +17,16 @@ def fix_most_recent(hours_ago=12, nlp_kw= False, summary= False, keywords= False
   articles = fetch_articles_missing(hours_ago=hours_ago, keywords=True, raw_text=True, paragraphs=True, debug=debug)
   process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug)
 
-# Defaults to only fetching articles missing post feed extraction data
+
 def fetch_articles_missing(hours_ago=48, nlp_kw=True, summary=True, keywords=False, raw_text=False, paragraphs=False, debug=True):
+  """ Defaults to only fetching articles missing post feed extraction data
+      i.e. articles are missing summary after extraction, so the default fetches those
+  """
   hours_ago_date_time = date_time_string(hours_ago)
   return Article.select().where((Article.date > hours_ago_date_time) & ((Article.nlp_kw.is_null(nlp_kw)) | (Article.summary.is_null(summary)) | (Article.keywords.is_null(keywords)) | (Article.paragraphs.is_null(paragraphs))))
 
-# params override filters that prevent needlessly reprocessing data
 def extract_missing_features(articles, nlp_kw=False, summary=False, keywords= False, raw_text=False, paragraphs=False, debug=True):
+  "params override filters that prevent needlessly reprocessing data"
   process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug)
 
 def process_article_list(articles, nlp_kw, summary, keywords, raw_text, paragraphs, debug):

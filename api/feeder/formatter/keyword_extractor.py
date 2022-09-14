@@ -8,14 +8,32 @@ from nltk.corpus import stopwords
 import nltk
 
 language = "en"
-max_ngram_size = 3
+max_ngram_size = 2
 deduplication_thresold = 0.9
-deduplication_algo = 'seqm'
+deduplication_algo = 'seqm' # leve|jaro|seqm
 windowSize = 1
-numOfKeywords = 6
+large_kw_count = 6
+small_kw_count = 6
 
 big_custom_kw = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_thresold, dedupFunc=deduplication_algo, windowsSize=windowSize, top=6, features=None)
 small_custom_kw = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_thresold, dedupFunc=deduplication_algo, windowsSize=windowSize, top=4, features=None)
+
+def keywords_from_paragraphs_title (paragraphs, title):
+  # chop content to the top third 
+  end = len(paragraphs) / 2 if len(paragraphs) >= 10 else len(paragraphs) / 3
+  print(f"PARAGRAPHS: {len(paragraphs)}")
+  print(f"END P INDEX: {int(end)}")
+
+  top_third = paragraphs[0:int(end)]
+  text = '. '.join(paragraphs)
+  print(text)
+  kw, events = keywords_from_text_title(text, title)
+  events.append({
+    'operation': 'keywords_from_text_title',
+    'input': f"TITLE: {title}\n\n TEXT: {text}",
+    'output': kw
+  })
+  return kw, events
 
 def keywords_from_text_title (text, title, debug=False):
   events = []
@@ -80,10 +98,7 @@ def word_ranker (incoming, events=[]):
   # print(events)
   events.append({'input':incoming, 'output': sanitized, 'operation': 'sanitize_string'})
 
-  minus_stopwords = filter_stopwords_from_keywords(sanitized)
-  events.append({'input': sanitized, 'output': minus_stopwords, 'operation': 'filter_stopwords_from_keywords'})
-  
-  parsed = minus_stopwords.lower().split(' ')
+  parsed = sanitized.lower().split(' ')
   for key in parsed:
     if key in mapped.keys():
       mapped[key] += 1
@@ -109,6 +124,8 @@ def remove_known_junk(string, keep_keywords=False):
   string = re.sub(r"1998-2022 Nexstar Media", '', string)
   string = re.sub(r"(Sign up for.*).", '', string)
   string = re.sub(r"(© 2021 CNBC.*)", '', string)
+  string = re.sub(r"(\d+ hours ago \(\d+:\d+ \w+\))", '', string)
+  string = re.sub(r"(These were the updates on \w+, \w* \d*:*.)", '', string)
   string = re.sub(r"(\\n\\n.*\\n\\n)", '', string)
   string = re.sub(r'© 2022 Deutsche Welle(.*)\n', '', string)
   string = re.sub(r'Privacy Policy(.*)\n', '', string)
@@ -119,6 +136,7 @@ def remove_known_junk(string, keep_keywords=False):
   string = re.sub(r'sdi/wmr (\w*)', '', string)
   string = re.sub(r'\xa0 ', '', string)
   string = re.sub(r'ADVERTISEMENT$', '', string)
+  string = re.sub(r'Please enable JS and disable any ad blocker', '', string)
   string = re.sub(r'Edited by: ((\w* )*)\n', '', string)
   string = re.sub(r'View the discussion thread,', '', string)
   string = re.sub(r'Last modified on (\w*) (\d*) (\w*) (\d*) (\d*).(\d*) (\w*)', '', string)

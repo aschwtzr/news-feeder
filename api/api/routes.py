@@ -6,7 +6,7 @@ from feeder.models.source import Source
 from feeder.models.article import Article
 from collections import defaultdict
 from feeder.formatter.summarizer import summarize_nltk
-from feeder.formatter.keyword_extractor import keywords_from_text_title
+from feeder.formatter.keyword_extractor import keywords_from_text_title, keywords_from_paragraphs_title
 from feeder.reader.reader import get_summary
 from feeder.extractor.source_extractor import get_feeds
 from feeder.formatter.article_formatter import raw_text_from_uri
@@ -124,17 +124,8 @@ def extract_article_data(*kwargs):
   if ext_keywords is True:
     paragraphs = request.json.get('paragraphs')
     title = request.json.get('title')
-    end = len(paragraphs) / 2 if len(paragraphs) >= 10 else len(paragraphs) / 3
-    # print(f"PARAGRAPHS: {len(paragraphs)}")
-    # print(f"END P INDEX: {int(end)}")
-    top_third = paragraphs[0:int(end)]
-    text = '. '.join(paragraphs)
-    kw, events = keywords_from_text_title(text, title)
-    events.append({
-      'operation': 'keywords_from_text_title',
-      'input': f"TITLE: {title}\n\n TEXT: {text}",
-      'output': kw
-    })
+    
+    kw, events = keywords_from_paragraphs_title(paragraphs, title)
     res = events
   # if ext_summary is True:
   #   paragraphs = request.json.get('paragraphs')
